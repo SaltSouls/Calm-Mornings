@@ -26,7 +26,6 @@ public class PlayerWakeUp {
     public static void onPlayerWakeup(PlayerWakeUpEvent event) {
         Player player = event.getEntity();
         Level level = player.level;
-        boolean skyCheck = level.canSeeSky(player.getOnPos());
         int r = Config.radius;
         int h = Config.height;
         double x = player.getX();
