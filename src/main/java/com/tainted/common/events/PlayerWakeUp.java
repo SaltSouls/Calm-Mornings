@@ -44,16 +44,12 @@ public class PlayerWakeUp {
                 }
             } else if (level.getDifficulty() == Difficulty.NORMAL) {
                 for (Entity entity : level.getEntities(null, a1)) {
-
-                    System.out.println("Distance to Player: " + entity.distanceTo(player));
                     if (isHostile(entity) && !entity.hasCustomName() && entity.distanceTo(player) >= Config.anticheese) {
                         entity.discard();
                     }
                 }
             } else if (level.getDifficulty() == Difficulty.HARD) {
                 for (Entity entity : level.getEntities(null, a2)) {
-
-                    System.out.println("Distance to Player: " + entity.distanceTo(player));
                     if (isHostile(entity) && !entity.hasCustomName() && entity.distanceTo(player) >= (Config.anticheese * 2)) {
                         entity.discard();
                     }
