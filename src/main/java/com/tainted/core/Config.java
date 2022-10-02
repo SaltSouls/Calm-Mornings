@@ -8,6 +8,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 @Mod.EventBusSubscriber(modid = CalmMornings.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class Config {
+
     public static final Common COMMON;
     public static final ForgeConfigSpec COMMON_SPEC;
     static {
@@ -18,6 +19,7 @@ public class Config {
 
     public static int radius;
     public static int height;
+    public static double anticheese;
 
     @SubscribeEvent
     public static void onModConfigEvent(final ModConfigEvent configEvent) {
@@ -35,6 +37,7 @@ public class Config {
 
         public final ForgeConfigSpec.IntValue radius;
         public final ForgeConfigSpec.IntValue height;
+        public final ForgeConfigSpec.DoubleValue anticheese;
 
         public Common(ForgeConfigSpec.Builder builder) {
             builder.push("Calm Mornings Config");
@@ -51,8 +54,15 @@ public class Config {
                     Only effects EASY difficulty. NORMAL = 16 | HARD = 0""")
                     .translation(CalmMornings.MODID + ".config." + "height")
                     .defineInRange("height", () -> 32, 0, 384);
+            anticheese = builder.comment("""
+                    Checks for a radius near the player to see if mobs are considered too close to be removed. | Default: 2.5
+                    Difficulty will effect the max radius in which it checks. See below:
+                    NORMAL = base | HARD = base * 2""")
+                    .translation(CalmMornings.MODID + ".config." + "anticheese")
+                    .defineInRange("anti cheese radius", () -> 2.5, 0, 25);
 
             builder.pop();
         }
     }
+
 }

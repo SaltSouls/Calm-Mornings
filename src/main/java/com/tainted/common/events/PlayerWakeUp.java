@@ -16,16 +16,16 @@ import net.minecraftforge.fml.common.Mod;
 public class PlayerWakeUp {
 
     public static boolean isHostile(Entity entity) {
-        if (!(entity.getType() == EntityType.ENDER_DRAGON) || !(entity.getType() == EntityType.WITHER)) {
+        if (!(entity.getType() == EntityType.ENDER_DRAGON) || !(entity.getType() == EntityType.WITHER || !(entity.getType() == EntityType.ELDER_GUARDIAN) || !(entity.getType() == EntityType.GUARDIAN))) {
             return entity.getType().getCategory() == MobCategory.MONSTER;
         }
         return false;
     }
 
     @SubscribeEvent
-    public static void onPlayerWakeUp(PlayerWakeUpEvent event) {
+    public static void onPlayerWakeup(PlayerWakeUpEvent event) {
         Player player = event.getPlayer();
-        Level level = event.getPlayer().level;
+        Level level = player.level;
         int r = Config.radius;
         int h = Config.height;
         double x = player.getX();
@@ -44,17 +44,18 @@ public class PlayerWakeUp {
                 }
             } else if (level.getDifficulty() == Difficulty.NORMAL) {
                 for (Entity entity : level.getEntities(null, a1)) {
-                    if (isHostile(entity) && !entity.hasCustomName()) {
+                    if (isHostile(entity) && !entity.hasCustomName() && entity.distanceTo(player) >= Config.anticheese) {
                         entity.discard();
                     }
                 }
             } else if (level.getDifficulty() == Difficulty.HARD) {
                 for (Entity entity : level.getEntities(null, a2)) {
-                    if (isHostile(entity) && !entity.hasCustomName()) {
+                    if (isHostile(entity) && !entity.hasCustomName() && entity.distanceTo(player) >= (Config.anticheese * 2)) {
                         entity.discard();
                     }
                 }
             }
         }
     }
+
 }
