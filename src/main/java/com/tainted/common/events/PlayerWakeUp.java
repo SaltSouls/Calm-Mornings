@@ -32,8 +32,8 @@ public class PlayerWakeUp {
         double y = player.getY();
         double z = player.getZ();
         AABB a0 = new AABB(x - r, y - h, z - r, x + r, y + h, z + r);
-        AABB a1 = new AABB(x - Math.round(r/2.0), y - 16, z - Math.round(r/2.0), x + Math.round(r/2.0), y + 16, z + Math.round(r/2.0));
-        AABB a2 = new AABB(x - Math.round(r/4.0), y - 0, z - Math.round(r/4.0), x + Math.round(r/4.0), y + 0, z + Math.round(r/4.0));
+        AABB a1 = new AABB(x - Math.round(r/2.0), y - Math.round(h/2.0), z - Math.round(r/2.0), x + Math.round(r/2.0), y + Math.round(h/2.0), z + Math.round(r/2.0));
+        AABB a2 = new AABB(x - Math.round(r/4.0), y - Math.round(h/4.0), z - Math.round(r/4.0), x + Math.round(r/4.0), y + Math.round(h/4.0), z + Math.round(r/4.0));
 
         if (!level.isClientSide && !event.wakeImmediately() && level.getDifficulty() != Difficulty.PEACEFUL) {
             if (level.getDifficulty() == Difficulty.EASY) {

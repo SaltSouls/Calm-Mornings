@@ -43,23 +43,23 @@ public class Config {
             builder.push("Calm Mornings Config");
 
             radius = builder.comment("""
-                    Base horizontal radius(in blocks) in which enemies despawn around player upon waking | Default: 128
-                    Difficulty will effect the max radius in which the entities despawn. See below:
-                    EASY = base | NORMAL = base / 2 | HARD = base / 4""")
+                    Base horizontal radius(in blocks) in which enemies despawn around player upon waking.
+                    Difficulty will effect the max range in which it checks.
+                    EASY: base | NORMAL: base / 2 | HARD: base / 4 | Default: 64""")
                     .translation(CalmMornings.MODID + ".config." + "radius")
-                    .defineInRange("radius", () -> 128, 0, 2048);
+                    .defineInRange("radius", () -> 64, 0, 256);
             height = builder.comment("""
-                    Base vertical radius(in blocks) in which enemies despawn around player upon waking | Default: 32
-                    Difficulty will effect the max radius in which the entities despawn. See below:
-                    Only effects EASY difficulty. NORMAL = 16 | HARD = 0""")
+                    Base vertical radius(in blocks) in which enemies despawn around player upon waking.
+                    Difficulty will effect the max range in which it checks.
+                    EASY: base | NORMAL: base / 2 | HARD: base / 4 | Default: 16""")
                     .translation(CalmMornings.MODID + ".config." + "height")
-                    .defineInRange("height", () -> 32, 0, 384);
+                    .defineInRange("height", () -> 16, 0, 64);
             anticheese = builder.comment("""
-                    Checks for a radius near the player to see if mobs are considered too close to be removed. | Default: 2.5
-                    Difficulty will effect the max radius in which it checks. See below:
-                    NORMAL = base | HARD = base * 2""")
+                    Checks for a radius near the player to see if mobs are considered too close to be removed.
+                    Difficulty will effect the max range in which it checks.
+                    EASY: Disabled | NORMAL: base | HARD: base * 2 | Default: 2.5""")
                     .translation(CalmMornings.MODID + ".config." + "anticheese")
-                    .defineInRange("anti cheese radius", () -> 2.5, 0, 25);
+                    .defineInRange("anti-cheese", () -> 2.5, 0, 25);
 
             builder.pop();
         }
