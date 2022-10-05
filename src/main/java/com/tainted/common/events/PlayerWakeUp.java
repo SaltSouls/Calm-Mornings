@@ -1,10 +1,9 @@
 package com.tainted.common.events;
 
-import com.tainted.core.Config;
+import com.tainted.common.Config;
+import com.tainted.common.utils.SleepUtils;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
@@ -15,43 +14,43 @@ import net.minecraftforge.fml.common.Mod;
 @Mod.EventBusSubscriber()
 public class PlayerWakeUp {
 
-    public static boolean isHostile(Entity entity) {
-        if (!(entity.getType() == EntityType.ENDER_DRAGON) || !(entity.getType() == EntityType.WITHER || !(entity.getType() == EntityType.ELDER_GUARDIAN) || !(entity.getType() == EntityType.GUARDIAN))) {
-            return entity.getType().getCategory() == MobCategory.MONSTER;
-        }
-        return false;
-    }
-
     @SubscribeEvent
     public static void onPlayerWakeup(PlayerWakeUpEvent event) {
         Player player = event.getPlayer();
         Level level = player.level;
-        int r = Config.radius;
-        int h = Config.height;
+        int v = Config.VERTICAL_RANGE;
+        int h = Config.HORIZONTAL_RANGE;
         double x = player.getX();
         double y = player.getY();
         double z = player.getZ();
-        AABB a0 = new AABB(x - r, y - h, z - r, x + r, y + h, z + r);
-        AABB a1 = new AABB(x - Math.round(r/2.0), y - Math.round(h/2.0), z - Math.round(r/2.0), x + Math.round(r/2.0), y + Math.round(h/2.0), z + Math.round(r/2.0));
-        AABB a2 = new AABB(x - Math.round(r/4.0), y - Math.round(h/4.0), z - Math.round(r/4.0), x + Math.round(r/4.0), y + Math.round(h/4.0), z + Math.round(r/4.0));
 
         if (!level.isClientSide && !event.wakeImmediately() && level.getDifficulty() != Difficulty.PEACEFUL) {
-            if (level.getDifficulty() == Difficulty.EASY) {
-                for (Entity entity : level.getEntities(null, a0)) {
-                    if (isHostile(entity) && !entity.hasCustomName()) {
-                        entity.discard();
+            System.out.println("Time: " + level.getDayTime());
+            if (SleepUtils.isDay(level)) {
+                if (level.getDifficulty() == Difficulty.EASY) {
+                    AABB area = new AABB(x - h, y - v, z - h, x + h, y + v, z + h);
+                    for (Entity entity : level.getEntities(null, area)) {
+                        if (SleepUtils.shouldDespawn(entity) && !entity.hasCustomName()) {
+                            entity.discard();
+                        }
                     }
-                }
-            } else if (level.getDifficulty() == Difficulty.NORMAL) {
-                for (Entity entity : level.getEntities(null, a1)) {
-                    if (isHostile(entity) && !entity.hasCustomName() && entity.distanceTo(player) >= Config.anticheese) {
-                        entity.discard();
+                } else if (level.getDifficulty() == Difficulty.NORMAL) {
+                    AABB area = new AABB(x - Math.round(h/2.0), y - Math.round(v/2.0), z - Math.round(h/2.0),
+                            x + Math.round(h/2.0), y + Math.round(v/2.0), z + Math.round(h/2.0));
+                    for (Entity entity : level.getEntities(null, area)) {
+                        if (SleepUtils.shouldDespawn(entity) && !entity.hasCustomName()
+                                && entity.distanceTo(player) >= Config.ANTI_CHEESE) {
+                            entity.discard();
+                        }
                     }
-                }
-            } else if (level.getDifficulty() == Difficulty.HARD) {
-                for (Entity entity : level.getEntities(null, a2)) {
-                    if (isHostile(entity) && !entity.hasCustomName() && entity.distanceTo(player) >= (Config.anticheese * 2)) {
-                        entity.discard();
+                } else if (level.getDifficulty() == Difficulty.HARD) {
+                    AABB area = new AABB(x - Math.round(h/4.0), y - Math.round(v/4.0), z - Math.round(h/4.0),
+                            x + Math.round(h/4.0), y + Math.round(v/4.0), z + Math.round(h/4.0));
+                    for (Entity entity : level.getEntities(null, area)) {
+                        if (SleepUtils.shouldDespawn(entity) && !entity.hasCustomName()
+                                && entity.distanceTo(player) >= (Config.ANTI_CHEESE * 2)) {
+                            entity.discard();
+                        }
                     }
                 }
             }
