@@ -8,6 +8,7 @@ import net.minecraft.world.level.Level;
 
 public class SleepUtils {
 
+
     public static boolean shouldDespawn(Entity entity) {
         EntityType<?> type = entity.getType();
         if(Config.ENABLE_LIST) {
@@ -24,4 +25,9 @@ public class SleepUtils {
         long getTime = level.getDayTime();
         return getTime % 24000 < 100;
     }
+    public static boolean isNearMorning(Level level) {
+        long getTime = level.getDayTime();
+        return getTime % 22500 < 12500;
+    }
+
 }

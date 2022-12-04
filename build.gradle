@@ -8,7 +8,7 @@ group = 'com.tainted.calmmornings'
 version = "${mc_version}-${mod_version}"
 
 java {
-    archivesBaseName = 'CalmMornings'
+    archivesBaseName = 'calm-mornings'
     toolchain.languageVersion = JavaLanguageVersion.of(17)
 }
 
