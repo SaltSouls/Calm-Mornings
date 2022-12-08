@@ -11,7 +11,7 @@ displayURL="https://www.curseforge.com/minecraft/mc-mods/calm-mornings"
 description = '''
 Despawns hostile entities in a configurable radius around the player upon waking. No more stressful mornings worrying about creepers lurking outside your front door.'''
 authors = "TwinSouls"
-credits="Kreezxil, MacTso, vectorwing"
+credits="Kreezxil, MacTso, vectorwing, Random"
 [modproperties.calmmornings]
 catalogueImageIcon = "icon.png"
 [[dependencies.calmmornings]]

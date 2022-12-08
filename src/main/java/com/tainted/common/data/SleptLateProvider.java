@@ -11,37 +11,31 @@ import net.minecraftforge.common.util.LazyOptional;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-public class IsLateProvider implements ICapabilityProvider, INBTSerializable<CompoundTag> {
+public class SleptLateProvider implements ICapabilityProvider, INBTSerializable<CompoundTag> {
 
+    public static Capability<SleptLateData> SLEPT_LATE = CapabilityManager.get(new CapabilityToken<SleptLateData>() { });
+    private SleptLateData sleptLate = null;
+    private final LazyOptional<SleptLateData> optional = LazyOptional.of(this::createPlayerSleptLate);
 
-    public static Capability<IsLate> SLEPT_LATE = CapabilityManager.get(new CapabilityToken<>(){});
-    private IsLate isLate = null;
-    private final LazyOptional<IsLate> opt = LazyOptional.of(this::createSleepTime);
-
-    private IsLate createSleepTime() {
-        if (isLate == null) { isLate = new IsLate(); }
-        return isLate;
+    private SleptLateData createPlayerSleptLate() {
+        if (this.sleptLate == null) { this.sleptLate = new SleptLateData(); }
+        return this.sleptLate;
     }
 
     @Override
     public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap, @Nullable Direction side) {
-        if (cap == SLEPT_LATE) { return opt.cast(); }
+        if (cap == SLEPT_LATE) { return optional.cast(); }
         return LazyOptional.empty();
-    }
-
-    @Override
-    public @NotNull <T> LazyOptional<T> getCapability(@NotNull Capability<T> cap) {
-        return ICapabilityProvider.super.getCapability(cap);
     }
 
     @Override
     public CompoundTag serializeNBT() {
         CompoundTag nbt = new CompoundTag();
-        createSleepTime().saveNBTData(nbt);
+        createPlayerSleptLate().saveNBTData(nbt);
         return nbt;
     }
 
     @Override
-    public void deserializeNBT(CompoundTag nbt) { createSleepTime().loadNBTData(nbt); }
+    public void deserializeNBT(CompoundTag nbt) { createPlayerSleptLate().loadNBTData(nbt); }
 
 }
