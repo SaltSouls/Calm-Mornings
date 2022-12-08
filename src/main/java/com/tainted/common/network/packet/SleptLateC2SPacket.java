@@ -24,7 +24,7 @@ public class SleptLateC2SPacket {
     public boolean handle(@NotNull Supplier<NetworkEvent.Context> supplier) {
         NetworkEvent.Context ctx = supplier.get();
         ctx.enqueueWork(() -> {
-            //SET AND SEND PLAYER CAPABILITY ON THE SERVER DEPENDING ON GIVEN CONDITIONS
+            //SET AND SEND PLAYER CAPABILITY TO THE SERVER DEPENDING ON GIVEN CONDITIONS
             ServerPlayer player = ctx.getSender();
             if (player == null) throw new AssertionError("Player should not be null!");
             ServerLevel level = player.getLevel();
