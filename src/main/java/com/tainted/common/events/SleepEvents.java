@@ -82,9 +82,9 @@ public class SleepEvents {
                                             AABB area1 = SleepUtils.newAABB(others, 8.0D * (scaling / 2.0D), 6.0D);
                                             AABB exclusion = area1.intersect(area);
                                             SleepUtils.despawnSelected(level, player, area, exclusion, ac);
-                                        }
+                                            //DESPAWN ENTITIES IF ANY OF THE REST DON'T CHECK OUT
+                                        } else { SleepUtils.despawnSelected(level, player, area, ac); }
                                     }
-                                    //DESPAWN ENTITIES IF ANY OF THE REST DON'T CHECK OUT
                                 } else { SleepUtils.despawnSelected(level, player, area, ac); }
                             } else { SleepUtils.despawnSelected(level, player, area, ac); }
                         } else { SleepUtils.despawnSelected(level, player, area, ac); }
