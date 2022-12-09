@@ -1,7 +1,6 @@
 package com.tainted.common.network;
 
 import com.tainted.CalmMornings;
-import com.tainted.common.network.packet.SleptLateC2SPacket;
 import com.tainted.common.network.packet.SleptLateDataS2CPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -31,21 +30,11 @@ public class PacketHandler {
 
         INSTANCE = net;
 
-        net.messageBuilder(SleptLateC2SPacket.class, id(), NetworkDirection.PLAY_TO_SERVER)
-                .decoder(SleptLateC2SPacket::new)
-                .encoder(SleptLateC2SPacket::toBytes)
-                .consumerMainThread(SleptLateC2SPacket::handle)
-                .add();
-
         net.messageBuilder(SleptLateDataS2CPacket.class, id(), NetworkDirection.PLAY_TO_CLIENT)
                 .decoder(SleptLateDataS2CPacket::new)
                 .encoder(SleptLateDataS2CPacket::toBytes)
                 .consumerMainThread(SleptLateDataS2CPacket::handle)
                 .add();
-    }
-
-    public static <MSG> void sendToServer(MSG message) {
-        INSTANCE.sendToServer(message);
     }
 
     public static <MSG> void sendToPlayer(MSG message, ServerPlayer player) {

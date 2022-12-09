@@ -20,7 +20,7 @@ minecraft {
     mappings channel: "${mappings_channel}", version: "${mappings_version}"
     runs {
         client {
-            workingDirectory project.file('run')
+            workingDirectory project.file('run\\client\\main')
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
             property 'forge.enabledGameTestNamespaces', 'calmmornings'
@@ -32,8 +32,21 @@ minecraft {
             }
         }
 
+        client2 {
+            workingDirectory project.file('run\\client\\secondary')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            property 'forge.enabledGameTestNamespaces', 'calmmornings'
+            args '--username', 'Dev2'
+            mods {
+                calmmornings {
+                    source sourceSets.main
+                }
+            }
+        }
+
         server {
-            workingDirectory project.file('run')
+            workingDirectory project.file('run\\server')
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
             property 'forge.enabledGameTestNamespaces', 'calmmornings'
@@ -45,7 +58,7 @@ minecraft {
         }
 
         gameTestServer {
-            workingDirectory project.file('run')
+            workingDirectory project.file('run\\server')
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
             property 'forge.enabledGameTestNamespaces', 'calmmornings'
@@ -57,7 +70,7 @@ minecraft {
         }
 
         data {
-            workingDirectory project.file('run')
+            workingDirectory project.file('run\\data')
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
             args '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/'), '--existing', file('src/main/resources/')
@@ -74,10 +87,10 @@ sourceSets.main.resources { srcDir 'src/generated/resources' }
 
 dependencies {
     minecraft "net.minecraftforge:forge:${mc_version}-${forge_version}"
-//    runtimeOnly fg.deobf("curse.maven:jei-238222:${jei_version}")
-//    runtimeOnly fg.deobf("curse.maven:configured-457570:${configured_version}")
-//    runtimeOnly fg.deobf("curse.maven:catalogue-459701:${catalogue_version}")
-//    runtimeOnly fg.deobf("curse.maven:hourglass-511172:${hourglass_version}")
+    runtimeOnly fg.deobf("curse.maven:jei-238222:${jei_version}")
+    runtimeOnly fg.deobf("curse.maven:configured-457570:${configured_version}")
+    runtimeOnly fg.deobf("curse.maven:catalogue-459701:${catalogue_version}")
+    runtimeOnly fg.deobf("curse.maven:hourglass-511172:${hourglass_version}")
 }
 
 jar {

@@ -2,9 +2,9 @@ package com.tainted.common.events;
 
 import com.tainted.CalmMornings;
 import com.tainted.common.config.ConfigHelper;
+import com.tainted.common.data.SleptLateData;
 import com.tainted.common.data.SleptLateProvider;
 import com.tainted.common.network.PacketHandler;
-import com.tainted.common.network.packet.SleptLateC2SPacket;
 import com.tainted.common.network.packet.SleptLateDataS2CPacket;
 import com.tainted.common.utils.SleepUtils;
 import net.minecraft.server.MinecraftServer;
@@ -14,6 +14,7 @@ import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.event.level.SleepFinishedTimeEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -25,8 +26,23 @@ public class SleepEvents {
 
     @SubscribeEvent
     public static void onPlayerSleep(PlayerSleepInBedEvent event) {
-        //UPDATE PLAYER CAPABILITY ON ATTEMPTING TO SLEEP
-        PacketHandler.sendToServer(new SleptLateC2SPacket());
+        //SET THE PLAYERS CAPABILITY DEPENDING ON IF CERTAIN CONDITIONS ARE MET
+        Player player = event.getEntity();
+        Level level = event.getEntity().getLevel();
+        @NotNull LazyOptional<SleptLateData> capability = player.getCapability(SleptLateProvider.SLEPT_LATE);
+        if (!level.isClientSide) {
+            //SET CAPABILITY TO TRUE OR FALSE DEPENDING ON CHECK RESULTS
+            if (ConfigHelper.getEnableLateCheck()) {
+                capability.ifPresent(playerSleptLate -> {
+                    if (!SleepUtils.isNearMorning(level)) { playerSleptLate.setNotSleptLate();
+                        PacketHandler.sendToPlayer(new SleptLateDataS2CPacket(playerSleptLate.getSleptLate()), (ServerPlayer)player); }
+                    else { playerSleptLate.setSleptLate();
+                        PacketHandler.sendToPlayer(new SleptLateDataS2CPacket(playerSleptLate.getSleptLate()), (ServerPlayer)player); }
+                });
+            } else { capability.ifPresent(playerSleptLate -> { playerSleptLate.setNotSleptLate();
+                PacketHandler.sendToPlayer(new SleptLateDataS2CPacket(playerSleptLate.getSleptLate()), (ServerPlayer)player); });
+            }
+        }
     }
 
     @SubscribeEvent
@@ -35,32 +51,36 @@ public class SleepEvents {
         MinecraftServer server = level.getServer();
         if (server == null) return; //THIS SHOULDN'T HAPPEN
         Difficulty difficulty = level.getDifficulty();
-        if (difficulty == Difficulty.PEACEFUL) return; //DO NOTHING IF ON PEACEFUL
-        double h = ConfigHelper.getHorizontalRange();
-        double v = ConfigHelper.getVerticalRange();
+        if (difficulty == Difficulty.PEACEFUL) return;  //DO NOTHING IF ON PEACEFUL
         double s = 1.0D;
+        double scaling = SleepUtils.getScaling(level, s);
+        double h = Math.round(ConfigHelper.getHorizontalRange() / scaling);
+        double v = Math.round(ConfigHelper.getVerticalRange() / scaling);
         double ac = SleepUtils.getAntiCheese(level, 0.0D);
         int t = ConfigHelper.getSleepTimer();
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             player.getCapability(SleptLateProvider.SLEPT_LATE).ifPresent(playerSleptLate -> {
-                PacketHandler.sendToPlayer(new SleptLateDataS2CPacket(playerSleptLate.getSleptLate()), player);
-                //TEST IF THE PLAYER SLEPT TOO LATE AND MAKE SURE THEY WERE SLEEPING FOR LONG ENOUGH
+                //TEST IF THE PLAYER SLEPT TOO LATE AND MAKE
+                //SURE THEY WERE SLEEPING FOR LONG ENOUGH
                 if (!playerSleptLate.getSleptLate()) {
                     if (player.getSleepTimer() >= t) {
                         AABB area = SleepUtils.newAABB(player, h, v);
                         //CHECK TO SEE IF CHECKING FOR OTHER PLAYERS IS ENABLED
                         if (ConfigHelper.getEnablePlayerCheck()) {
-                            Player nearby = level.getNearestPlayer(player, h / SleepUtils.getScaling(level, s));
-                            //SEE IF ANOTHER PLAYER IS WITHIN RANGE OF THE PLAYER THE EVENT IS TAKING PLACE AROUND
-                            if (nearby != null && nearby != player) {
+                            Player nearby = SleepUtils.getNearestPlayer(player, h * 1.25D);
+                            //SEE IF ANOTHER PLAYER IS WITHIN RANGE OF THE PLAYER TRIGGERING
+                            //THE EVENT AND NOT IN CREATIVE/SPECTATOR MODE
+                            if (nearby != null && !(nearby.isCreative() || nearby.isSpectator())) {
                                 AABB playerBounds = nearby.getBoundingBox();
-                                if (area.intersects(playerBounds)) {    //TEST IF ANOTHER PLAYER IS WITHIN THE AREA
+                                if (playerBounds.intersects(area)) {    //TEST IF ANOTHER PLAYER IS WITHIN THE AREA
                                     for (Player others : level.getNearbyPlayers(TargetingConditions.forNonCombat(), player, area)) {
-                                        //MAKE SURE THE OTHER PLAYERS AREN'T THE PLAYER TRIGGERING THE EVENT
-                                        if (others != player && others.getSleepTimer() >= t) {
+                                        //MAKE SURE THE OTHER PLAYERS AREN'T THE PLAYER TRIGGERING
+                                        //THE EVENT AND NOT IN CREATIVE/SPECTATOR MODE
+                                        if (others != player && !(others.getSleepTimer() >= t) &&
+                                                !(others.isCreative() || others.isSpectator())) {
                                             //DESPAWN ENTITIES WITHIN THE MAIN AREA THAT AREN'T AROUND OTHER PLAYERS
-                                            AABB area1 = SleepUtils.newAABB(others, h / 2, v / 2);
-                                            AABB exclusion = area.intersect(area1);
+                                            AABB area1 = SleepUtils.newAABB(others, 8.0D * (scaling / 2.0D), 6.0D);
+                                            AABB exclusion = area1.intersect(area);
                                             SleepUtils.despawnSelected(level, player, area, exclusion, ac);
                                         }
                                     }

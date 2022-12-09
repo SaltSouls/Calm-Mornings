@@ -7,10 +7,12 @@ import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class SleepUtils {
 
@@ -49,10 +51,14 @@ public class SleepUtils {
         double x = entity.getX();
         double y = entity.getY();
         double z = entity.getZ();
-        double scaling = getScaling(level, 1.0D);
-        double h = Math.round((horizontal) / scaling);
-        double v = Math.round((vertical) / scaling);
-        return new AABB(x - h, y - v, z - h, x + h, y + v, z + h);
+        return new AABB(x - horizontal, y - vertical, z - horizontal, x + horizontal, y + vertical, z + horizontal);
+    }
+    @Nullable
+    public static Player getNearestPlayer(@NotNull Player player, double distance) {
+        Level level = player.getLevel();
+        Player nearby = level.getNearestPlayer(TargetingConditions.forNonCombat(), player);
+        if (!(nearby == null || nearby == player) && nearby.distanceTo(player) <= distance) { return nearby; }
+        else { return null; }
     }
 
     public static boolean shouldDespawn(@NotNull Entity entity) {
@@ -60,10 +66,11 @@ public class SleepUtils {
         EntityType<?> type = entity.getType();
         if (ConfigHelper.getEnableList()) {
             String mobKey = EntityType.getKey(type).toString();
-            //GET VALID MOBS BY SEE IF THE LIST CONTAINS THE MOB KEY
+            //GET VALID MOBS BY SEEING IF THE LIST CONTAINS THE MOB KEY
             return ConfigHelper.getMobList().contains(mobKey);
+        //GET VALID MOBS BY SEEING IF THEY ARE OF THE MONSTER CATEGORY
         } else if (type != EntityType.ENDER_DRAGON || type != EntityType.WITHER
-                || type != EntityType.ELDER_GUARDIAN || type != EntityType.GUARDIAN) {  //RETURN VALID IF MOB IS CONSIDERED OF CATEGORY MONSTER(EXCLUDING A SELECT FEW)
+                || type != EntityType.ELDER_GUARDIAN || type != EntityType.GUARDIAN) {
             return type.getCategory() == MobCategory.MONSTER;
         }
         return false;
@@ -85,13 +92,13 @@ public class SleepUtils {
         }
     }
 
-    public static void despawnSelected(@NotNull Level level, Player player, AABB area1, AABB area2, double anticheese) {
+    public static void despawnSelected(@NotNull Level level, Player player, AABB area, AABB area1, double anticheese) {
         //GET SELECTED ENTITY TO DESPAWN AND CHECK TO MAKE SURE THEY AREN'T AROUND ANOTHER PLAYER
-        for (Entity entity : level.getEntities(null, area1)) {
+        for (Entity entity : level.getEntities(null, area)) {
             AABB entityBounds = entity.getBoundingBox();
             //SEE IF ENTITY IS AROUND ANOTHER PLAYER
             if (entity.distanceTo(player) >= anticheese) {
-                if (!area2.intersects(entityBounds)) {
+                if (!entityBounds.intersects(area1)) {
                     SleepUtils.despawn(entity);
                 }
             }
