@@ -11,6 +11,7 @@ import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import net.minecraftforge.fml.ModList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -44,6 +45,15 @@ public class SleepUtils {
         return scaling;
     }
 
+    public static int setSleepTimer() {
+        if (ModList.get().isLoaded("hourglass")) { return 5; }
+        return ConfigHelper.getSleepTimer();
+    }
+
+    public static boolean isNotCheating(Player player) {
+        return player != null && !(player.isCreative() || player.isSpectator());
+    }
+
     @NotNull
     public static AABB newAABB(@NotNull Entity entity, double horizontal, double vertical) {
         //CREATE NEW AXIS ALIGNED BOUNDING BOX FOR AN ENTITY PASSED THROUGH
@@ -53,12 +63,21 @@ public class SleepUtils {
         double z = entity.getZ();
         return new AABB(x - horizontal, y - vertical, z - horizontal, x + horizontal, y + vertical, z + horizontal);
     }
+
     @Nullable
-    public static Player getNearestPlayer(@NotNull Player player, double distance) {
+    public static Player getNearbyPlayer(@NotNull Player player, double distance) {
         Level level = player.getLevel();
         Player nearby = level.getNearestPlayer(TargetingConditions.forNonCombat(), player);
         if (!(nearby == null || nearby == player) && nearby.distanceTo(player) <= distance) { return nearby; }
         else { return null; }
+    }
+
+    public static boolean isWithinArea(Entity entity, AABB area) {
+        if (entity != null) {
+            AABB entityBounds = entity.getBoundingBox();
+            return entityBounds.intersects(area);
+        }
+        return false;
     }
 
     public static boolean shouldDespawn(@NotNull Entity entity) {
@@ -80,36 +99,38 @@ public class SleepUtils {
         //DESPAWN THE SELECTED ENTITY
         Level level = entity.getLevel();
         //MAKE SURE THE ENTITY IS VALID BUT NOT A PLAYER/HAS A CUSTOM NAME
-        if (SleepUtils.shouldDespawn(entity) && !(entity instanceof Player)
-                && !entity.hasCustomName()) {
+        if (shouldDespawn(entity) && !(entity instanceof Player) && !entity.hasCustomName()) {
             //GET ENTITY POS FOR PARTICLE SPAWN
             double x = entity.getX();
             double y = entity.getY() + 1.0D;
             double z = entity.getZ();
             //REMOVE ENTITY AND SPAWN PARTICLES
             entity.discard();
-            ((ServerLevel) level).sendParticles(ParticleTypes.POOF, x, y, z, 15, 0.05D, 0.50D, 0.05D, 0.001D);
+            ((ServerLevel)level).sendParticles(ParticleTypes.POOF, x, y, z, 15, 0.05D, 0.50D, 0.05D, 0.001D);
         }
     }
 
-    public static void despawnSelected(@NotNull Level level, Player player, AABB area, AABB area1, double anticheese) {
+    public static void despawnSelected( Player player, Player player2 ,AABB area, double anticheese) {
         //GET SELECTED ENTITY TO DESPAWN AND CHECK TO MAKE SURE THEY AREN'T AROUND ANOTHER PLAYER
+        Level level = player.getLevel();
+        AABB area1 = newAABB(player2, 8.0D * (getScaling(level, 1.0) / 2.0D), 6.0D);
+        AABB exclusion = area1.intersect(area);
         for (Entity entity : level.getEntities(null, area)) {
-            AABB entityBounds = entity.getBoundingBox();
             //SEE IF ENTITY IS AROUND ANOTHER PLAYER
             if (entity.distanceTo(player) >= anticheese) {
-                if (!entityBounds.intersects(area1)) {
-                    SleepUtils.despawn(entity);
+                if (!isWithinArea(entity, exclusion)) {
+                    despawn(entity);
                 }
             }
         }
     }
 
-    public static void despawnSelected(@NotNull Level level, Player player, AABB area, double anticheese) {
+    public static void despawnSelected(Player player, AABB area, double anticheese) {
         //GET SELECTED ENTITY TO DESPAWN
+        Level level = player.getLevel();
         for (Entity entity : level.getEntities(null, area)) {
             if (entity.distanceTo(player) >= anticheese) {
-                SleepUtils.despawn(entity);
+                despawn(entity);
             }
         }
     }

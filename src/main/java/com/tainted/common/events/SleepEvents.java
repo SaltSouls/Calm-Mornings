@@ -57,38 +57,31 @@ public class SleepEvents {
         double h = Math.round(ConfigHelper.getHorizontalRange() / scaling);
         double v = Math.round(ConfigHelper.getVerticalRange() / scaling);
         double ac = SleepUtils.getAntiCheese(level, 0.0D);
-        int t = ConfigHelper.getSleepTimer();
+        int st = SleepUtils.setSleepTimer();
         for (ServerPlayer player : server.getPlayerList().getPlayers()) {
             player.getCapability(SleptLateProvider.SLEPT_LATE).ifPresent(playerSleptLate -> {
                 //TEST IF THE PLAYER SLEPT TOO LATE AND MAKE
                 //SURE THEY WERE SLEEPING FOR LONG ENOUGH
-                if (!playerSleptLate.getSleptLate()) {
-                    if (player.getSleepTimer() >= t) {
-                        AABB area = SleepUtils.newAABB(player, h, v);
-                        //CHECK TO SEE IF CHECKING FOR OTHER PLAYERS IS ENABLED
-                        if (ConfigHelper.getEnablePlayerCheck()) {
-                            Player nearby = SleepUtils.getNearestPlayer(player, h * 1.25D);
-                            //SEE IF ANOTHER PLAYER IS WITHIN RANGE OF THE PLAYER TRIGGERING
-                            //THE EVENT AND NOT IN CREATIVE/SPECTATOR MODE
-                            if (nearby != null && !(nearby.isCreative() || nearby.isSpectator())) {
-                                AABB playerBounds = nearby.getBoundingBox();
-                                if (playerBounds.intersects(area)) {    //TEST IF ANOTHER PLAYER IS WITHIN THE AREA
-                                    for (Player others : level.getNearbyPlayers(TargetingConditions.forNonCombat(), player, area)) {
-                                        //MAKE SURE THE OTHER PLAYERS AREN'T THE PLAYER TRIGGERING
-                                        //THE EVENT AND NOT IN CREATIVE/SPECTATOR MODE
-                                        if (others != player && !(others.getSleepTimer() >= t) &&
-                                                !(others.isCreative() || others.isSpectator())) {
-                                            //DESPAWN ENTITIES WITHIN THE MAIN AREA THAT AREN'T AROUND OTHER PLAYERS
-                                            AABB area1 = SleepUtils.newAABB(others, 8.0D * (scaling / 2.0D), 6.0D);
-                                            AABB exclusion = area1.intersect(area);
-                                            SleepUtils.despawnSelected(level, player, area, exclusion, ac);
-                                            //DESPAWN ENTITIES IF ANY OF THE REST DON'T CHECK OUT
-                                        } else { SleepUtils.despawnSelected(level, player, area, ac); }
-                                    }
-                                } else { SleepUtils.despawnSelected(level, player, area, ac); }
-                            } else { SleepUtils.despawnSelected(level, player, area, ac); }
-                        } else { SleepUtils.despawnSelected(level, player, area, ac); }
-                    }
+                if (!playerSleptLate.getSleptLate() && player.getSleepTimer() >= st) {
+                    AABB area = SleepUtils.newAABB(player, h, v);
+                    //CHECK TO SEE IF CHECKING FOR OTHER PLAYERS IS ENABLED
+                    if (ConfigHelper.getEnablePlayerCheck()) {
+                        Player nearby = SleepUtils.getNearbyPlayer(player, h * 1.25D);
+                        //SEE IF ANOTHER PLAYER IS WITHIN RANGE OF THE PLAYER TRIGGERING
+                        //THE EVENT AND NOT IN CREATIVE/SPECTATOR MODE
+                        if (SleepUtils.isNotCheating(nearby) &&
+                                SleepUtils.isWithinArea(player, area)) {
+                            for (Player others : level.getNearbyPlayers(TargetingConditions.forNonCombat(), player, area)) {
+                                //MAKE SURE THE OTHER PLAYERS AREN'T THE PLAYER TRIGGERING
+                                //THE EVENT AND NOT IN CREATIVE/SPECTATOR MODE
+                                if (others != player && others.getSleepTimer() < st && SleepUtils.isNotCheating(others)) {
+                                    //DESPAWN ENTITIES WITHIN THE MAIN AREA THAT AREN'T AROUND OTHER PLAYERS
+                                    SleepUtils.despawnSelected(player, others, area, ac);
+                                    //DESPAWN ENTITIES IF ANY OF THE REST DON'T CHECK OUT
+                                } else { SleepUtils.despawnSelected(player, area, ac); }
+                            }
+                        } else { SleepUtils.despawnSelected(player, area, ac); }
+                    } else { SleepUtils.despawnSelected(player, area, ac); }
                 }
             });
         }
