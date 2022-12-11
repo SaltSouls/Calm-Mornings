@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[43,)"
+loaderVersion = "[44,)"
 license = "MIT License"
 issueTrackerURL="https://github.com/SaltSouls/Calm-Mornings/issues"
 [[mods]]
@@ -17,7 +17,7 @@ catalogueImageIcon = "icon.png"
 [[dependencies.calmmornings]]
 modId = "forge"
 mandatory = true
-versionRange = "[43,)"
+versionRange = "[41,)"
 ordering = "NONE"
 side = "BOTH"
 [[dependencies.calmmornings]]
