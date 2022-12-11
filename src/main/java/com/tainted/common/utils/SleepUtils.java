@@ -110,7 +110,7 @@ public class SleepUtils {
         }
     }
 
-    public static void despawnSelected( Player player, Player player2 ,AABB area, double anticheese) {
+    public static void despawnSelected(@NotNull Player player, Player player2 , AABB area, double anticheese) {
         //GET SELECTED ENTITY TO DESPAWN AND CHECK TO MAKE SURE THEY AREN'T AROUND ANOTHER PLAYER
         Level level = player.getLevel();
         AABB area1 = newAABB(player2, 8.0D * (getScaling(level, 1.0) / 2.0D), 6.0D);
@@ -118,20 +118,16 @@ public class SleepUtils {
         for (Entity entity : level.getEntities(null, area)) {
             //SEE IF ENTITY IS AROUND ANOTHER PLAYER
             if (entity.distanceTo(player) >= anticheese) {
-                if (!isWithinArea(entity, exclusion)) {
-                    despawn(entity);
-                }
+                if (!isWithinArea(entity, exclusion)) { despawn(entity); }
             }
         }
     }
 
-    public static void despawnSelected(Player player, AABB area, double anticheese) {
+    public static void despawnSelected(@NotNull Player player, AABB area, double anticheese) {
         //GET SELECTED ENTITY TO DESPAWN
         Level level = player.getLevel();
         for (Entity entity : level.getEntities(null, area)) {
-            if (entity.distanceTo(player) >= anticheese) {
-                despawn(entity);
-            }
+            if (entity.distanceTo(player) >= anticheese) { despawn(entity); }
         }
     }
 

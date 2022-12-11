@@ -37,8 +37,6 @@ public class CapabilityEvents {
     }
 
     @SubscribeEvent
-    public static void onRegisterCapabilities(RegisterCapabilitiesEvent event) {
-        event.register(SleptLateData.class);
-    }
+    public static void onRegisterCapabilities(@NotNull RegisterCapabilitiesEvent event) { event.register(SleptLateData.class); }
 
 }

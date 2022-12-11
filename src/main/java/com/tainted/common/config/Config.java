@@ -38,11 +38,11 @@ public class Config {
             SLEEP_TIMER = builder
                     .comment("""
                             How long does the player need to be sleeping in order
-                            for entity despawning to occur? | Default: 20""")
+                            for entity despawning to occur? | Default: 50""")
                     .translation(modid + ".config." + "SLEEP_TIMER")
-                    .defineInRange("sleepTimer", 20, 1, 100);
+                    .defineInRange("sleepTimer", 50, 1, 100);
             LATE_CHECK = builder
-                    .comment("Check to see if it's too close to morning? | Default: true")
+                    .comment("Check to see if it's too close to morning for despawning? | Default: true")
                     .translation(modid + ".config." + "LATE_CHECK")
                     .define("sleptLateCheck", true);
             PLAYER_CHECK = builder
