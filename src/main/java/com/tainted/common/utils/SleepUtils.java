@@ -46,7 +46,7 @@ public class SleepUtils {
     }
 
     public static int setSleepTimer() {
-        if (ModList.get().isLoaded("hourglass")) { return 5; }
+        if (ModList.get().isLoaded("hourglass")) { return 10; }
         return ConfigHelper.getSleepTimer();
     }
 
