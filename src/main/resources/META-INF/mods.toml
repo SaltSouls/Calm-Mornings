@@ -1,5 +1,5 @@
 modLoader = "javafml"
-loaderVersion = "[40,)"
+loaderVersion = "[38,)"
 license = "MIT License"
 issueTrackerURL="https://github.com/SaltSouls/Calm-Mornings/issues"
 [[mods]]
