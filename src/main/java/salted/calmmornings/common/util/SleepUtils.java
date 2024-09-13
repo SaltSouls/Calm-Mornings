@@ -14,6 +14,8 @@ public class SleepUtils {
     }
 
     public static double scaling(Difficulty difficulty) {
+        if (!IConfigGetter.getEnableScaling()) return 1.0D;
+
         return switch (difficulty) {
             case NORMAL -> 2.0D;
             case HARD -> 4.0D;

@@ -4,6 +4,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.ForgeConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
 import salted.calmmornings.CalmMornings;
+import salted.calmmornings.common.util.TimeUtils.Time;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +25,7 @@ public class Config {
         private static final List<String> defaultList = new ArrayList<>(List.of("minecraft:creeper", "minecraft:zombie", "minecraft:spider"));
         public final String CATEGORY_GENERAL = "general";
         public final ForgeConfigSpec.IntValue SLEEP_TIMER;
+        public final ForgeConfigSpec.EnumValue<Time> LATE_CHECK;
         public final ForgeConfigSpec.BooleanValue PLAYER_CHECK;
         public final ForgeConfigSpec.BooleanValue ENABLE_LIST;
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> MOB_LIST;
@@ -36,21 +38,25 @@ public class Config {
             String modid = CalmMornings.MODID;
             builder.comment("General Settings").push(CATEGORY_GENERAL);
             SLEEP_TIMER = builder
-                    .comment("""
-                            How long does the player need to be sleeping in order
-                            for entity despawning to occur? | Default: 50""")
+                    .comment("How long does the player need to be sleeping in order for entity despawning to occur?")
                     .translation(modid + ".config." + "SLEEP_TIMER")
                     .defineInRange("sleepTimer", 50, 1, 100);
+
+            LATE_CHECK = builder
+                    .comment("What is the latest a player is allowed to sleep in order for entity despawning to occur?")
+                    .translation(modid + ".config." + "LATE_CHECK")
+                    .defineEnum("Time", Time.NIGHT_L);
+
             PLAYER_CHECK = builder
-                    .comment("""
-                            Should check and disable entity despawning around other
-                            non-sleeping players withing range? | Default: true""")
+                    .comment("Should check and disable entity despawning around other non-sleeping players within range?")
                     .translation(modid + ".config." + "ENABLE_PLAYER_CHECK")
                     .define("playerCheck", true);
+
             ENABLE_LIST = builder
-                    .comment("Enables individual mob despawns instead of group despawning. | Default: false")
+                    .comment("Enables individual mob despawns instead of group despawning.")
                     .translation(modid + ".config." + "ENABLE_LIST")
                     .define("enableList", false);
+
             MOB_LIST = builder
                     .comment("""
                             List of mobs to despawn.
@@ -61,19 +67,19 @@ public class Config {
 
             builder.comment("Range Settings").push(CATEGORY_RANGES);
             ENABLE_SCALING = builder
-                    .comment("Should scaling based on difficulty be enabled? | Default: true")
+                    .comment("""
+                            Should scaling based on difficulty be enabled?
+                            Difficulty Scaling: EASY = base | NORMAL = base / 2 | HARD = base / 4""")
                     .translation(modid + ".config." + "ENABLED_SCALING")
                     .define("enableScaling", true);
+
             VERTICAL_RANGE = builder
-                    .comment("""
-                            Vertical range to check for mobs to despawn. | Default: 16
-                            Scaling: EASY = base | NORMAL = base / 2 | HARD = base / 4""")
+                    .comment("Vertical range to check for mobs to despawn.")
                     .translation(modid + ".config." + "VERTICAL_RANGE")
                     .defineInRange("verticalRange", () -> 16, 0, 64);
+
             HORIZONTAL_RANGE = builder
-                    .comment("""
-                            Horizontal range to check for mobs to despawn. | Default: 64
-                            Scaling: EASY = base | NORMAL = base / 2 | HARD = base / 4""")
+                    .comment("Horizontal range to check for mobs to despawn.")
                     .translation(modid + ".config." + "HORIZONTAL_RANGE")
                     .defineInRange("horizontalRange", () -> 64, 0, 256);
             builder.pop();

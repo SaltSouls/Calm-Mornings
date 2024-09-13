@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import salted.calmmornings.CalmMornings;
 import salted.calmmornings.common.capability.ISleepTime;
 import salted.calmmornings.common.capability.SleepTime;
+import salted.calmmornings.common.config.IConfigGetter;
 import salted.calmmornings.common.util.DespawnUtils;
 import salted.calmmornings.common.util.SleepUtils;
 import salted.calmmornings.common.util.TimeUtils;
@@ -52,6 +53,13 @@ public class SleepEvents {
         }
     }
 
+    private static boolean lateCheck(Time time) {
+        if (IConfigGetter.getLateCheck().equals(Time.DISABLED)) return false;
+        Time lateTime = (Time) IConfigGetter.getLateCheck();
+
+        return TimeUtils.isWithinFollowingSlices(time, lateTime);
+    }
+
     @SubscribeEvent
     public static void onSleepComplete(PlayerWakeUpEvent event) {
         Level level = event.getEntity().level();
@@ -72,7 +80,7 @@ public class SleepEvents {
             switch (timeChunk) {
                 case MORNING, NOON -> { return; }
                 default -> {
-                    if (playerTime.equals(Time.NIGHT_L)) return;
+                    if (lateCheck(playerTime)) return;
                     if (wakeTime != worldTime) return;
                     DespawnUtils.despawnEntities(level, player);
                 }

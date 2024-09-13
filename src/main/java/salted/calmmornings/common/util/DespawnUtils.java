@@ -10,6 +10,7 @@ import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import net.minecraftforge.fml.ModList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import salted.calmmornings.common.config.IConfigGetter;
@@ -18,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DespawnUtils {
-    
+
     // TODO: find a better way to do this
     // a list of entities that should not be despawned
     private static final ArrayList<EntityType<?>> blackList = new ArrayList<>(List.of(
@@ -39,11 +40,14 @@ public class DespawnUtils {
 
     private static boolean shouldDespawn(@NotNull Entity entity) {
         EntityType<?> type = entity.getType();
+        String mobKey = EntityType.getKey(type).toString();
+
         // see if the mob is in the list
-        if (IConfigGetter.getEnableList()) {
-            String mobKey = EntityType.getKey(type).toString();
-            return IConfigGetter.getMobList().contains(mobKey);
-        }
+        if (IConfigGetter.getEnableList()) return IConfigGetter.getMobList().contains(mobKey);
+
+        // don't despawn bedbugs if mod is loaded
+        if (ModList.get().isLoaded("sleep_tight")) return !mobKey.equals("sleep_tight:bedbug");
+
         // see if the mob is in the category, minus blacklisted ones
         if (!blackList.contains(type)) return type.getCategory().equals(MobCategory.MONSTER);
         return false;
