@@ -8,16 +8,6 @@ import salted.calmmornings.common.capability.SleepTime;
 
 public class TimeUtils {
 
-    private static final int dayLength = Level.TICKS_PER_DAY;
-
-    private static Time getTimeChunk(Level level) {
-        if (isBetweenTimeSlice(level, Time.MORNING)) return Time.MORNING;
-        else if (isBetweenTimeSlice(level, Time.NOON)) return Time.NOON;
-        else if (isBetweenTimeSlice(level, Time.EVENING)) return Time.EVENING;
-        else if (isBetweenTimeSlice(level, Time.NIGHT)) return Time.NIGHT;
-        else return null;
-    }
-
     public static Time getTimeSlice(Level level) {
         Time timeChunk = getTimeChunk(level);
         if (timeChunk == null) return null; // this should never happen
@@ -72,6 +62,8 @@ public class TimeUtils {
     }
 
     // private methods for determining values
+    private static final int dayLength = Level.TICKS_PER_DAY;
+
     private static boolean getTime(Level level, Time time) {
         if (level == null || time == null) return false; // this should never happen
         long start = time.getStart();
@@ -142,6 +134,14 @@ public class TimeUtils {
         return time.equals(lastSlice) || time.equals(slice) || time.equals(nextSlice);
     }
 
+    private static Time getTimeChunk(Level level) {
+        if (isBetweenTimeSlice(level, Time.MORNING)) return Time.MORNING;
+        else if (isBetweenTimeSlice(level, Time.NOON)) return Time.NOON;
+        else if (isBetweenTimeSlice(level, Time.EVENING)) return Time.EVENING;
+        else if (isBetweenTimeSlice(level, Time.NIGHT)) return Time.NIGHT;
+        else return null;
+    }
+
     private static Time determineTimeSlice(Level level, Time slice) {
         Time lastSlice = getLastTimeSlice(slice);
         Time nextSlice = getNextTimeSlice(slice);
@@ -187,4 +187,5 @@ public class TimeUtils {
             return end;
         }
     }
+
 }

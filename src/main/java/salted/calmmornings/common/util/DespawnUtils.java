@@ -20,6 +20,27 @@ import java.util.List;
 
 public class DespawnUtils {
 
+    public static void despawnEntities(Level level, ServerPlayer player) {
+        Difficulty difficulty = level.getDifficulty();
+
+        if (difficulty == Difficulty.PEACEFUL) return;  // do nothing if peaceful
+        double scaling = SleepUtils.scaling(difficulty);
+        double h = Math.round(IConfigGetter.getHorizontalRange() / scaling);
+        double v = Math.round(IConfigGetter.getVerticalRange() / scaling);
+        AABB area = newAABB(player, h, v);
+        // check to see if player check is enabled in config
+        if (!isPlayerCheckEnabled(player, area)) return;
+        // sees if another player is within the range of the main player
+        if (!isPlayerNearby(player, h, area)) return;
+
+        for (Player others : level.getNearbyPlayers(TargetingConditions.forNonCombat(), player, area)) {
+            // makes sure the other player isn't the main player and isn't cheating
+            if (!isOtherPlayerValid(player, others, area)) return;
+            despawnSelected(player, others, area);
+        }
+    }
+
+    // private methods for despawning entities
     // TODO: find a better way to do this
     // a list of entities that should not be despawned
     private static final ArrayList<EntityType<?>> blackList = new ArrayList<>(List.of(
@@ -138,23 +159,4 @@ public class DespawnUtils {
         return false;
     }
 
-    public static void despawnEntities(Level level, ServerPlayer player) {
-        Difficulty difficulty = level.getDifficulty();
-
-        if (difficulty == Difficulty.PEACEFUL) return;  // do nothing if peaceful
-        double scaling = SleepUtils.scaling(difficulty);
-        double h = Math.round(IConfigGetter.getHorizontalRange() / scaling);
-        double v = Math.round(IConfigGetter.getVerticalRange() / scaling);
-        AABB area = newAABB(player, h, v);
-        // check to see if player check is enabled in config
-        if (!isPlayerCheckEnabled(player, area)) return;
-        // sees if another player is within the range of the main player
-        if (!isPlayerNearby(player, h, area)) return;
-
-        for (Player others : level.getNearbyPlayers(TargetingConditions.forNonCombat(), player, area)) {
-            // makes sure the other player isn't the main player and isn't cheating
-            if (!isOtherPlayerValid(player, others, area)) return;
-            despawnSelected(player, others, area);
-        }
-    }
 }
