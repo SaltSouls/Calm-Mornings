@@ -4,7 +4,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.ForgeConfigSpec;
 import org.apache.commons.lang3.tuple.Pair;
 import salted.calmmornings.CalmMornings;
-import salted.calmmornings.common.util.TimeUtils.Time;
+import salted.calmmornings.common.utils.TimeUtils.Time;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,16 +23,16 @@ public class Config implements IConfig {
     public static class CommonConfig {
         private static final List<String> defaultList = new ArrayList<>(List.of("minecraft:creeper", "minecraft:zombie", "minecraft:spider"));
 
-        public final ForgeConfigSpec.EnumValue<Time> LATE_CHECK;
-        public final ForgeConfigSpec.BooleanValue MOB_CHECK;
-        public final ForgeConfigSpec.BooleanValue BETTER_CHECKING;
-        public final ForgeConfigSpec.BooleanValue PLAYER_CHECK;
         public final ForgeConfigSpec.BooleanValue ENABLE_LIST;
         public final ForgeConfigSpec.BooleanValue IS_BLACKLIST;
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> MOB_LIST;
         public final ForgeConfigSpec.BooleanValue ENABLE_SCALING;
         public final ForgeConfigSpec.IntValue VERTICAL_RANGE;
         public final ForgeConfigSpec.IntValue HORIZONTAL_RANGE;
+        public final ForgeConfigSpec.EnumValue<Time> LATE_CHECK;
+        public final ForgeConfigSpec.BooleanValue PLAYER_CHECK;
+        public final ForgeConfigSpec.BooleanValue MOB_CHECK;
+        public final ForgeConfigSpec.BooleanValue BETTER_CHECKING;
 
         public CommonConfig(ForgeConfigSpec.Builder builder) {
             String modid = CalmMornings.MODID;

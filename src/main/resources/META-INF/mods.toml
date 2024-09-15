@@ -9,11 +9,9 @@ license = "${mod_license}"
     displayURL = "https://github.com/SaltSouls/Calm-Mornings"
     updateJSONURL = "https://www.curseforge.com/minecraft/mc-mods/calm-mornings"
     logoFile = "banner.png"
-    # logoBlur = false
     authors = "${mod_authors}"
     credits = "${mod_credits}"
     description = '''${mod_description}'''
-
 [modproperties."${mod_id}"]
     catalogueImageIcon="icon.png"
     catalogueBackground="background.png"
@@ -33,4 +31,4 @@ license = "${mod_license}"
     modId = "sleep_tight"
     mandatory = false
     versionRange = "${sleeptight_version_range}"
-    ordering = "NONE"
+    ordering = "AFTER"

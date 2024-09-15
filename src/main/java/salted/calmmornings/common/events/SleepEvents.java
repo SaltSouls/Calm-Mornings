@@ -11,10 +11,10 @@ import net.minecraftforge.fml.common.Mod;
 import salted.calmmornings.CalmMornings;
 import salted.calmmornings.common.capability.ISleepTime;
 import salted.calmmornings.common.capability.SleepTime;
-import salted.calmmornings.common.util.DespawnUtils;
-import salted.calmmornings.common.util.SleepUtils;
-import salted.calmmornings.common.util.TimeUtils;
-import salted.calmmornings.common.util.TimeUtils.Time;
+import salted.calmmornings.common.utils.DespawnUtils;
+import salted.calmmornings.common.utils.SleepUtils;
+import salted.calmmornings.common.utils.TimeUtils;
+import salted.calmmornings.common.utils.TimeUtils.Time;
 
 @Mod.EventBusSubscriber(modid = CalmMornings.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class SleepEvents {

@@ -1,4 +1,4 @@
-package salted.calmmornings.common.util;
+package salted.calmmornings.common.utils;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Difficulty;
