@@ -4,7 +4,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import salted.calmmornings.CalmMornings;
 import salted.calmmornings.common.capability.ISleepTime;
 import salted.calmmornings.common.capability.SleepTime;
 import salted.calmmornings.common.config.IConfig;

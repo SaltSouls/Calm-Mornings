@@ -45,4 +45,5 @@ public interface IConfig {
     static int getHorizontalRange() {
         return COMMON.HORIZONTAL_RANGE.get();
     }
+    
 }
