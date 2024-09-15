@@ -1,4 +1,4 @@
-package salted.calmmornings.common.util;
+package salted.calmmornings.common.utils;
 
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
