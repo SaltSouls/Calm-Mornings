@@ -15,10 +15,10 @@ import java.util.List;
 import java.util.function.Predicate;
 
 @Mixin(ServerPlayer.class)
-public abstract class MonsterCheckServerPlayerMixin {
+public abstract class CanSleepCheckServerPlayerMixin {
 
     @WrapOperation(method = "startSleepInBed", at = @At(value = "INVOKE", target = "Lnet/minecraft/server/level/ServerPlayer;isCreative()Z"))
-    public boolean calmMornings$monsterCheck(ServerPlayer player, Operation<Boolean> original) {
+    public boolean monsterCheck(ServerPlayer player, Operation<Boolean> original) {
         return original.call(player) || !IConfig.getMobCheck();
     }
 
