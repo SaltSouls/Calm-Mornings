@@ -1,13 +1,21 @@
 package salted.calmmornings.common.config;
 
+import salted.calmmornings.common.util.TimeUtils.Time;
+
 import java.util.List;
 
 import static salted.calmmornings.common.config.Config.COMMON;
 
-public interface IConfigGetter {
+public interface IConfig {
 
-    static int getSleepTimer() {
-        return COMMON.SLEEP_TIMER.get();
+    static Enum<Time> getLateCheck() {return COMMON.LATE_CHECK.get();}
+
+    static boolean getMobCheck() {
+        return COMMON.MOB_CHECK.get();
+    }
+
+    static boolean getBetterChecking() {
+        return COMMON.BETTER_CHECKING.get();
     }
 
     static boolean getEnablePlayerCheck() {
@@ -16,6 +24,10 @@ public interface IConfigGetter {
 
     static boolean getEnableList() {
         return COMMON.ENABLE_LIST.get();
+    }
+
+    static boolean isBlacklist() {
+        return COMMON.IS_BLACKLIST.get();
     }
 
     static List<? extends String> getMobList() {

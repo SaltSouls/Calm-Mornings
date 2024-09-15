@@ -5,6 +5,7 @@
   "compatibilityLevel": "JAVA_17",
   "refmap": "calmmornings.refmap.json",
   "mixins": [
+    "MonsterCheckServerPlayerMixin"
   ],
   "client": [
   ],

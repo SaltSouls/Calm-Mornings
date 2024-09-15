@@ -12,7 +12,7 @@ import salted.calmmornings.CalmMornings;
 public class CapProvider implements ICapabilitySerializable<CompoundTag> {
 
     private final LazyOptional<ISleepTime> sleepTimeHandler;
-    public static final ResourceLocation NAME = CalmMornings.resLoc("caps");
+    public static final ResourceLocation NAME = CalmMornings.resLoc("data");
 
     public CapProvider(ISleepTime sleepTimeHandler) {
         this.sleepTimeHandler = LazyOptional.of(() -> sleepTimeHandler);

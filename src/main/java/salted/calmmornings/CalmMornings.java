@@ -19,7 +19,6 @@ public class CalmMornings {
 
     public CalmMornings() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
-
         modEventBus.addListener(CommonSetup::init);
 
         ModLoadingContext ctx = ModLoadingContext.get();

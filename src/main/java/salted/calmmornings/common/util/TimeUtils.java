@@ -8,16 +8,6 @@ import salted.calmmornings.common.capability.SleepTime;
 
 public class TimeUtils {
 
-    private static final int dayLength = Level.TICKS_PER_DAY;
-
-    private static Time getTimeChunk(Level level) {
-        if (isBetweenTimeSlice(level, Time.MORNING)) return Time.MORNING;
-        else if (isBetweenTimeSlice(level, Time.NOON)) return Time.NOON;
-        else if (isBetweenTimeSlice(level, Time.EVENING)) return Time.EVENING;
-        else if (isBetweenTimeSlice(level, Time.NIGHT)) return Time.NIGHT;
-        else return null;
-    }
-
     public static Time getTimeSlice(Level level) {
         Time timeChunk = getTimeChunk(level);
         if (timeChunk == null) return null; // this should never happen
@@ -66,16 +56,27 @@ public class TimeUtils {
         else return null;
     }
 
+    public static boolean isWithinFollowingSlices(Time time, Time slice) {
+        Time endSlice = getFollowingEnd(slice);
+        return isBetweenTime(time, slice.start, endSlice.end);
+    }
+
     // private methods for determining values
+    private static final int dayLength = Level.TICKS_PER_DAY;
+
     private static boolean getTime(Level level, Time time) {
         if (level == null || time == null) return false; // this should never happen
         long start = time.getStart();
         long end = time.getEnd();
         /* apparently, this is how the game gets the time of day. don't know
-         why it doesn't reset to 0 on waking or hitting 24000, but whatever */
+         why it doesn't reset to 0 on waking or hitting 24000, but whatever. */
         long dayTime = level.getDayTime() % dayLength;
         CalmMornings.LOGGER.debug("current precise time: {}", dayTime);
         return dayTime >= start && dayTime < end;
+    }
+
+    private static boolean isBetweenTime(Time time, long start, long end) {
+        return time.start >= start && time.end <= end;
     }
 
     private static Time getLastTimeSlice(Time time) {
@@ -114,6 +115,11 @@ public class TimeUtils {
         }
     }
 
+    private static Time getFollowingEnd(Time time) {
+        if (time.equals(Time.NIGHT_L)) return time;
+        else return Time.NIGHT_L;
+    }
+
     private static boolean isBetweenTimeSlice(Level level, Time slice) {
         Time lastSlice = getLastTimeSlice(slice);
         Time nextSlice = getNextTimeSlice(slice);
@@ -126,6 +132,14 @@ public class TimeUtils {
         Time nextSlice = getNextTimeSlice(slice);
 
         return time.equals(lastSlice) || time.equals(slice) || time.equals(nextSlice);
+    }
+
+    private static Time getTimeChunk(Level level) {
+        if (isBetweenTimeSlice(level, Time.MORNING)) return Time.MORNING;
+        else if (isBetweenTimeSlice(level, Time.NOON)) return Time.NOON;
+        else if (isBetweenTimeSlice(level, Time.EVENING)) return Time.EVENING;
+        else if (isBetweenTimeSlice(level, Time.NIGHT)) return Time.NIGHT;
+        else return null;
     }
 
     private static Time determineTimeSlice(Level level, Time slice) {
@@ -154,7 +168,8 @@ public class TimeUtils {
         EVENING_L(EVENING.getEnd(), (int)(NOON_L.getEnd() * 1.5)),        // start:16,000 | end: 18,000
         NIGHT_E(EVENING_L.getEnd(), NOON.getEnd() * 2),              // start:18,000 | end: 20,000
         NIGHT(NIGHT_E.getEnd(), (int)(EVENING.getEnd() * 1.375)),         // start:20,000 | end: 22,000
-        NIGHT_L(NIGHT.getEnd(), dayLength);                               // start:22,000 | end: 24,000
+        NIGHT_L(NIGHT.getEnd(), dayLength),                               // start:22,000 | end: 24,000
+        DISABLED(0, 0);                                         // only used for LATE_CHECK
 
         private final int start;
         private final int end;
@@ -172,4 +187,5 @@ public class TimeUtils {
             return end;
         }
     }
+
 }
