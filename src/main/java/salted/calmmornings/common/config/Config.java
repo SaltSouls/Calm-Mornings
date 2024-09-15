@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class Config {
+public class Config implements IConfig {
     public static final ForgeConfigSpec COMMON_SPEC;
     public static final CommonConfig COMMON;
 
@@ -21,69 +21,83 @@ public class Config {
     }
 
     public static class CommonConfig {
-
         private static final List<String> defaultList = new ArrayList<>(List.of("minecraft:creeper", "minecraft:zombie", "minecraft:spider"));
-        public final String CATEGORY_GENERAL = "general";
-        public final ForgeConfigSpec.IntValue SLEEP_TIMER;
+
         public final ForgeConfigSpec.EnumValue<Time> LATE_CHECK;
+        public final ForgeConfigSpec.BooleanValue MOB_CHECK;
+        public final ForgeConfigSpec.BooleanValue BETTER_CHECKING;
         public final ForgeConfigSpec.BooleanValue PLAYER_CHECK;
         public final ForgeConfigSpec.BooleanValue ENABLE_LIST;
+        public final ForgeConfigSpec.BooleanValue IS_BLACKLIST;
         public final ForgeConfigSpec.ConfigValue<List<? extends String>> MOB_LIST;
-        public final String CATEGORY_RANGES = "ranges";
         public final ForgeConfigSpec.BooleanValue ENABLE_SCALING;
         public final ForgeConfigSpec.IntValue VERTICAL_RANGE;
         public final ForgeConfigSpec.IntValue HORIZONTAL_RANGE;
 
         public CommonConfig(ForgeConfigSpec.Builder builder) {
             String modid = CalmMornings.MODID;
+            String CATEGORY_GENERAL = "general";
             builder.comment("General Settings").push(CATEGORY_GENERAL);
-            SLEEP_TIMER = builder
-                    .comment("How long does the player need to be sleeping in order for entity despawning to occur?")
-                    .translation(modid + ".config." + "SLEEP_TIMER")
-                    .defineInRange("sleepTimer", 50, 1, 100);
-
-            LATE_CHECK = builder
-                    .comment("What is the latest a player is allowed to sleep in order for entity despawning to occur?")
-                    .translation(modid + ".config." + "LATE_CHECK")
-                    .defineEnum("Time", Time.NIGHT_L);
-
-            PLAYER_CHECK = builder
-                    .comment("Should check and disable entity despawning around other non-sleeping players within range?")
-                    .translation(modid + ".config." + "ENABLE_PLAYER_CHECK")
-                    .define("playerCheck", true);
-
             ENABLE_LIST = builder
-                    .comment("Enables individual mob despawns instead of group despawning.")
+                    .comment("Use list instead of mobCategory for despawning?")
                     .translation(modid + ".config." + "ENABLE_LIST")
                     .define("enableList", false);
 
+            IS_BLACKLIST = builder
+                    .comment("Changes the list to be a blacklist. Requires enableList.")
+                    .translation( modid + ".config." + "IS_BLACKLIST")
+                    .define("isBlacklist", false);
+
             MOB_LIST = builder
                     .comment("""
-                            List of mobs to despawn.
-                            Formatting: ["minecraft:creeper", "minecraft:zombie", "minecraft:spider", "modid:entityname"]""")
+                            List of mobs to despawn. Requires enableList.
+                            Formatting: ["minecraft:creeper", "minecraft:zombie", "minecraft:spider", "modID:entityID"]""")
                     .translation(modid + ".config." + "MOB_LIST")
                     .defineListAllowEmpty(List.of("mobs"), () -> defaultList, entity -> (entity instanceof String string && ResourceLocation.isValidResourceLocation(string)));
             builder.pop();
 
-            builder.comment("Range Settings").push(CATEGORY_RANGES);
+            String CATEGORY_RANGE = "range";
+            builder.comment("Range Settings").push(CATEGORY_RANGE);
             ENABLE_SCALING = builder
                     .comment("""
-                            Should scaling based on difficulty be enabled?
+                            Should difficulty based range scaling be enabled?
                             Difficulty Scaling: EASY = base | NORMAL = base / 2 | HARD = base / 4""")
                     .translation(modid + ".config." + "ENABLED_SCALING")
                     .define("enableScaling", true);
 
             VERTICAL_RANGE = builder
-                    .comment("Vertical range to check for mobs to despawn.")
+                    .comment("Vertical radius to check for mobs to despawn.")
                     .translation(modid + ".config." + "VERTICAL_RANGE")
                     .defineInRange("verticalRange", () -> 16, 0, 64);
 
             HORIZONTAL_RANGE = builder
-                    .comment("Horizontal range to check for mobs to despawn.")
+                    .comment("Horizontal radius to check for mobs to despawn.")
                     .translation(modid + ".config." + "HORIZONTAL_RANGE")
                     .defineInRange("horizontalRange", () -> 64, 0, 256);
             builder.pop();
+
+            String CATEGORY_CHECKS = "checks";
+            builder.comment("Conditional Checks").push(CATEGORY_CHECKS);
+            LATE_CHECK = builder
+                    .comment("Latest time a player can sleep to allow despawning.")
+                    .translation(modid + ".config." + "LATE_CHECK")
+                    .defineEnum("lateCheck", Time.NIGHT_L);
+
+            PLAYER_CHECK = builder
+                    .comment("Should non-sleeping players prevent despawning around them?")
+                    .translation(modid + ".config." + "ENABLE_PLAYER_CHECK")
+                    .define("playerCheck", true);
+
+            MOB_CHECK = builder
+                    .comment("Should nearby monsters prevent sleep?")
+                    .translation(modid + ".config." + "DISABLE_CHECK")
+                    .define("monsterCheck", true);
+
+            BETTER_CHECKING = builder
+                    .comment("Should only monsters tracking the player prevent sleep? Requires enableMobCheck.")
+                    .translation(modid + ".config." + "BETTER_CHECKING")
+                    .define("betterChecking", true);
+            builder.pop();
         }
     }
-
 }

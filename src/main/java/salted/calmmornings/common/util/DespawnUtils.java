@@ -10,10 +10,11 @@ import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fml.ModList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import salted.calmmornings.common.config.IConfigGetter;
+import salted.calmmornings.common.config.IConfig;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,16 +26,17 @@ public class DespawnUtils {
 
         if (difficulty == Difficulty.PEACEFUL) return;  // do nothing if peaceful
         double scaling = SleepUtils.scaling(difficulty);
-        double h = Math.round(IConfigGetter.getHorizontalRange() / scaling);
-        double v = Math.round(IConfigGetter.getVerticalRange() / scaling);
+        double h = Math.round(IConfig.getHorizontalRange() / scaling);
+        double v = Math.round(IConfig.getVerticalRange() / scaling);
         AABB area = newAABB(player, h, v);
+
         // check to see if player check is enabled in config
         if (!isPlayerCheckEnabled(player, area)) return;
         // sees if another player is within the range of the main player
         if (!isPlayerNearby(player, h, area)) return;
 
         for (Player others : level.getNearbyPlayers(TargetingConditions.forNonCombat(), player, area)) {
-            // makes sure the other player isn't the main player and isn't cheating
+            // makes sure the other player isn't the main player, sleeping, or cheating
             if (!isOtherPlayerValid(player, others, area)) return;
             despawnSelected(player, others, area);
         }
@@ -59,18 +61,27 @@ public class DespawnUtils {
             EntityType.PLAYER
     ));
 
+    // don't despawn bedbugs if mod is loaded
+    private static boolean sleeptightCompat(EntityType<?> type) {
+        String mobKey = EntityType.getKey(type).toString();
+        if (ModList.get().isLoaded("sleep_tight")) return !mobKey.equals("sleep_tight:bedbug");
+        return true;
+    }
+
     private static boolean shouldDespawn(@NotNull Entity entity) {
         EntityType<?> type = entity.getType();
         String mobKey = EntityType.getKey(type).toString();
 
         // see if the mob is in the list
-        if (IConfigGetter.getEnableList()) return IConfigGetter.getMobList().contains(mobKey);
-
-        // don't despawn bedbugs if mod is loaded
-        if (ModList.get().isLoaded("sleep_tight")) return !mobKey.equals("sleep_tight:bedbug");
-
+        if (IConfig.getEnableList()) {
+            if (IConfig.isBlacklist()) return !IConfig.getMobList().contains(mobKey);
+            return IConfig.getMobList().contains(mobKey);
+        }
         // see if the mob is in the category, minus blacklisted ones
-        if (!blackList.contains(type)) return type.getCategory().equals(MobCategory.MONSTER);
+        else if (!blackList.contains(type) && sleeptightCompat(type))  {
+            return type.getCategory().equals(MobCategory.MONSTER);
+        }
+
         return false;
     }
 
@@ -79,9 +90,7 @@ public class DespawnUtils {
 
         if (shouldDespawn(entity) && !entity.hasCustomName()) {
             // get entity's position for particles
-            double x = entity.getX();
-            double y = entity.getY() + 1.0D;
-            double z = entity.getZ();
+            Vec3 vec = Vec3.atBottomCenterOf(entity.blockPosition());
 
             // drop items with 100% drop chance(picked up/inventory items)
             if (entity instanceof Mob mob && mob.isPersistenceRequired()) {
@@ -96,16 +105,14 @@ public class DespawnUtils {
 
             // spawn poof particles
             if (!(level instanceof ServerLevel serverLevel)) return;
-            serverLevel.sendParticles(ParticleTypes.POOF, x, y, z, 15, 0.05D, 0.50D, 0.05D, 0.001D);
+            serverLevel.sendParticles(ParticleTypes.POOF, vec.x(), vec.y() + 1.0D, vec.z(), 15, 0.05D, 0.50D, 0.05D, 0.001D);
         }
     }
 
     @NotNull
-    private static AABB newAABB(@NotNull Entity entity, double horizontal, double vertical) {
-        double x = entity.getX();
-        double y = entity.getY();
-        double z = entity.getZ();
-        return new AABB(x - horizontal, y - vertical, z - horizontal, x + horizontal, y + vertical, z + horizontal);
+    public static AABB newAABB(@NotNull Entity entity, double horizontal, double vertical) {
+        Vec3 vec3 = Vec3.atBottomCenterOf(entity.getOnPos());
+        return new AABB(vec3.x() - horizontal, vec3.y() - vertical, vec3.z() - horizontal, vec3.x() + horizontal, vec3.y() + vertical, vec3.z() + horizontal);
     }
 
     @Nullable
@@ -130,31 +137,30 @@ public class DespawnUtils {
         AABB area1 = newAABB(player2, 8.0D * (SleepUtils.scaling(difficulty) / 2.0D), 6.0D);
         AABB exclusion = area1.intersect(area);
         for (Entity entity : level.getEntities(null, area)) {
-            if (!isWithinArea(entity, exclusion)) { despawn(entity); }
+            if (!isWithinArea(entity, exclusion)) despawn(entity);
         }
     }
 
     private static void despawnSelected(@NotNull Player player, AABB area) {
         Level level = player.level();
-        for (Entity entity : level.getEntities(null, area)) { despawn(entity); }
+        for (Entity entity : level.getEntities(null, area)) despawn(entity);
     }
 
     private static boolean isPlayerCheckEnabled(Player player, AABB area) {
-        if (IConfigGetter.getEnablePlayerCheck()) return true;
+        if (IConfig.getEnablePlayerCheck()) return true;
         despawnSelected(player, area);
         return false;
     }
 
     private static boolean isPlayerNearby(Player player, double h, AABB area) {
         Player nearby = getNearbyPlayer(player, h * 1.25D);
-        if (SleepUtils.notCheater(nearby) && isWithinArea(player, area)) return true;
+        if (!player.equals(nearby) && SleepUtils.notCheater(nearby) && isWithinArea(player, area)) return true;
         despawnSelected(player, area);
         return false;
     }
 
     private static boolean isOtherPlayerValid(Player player, Player player2, AABB area) {
-        int st = SleepUtils.timeReq();
-        if (!player2.equals(player) && player2.getSleepTimer() < st && SleepUtils.notCheater(player2)) return true;
+        if (!player2.equals(player) && !SleepUtils.isPlayerValid(player) && SleepUtils.notCheater(player2)) return true;
         despawnSelected(player, area);
         return false;
     }

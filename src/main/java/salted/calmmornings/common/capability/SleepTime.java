@@ -14,8 +14,7 @@ import java.util.function.Supplier;
 
 public class SleepTime implements ISleepTime {
     private Player player;
-    private String sleepTime = "";
-
+    private String sleepTime = "awake";
 
     public SleepTime(Player player) {
         super();
@@ -25,7 +24,6 @@ public class SleepTime implements ISleepTime {
     public static ISleepTime get(Player player) {
         return getIfPreset(player, sleepPlayer -> sleepPlayer, () -> null);
     }
-
 
     public static <E extends Player> void ifPresent(E player, Consumer<ISleepTime> consumer) {
         if (player == null || player instanceof FakePlayer) return;
