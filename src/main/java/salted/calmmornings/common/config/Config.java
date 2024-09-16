@@ -94,7 +94,7 @@ public class Config implements IConfig {
                     .define("monsterCheck", true);
 
             BETTER_CHECKING = builder
-                    .comment("Should only monsters tracking the player prevent sleep? Requires enableMobCheck.")
+                    .comment("Should only monsters tracking the player prevent sleep? Requires monsterCheck.")
                     .translation(modid + ".config." + "BETTER_CHECKING")
                     .define("betterChecking", true);
             builder.pop();
