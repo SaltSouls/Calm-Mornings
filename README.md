@@ -45,7 +45,7 @@ This mod is highly configurable, and most aspects of what this mod does can be a
 ## FAQ:
 **Q: Where should I leave suggestions or feedback?**
 
-A: I would love to hear any suggestions or feedback you have! I only ask that you leave it as a new issue over on the mods Github as it makes it easier for me to manage and track.
+A: I would love to hear any suggestions or feedback you have! I only ask that you leave it as a new issue here as it makes it easier for me to manage and track.
 
 **Q: Can I use this in my modpack?**
 
@@ -57,7 +57,7 @@ A: Only the latest major versions will be supported. I may update older versions
 
 **Q: Is this compatible with X mod?**
 
-A: I have gone out of my way to try and make this mod as compatible with as many mods as possible. If you experience any incompatibilities, please report the issue on the mods Github.
+A: I have gone out of my way to try and make this mod as compatible with as many mods as possible. If you experience any incompatibilities, please report the issue here.
 
 **Q: Fabric port?**
 
