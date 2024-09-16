@@ -1,8 +1,6 @@
 
 ![logo](https://cdn.modrinth.com/data/cached_images/03a512a1608c6cb5e62d9d3b402024b0c932eceb.png)
 
-![license](https://img.shields.io/github/license/SaltSouls/Calm-Mornings?style=flat-square&color=blue)
-![environment](https://img.shields.io/badge/environment-both-4caf50?style=flat-square)
 ![mod loader](https://img.shields.io/badge/mod%20loader-forge%20%2F%20neoforge-4caf50?style=flat-square)
 ![versions](https://img.shields.io/modrinth/game-versions/gfvSVUz9?style=flat-square&label=avaliable%20for&color=blue)
 ![modrinth downloads](https://img.shields.io/modrinth/dt/gfvSVUz9?style=flat-square&logo=modrinth&logoSize=auto&color=4caf50)
