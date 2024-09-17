@@ -1,4 +1,3 @@
-
 <div align="center"><img src="https://cdn.modrinth.com/data/cached_images/03a512a1608c6cb5e62d9d3b402024b0c932eceb.png" /></div>
 
 <div align="center">
@@ -50,7 +49,9 @@ This mod is highly configurable, and most aspects of what this mod does can be a
 	#Should only monsters tracking the player prevent sleep? Requires monsterCheck.
 	betterChecking = true
 ```
-## FAQ:
+<details>
+  <summary><b>FAQ:</b></summary>
+	
 **Q: Where should I leave suggestions or feedback?**
 
 A: I would love to hear any suggestions or feedback you have! I only ask that you leave it as a new issue here as it makes it easier for me to manage and track.
@@ -70,3 +71,4 @@ A: I have gone out of my way to try and make this mod as compatible with as many
 **Q: Fabric port?**
 
 A: I have **No** plans on porting to Fabric, but you are more than welcome to do so. I only ask for credit if you do.
+</details>
