@@ -1,5 +1,5 @@
 
-![logo](https://cdn.modrinth.com/data/cached_images/03a512a1608c6cb5e62d9d3b402024b0c932eceb.png)
+<div align="center"><img src="https://cdn.modrinth.com/data/cached_images/03a512a1608c6cb5e62d9d3b402024b0c932eceb.png" /></div>
 
 <div align="center">
 	<img src="https://img.shields.io/badge/mod%20loader-forge%20%2F%20neoforge-blue?style=flat-square" />
