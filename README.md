@@ -4,7 +4,7 @@
 	<img src="https://img.shields.io/badge/mod%20loader-forge%20%2F%20neoforge-blue?style=flat-square" />
 	<img src="https://img.shields.io/modrinth/game-versions/gfvSVUz9?style=flat-square&label=avaliable%20for&color=blue" />
 	<img src="https://img.shields.io/modrinth/dt/gfvSVUz9?style=flat-square&logo=modrinth&logoSize=auto&color=4caf50" />
-	<img src="https://img.shields.io/curseforge/dt/683324?style=flat-square&logo=curseforge&logoColor=white&logoSize=auto&color=4caf50" />
+	<img src="https://img.shields.io/curseforge/dt/683324?style=flat-square&logo=curseforge&logoSize=auto&color=4caf50" />
 </div>
 
 **Calm Mornings** will look for any **Hostile** mobs(_with notible exceptions_), within a specified radius around a player upon waking up, and despawn them. This was done to help "simulate" the movement of monsters during the night.
