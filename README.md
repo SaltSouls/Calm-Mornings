@@ -52,6 +52,10 @@ This mod is highly configurable, and most aspects of what this mod does can be a
 <details>
   <summary><b>FAQ:</b></summary>
 	
+**Q: How does this work with Persistent mobs?**
+
+A: If they are named, it ignores them; otherwise it will drop their equipment when despawning them.
+
 **Q: Where should I leave suggestions or feedback?**
 
 A: I would love to hear any suggestions or feedback you have! I only ask that you leave it as a new issue here as it makes it easier for me to manage and track.
