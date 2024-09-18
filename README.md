@@ -30,12 +30,12 @@ This mod is highly configurable, and most aspects of what this mod does can be a
 	#Should difficulty based range scaling be enabled?
 	#Difficulty Scaling: EASY = base | NORMAL = base / 2 | HARD = base / 4
 	enableScaling = true
-	#Vertical radius to check for mobs to despawn.
-	#Range: 0 ~ 64
-	verticalRange = 16
 	#Horizontal radius to check for mobs to despawn.
 	#Range: 0 ~ 256
 	horizontalRange = 64
+	#Vertical radius to check for mobs to despawn.
+	#Range: 0 ~ 64
+	verticalRange = 16
 
 #Conditional Checks
 [checks]
