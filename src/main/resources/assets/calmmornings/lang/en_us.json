@@ -1,0 +1,19 @@
+{
+  "calmmornings.config.CATEGORY_GENERAL": "General Settings",
+  "calmmornings.config.ENABLE_LIST": "Enable List",
+  "calmmornings.config.IS_BLACKLIST": "Blacklist",
+  "calmmornings.config.MOB_LIST": "Mobs",
+
+  "calmmornings.config.CATEGORY_RANGE": "Range Settings",
+  "calmmornings.config.ENABLED_SCALING": "Enable Scaling",
+  "calmmornings.config.HORIZONTAL_RANGE": "Horizontal Range",
+  "calmmornings.config.VERTICAL_RANGE": "Vertical Range",
+
+  "calmmornings.config.CATEGORY_CHECKS": "Conditional Checks",
+  "calmmornings.config.LATE_CHECK": "Late Check",
+  "calmmornings.config.ENABLE_PLAYER_CHECK": "Player Check",
+  "calmmornings.config.MOB_CHECK": "Monster Check",
+  "calmmornings.config.BETTER_CHECKING": "Better Checking",
+
+  "calmmornings.sleep.not_safe": "A hostile presence wakes you..."
+}

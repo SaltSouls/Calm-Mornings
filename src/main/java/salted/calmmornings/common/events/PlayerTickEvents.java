@@ -3,30 +3,26 @@ package salted.calmmornings.common.events;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.event.TickEvent.Phase;
-import net.minecraftforge.event.TickEvent.PlayerTickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.EventBusSubscriber;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 import salted.calmmornings.CalmMornings;
-import salted.calmmornings.common.capability.ISleepTime;
-import salted.calmmornings.common.capability.SleepTime;
+import salted.calmmornings.common.registry.CMData;
 
-@Mod.EventBusSubscriber(modid = CalmMornings.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+@EventBusSubscriber(modid = CalmMornings.MODID, bus = EventBusSubscriber.Bus.GAME)
 public class PlayerTickEvents {
 
     @SubscribeEvent
-    public static void onPlayerTick(PlayerTickEvent event) {
-        if (!(event.phase == Phase.END)) return;
-        Player player = event.player;
+    public static void onPlayerTick(PlayerTickEvent.Post event) {
+        Player player = event.getEntity();
         Level level = player.level();
 
-        if (level.isClientSide() && !(event.player instanceof ServerPlayer)) return;
-        ISleepTime sleepPlayer = SleepTime.get(player);
-        String sleepTime = sleepPlayer.getSleepTime();
+        if (level.isClientSide() && !(player instanceof ServerPlayer)) return;
+        String sleepTime = player.getData(CMData.SLEEPTIME);
 
         if (sleepTime.equals("awake") || player.isSleeping()) return;
 
-        sleepPlayer.setSleepTime("awake");
-        sleepPlayer.syncToClient();
+        player.setData(CMData.SLEEPTIME, "awake");
+
     }
 }

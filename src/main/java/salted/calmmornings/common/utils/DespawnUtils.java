@@ -4,17 +4,16 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Difficulty;
-import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.fml.ModList;
+import net.neoforged.fml.ModList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import salted.calmmornings.common.config.IConfig;
+import salted.calmmornings.common.Config;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,8 +25,8 @@ public class DespawnUtils {
 
         if (difficulty == Difficulty.PEACEFUL) return;  // do nothing if peaceful
         double scaling = SleepUtils.scaling(difficulty);
-        double h = Math.round(IConfig.getHorizontalRange() / scaling);
-        double v = Math.round(IConfig.getVerticalRange() / scaling);
+        double h = Math.round(Config.HORIZONTAL_RANGE.get() / scaling);
+        double v = Math.round(Config.VERTICAL_RANGE.get() / scaling);
         AABB area = newAABB(player, h, v);
 
         // check to see if player check is enabled in config
@@ -73,9 +72,9 @@ public class DespawnUtils {
         String mobKey = EntityType.getKey(type).toString();
 
         // see if the mob is in the list
-        if (IConfig.getEnableList()) {
-            if (IConfig.isBlacklist()) return !IConfig.getMobList().contains(mobKey);
-            return IConfig.getMobList().contains(mobKey);
+        if (Config.ENABLE_LIST.get()) {
+            if (Config.IS_BLACKLIST.get()) return !Config.MOB_LIST.get().contains(mobKey);
+            return Config.MOB_LIST.get().contains(mobKey);
         }
         // see if the mob is in the category, minus blacklisted ones
         else if (!blackList.contains(type) && sleeptightCompat(type))  {
@@ -94,8 +93,7 @@ public class DespawnUtils {
 
             // drop items with 100% drop chance(picked up/inventory items)
             if (entity instanceof Mob mob && mob.isPersistenceRequired()) {
-                DamageSource source = level.damageSources().generic();
-                mob.dropCustomDeathLoot(source, 0, false);
+                mob.dropPreservedEquipment();
                 mob.discard();
             } else if (entity instanceof LivingEntity livingEntity) {
                 if(livingEntity instanceof Player) return; // this should never happen
@@ -147,7 +145,7 @@ public class DespawnUtils {
     }
 
     private static boolean isPlayerCheckEnabled(Player player, AABB area) {
-        if (IConfig.getEnablePlayerCheck()) return true;
+        if (Config.PLAYER_CHECK.get()) return true;
         despawnSelected(player, area);
         return false;
     }

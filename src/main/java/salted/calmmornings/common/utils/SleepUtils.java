@@ -4,9 +4,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import salted.calmmornings.common.capability.ISleepTime;
-import salted.calmmornings.common.capability.SleepTime;
-import salted.calmmornings.common.config.IConfig;
+import salted.calmmornings.common.Config;
+import salted.calmmornings.common.registry.CMData;
 
 public class SleepUtils {
 
@@ -17,7 +16,7 @@ public class SleepUtils {
     }
 
     public static double scaling(Difficulty difficulty) {
-        if (!IConfig.getEnableScaling()) return 1.0D;
+        if (Config.ENABLE_SCALING.get()) return 1.0D;
 
         return switch (difficulty) {
             case NORMAL -> 2.0D;
@@ -27,8 +26,8 @@ public class SleepUtils {
     }
 
     private static boolean sleptLate(TimeUtils.Time time) {
-        if (IConfig.getLateCheck().equals(TimeUtils.Time.DISABLED)) return false;
-        TimeUtils.Time lateTime = (TimeUtils.Time) IConfig.getLateCheck();
+        if (Config.LATE_CHECK.get().equals(TimeUtils.Time.DISABLED)) return false;
+        TimeUtils.Time lateTime = Config.LATE_CHECK.get();
 
         return TimeUtils.isWithinFollowingSlices(time, lateTime);
     }
@@ -36,8 +35,7 @@ public class SleepUtils {
     public static boolean isPlayerValid(Player player) {
         if (!(player instanceof ServerPlayer serverPlayer) ) return false;
 
-        ISleepTime sleepPlayer = SleepTime.get(serverPlayer);
-        String sleepTime = sleepPlayer.getSleepTime();
+        String sleepTime = player.getData(CMData.SLEEPTIME);
         TimeUtils.Time playerTime = TimeUtils.getPlayerTimeSlice(serverPlayer);
 
         return sleepTime.equals("awake") || sleptLate(playerTime);

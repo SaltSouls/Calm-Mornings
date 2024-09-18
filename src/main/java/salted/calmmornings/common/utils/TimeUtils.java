@@ -3,8 +3,7 @@ package salted.calmmornings.common.utils;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
 import salted.calmmornings.CalmMornings;
-import salted.calmmornings.common.capability.ISleepTime;
-import salted.calmmornings.common.capability.SleepTime;
+import salted.calmmornings.common.registry.CMData;
 
 public class TimeUtils {
 
@@ -28,8 +27,7 @@ public class TimeUtils {
     }
 
     public static Time getPlayerTimeSlice(ServerPlayer player) {
-        ISleepTime sleepPlayer = SleepTime.get(player);
-        String sleepTime = sleepPlayer.getSleepTime();
+        String sleepTime = player.getData(CMData.SLEEPTIME);
 
         switch (sleepTime) {
             case "early_morning" -> { return Time.MORNING_E; }
