@@ -20,6 +20,8 @@ public class PlayerTickEvents {
         Player player = event.player;
         Level level = player.level();
 
+        if (player.isDeadOrDying()) return;
+
         if (level.isClientSide() && !(event.player instanceof ServerPlayer)) return;
         ISleepTime sleepPlayer = SleepTime.get(player);
         String sleepTime = sleepPlayer.getSleepTime();
