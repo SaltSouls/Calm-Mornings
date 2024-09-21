@@ -11,14 +11,24 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.fml.ModList;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import salted.calmmornings.CalmMornings;
 import salted.calmmornings.common.Config;
+import salted.calmmornings.common.utils.MobListUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
+
 public class DespawnUtils {
+    public static Logger log = LogManager.getLogger();
+
+    public static Logger getLog() { return log; }
+
 
     public static void despawnEntities(Level level, ServerPlayer player) {
         Difficulty difficulty = level.getDifficulty();
@@ -68,20 +78,14 @@ public class DespawnUtils {
     }
 
     private static boolean shouldDespawn(@NotNull Entity entity) {
+        log = getLog();
         EntityType<?> type = entity.getType();
-        String mobKey = EntityType.getKey(type).toString();
+        String[] mob_inf = EntityType.getKey(type).toString().split(":");
 
-        // see if the mob is in the list
-        if (Config.ENABLE_LIST.get()) {
-            if (Config.IS_BLACKLIST.get()) return !Config.MOB_LIST.get().contains(mobKey);
-            return Config.MOB_LIST.get().contains(mobKey);
-        }
-        // see if the mob is in the category, minus blacklisted ones
-        else if (!blackList.contains(type) && sleeptightCompat(type))  {
-            return type.getCategory().equals(MobCategory.MONSTER);
-        }
+        HashMap<String, HashMap<String, EntityDetails>> map = MobListUtils.getEntityMap();
 
-        return false;
+        if (blackList.contains(type)) return false;
+        return (map.get(mob_inf[0]).get(mob_inf[1]).getCategory() == MobCategory.MONSTER);
     }
 
     private static void despawn(@NotNull Entity entity) {
