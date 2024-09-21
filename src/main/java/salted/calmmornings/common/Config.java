@@ -19,6 +19,7 @@ public class Config {
     public static ModConfigSpec.IntValue VERTICAL_RANGE;
     public static ModConfigSpec.IntValue HORIZONTAL_RANGE;
     public static ModConfigSpec.EnumValue<Time> LATE_CHECK;
+    public static ModConfigSpec.EnumValue<Time> MORNING_CHECK;
     public static ModConfigSpec.BooleanValue PLAYER_CHECK;
     public static ModConfigSpec.BooleanValue MOB_CHECK;
     public static ModConfigSpec.BooleanValue BETTER_CHECKING;
@@ -72,6 +73,11 @@ public class Config {
                 .comment("Latest time a player can sleep to allow despawning.")
                 .translation(modid + ".config." + "LATE_CHECK")
                 .defineEnum("lateCheck", Time.NIGHT_L);
+
+        MORNING_CHECK = builder
+                .comment("Latest time a player can wakeup to allow despawning.")
+                .translation(modid + ".config." + "MORNING_CHECK")
+                .defineEnum("morningCheck", Time.MORNING_E);
 
         PLAYER_CHECK = builder
                 .comment("Should non-sleeping players prevent despawning around them?")

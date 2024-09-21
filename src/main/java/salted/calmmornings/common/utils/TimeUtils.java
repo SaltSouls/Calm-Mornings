@@ -54,12 +54,21 @@ public class TimeUtils {
         else return null;
     }
 
+    public static boolean isWithinPreviousSlices(Time time, Time slice) {
+        Time startSlice = getPreviousStart(slice);
+        return isBetweenTime(time, startSlice.start, slice.end);
+    }
+
     public static boolean isWithinFollowingSlices(Time time, Time slice) {
         Time endSlice = getFollowingEnd(slice);
         return isBetweenTime(time, slice.start, endSlice.end);
     }
 
-    // private methods for determining values
+    public static boolean isBetweenTime(Time time, long start, long end) {
+        return time.start >= start && time.end <= end;
+    }
+
+    // private methods for determining values/conditions
     private static final int dayLength = Level.TICKS_PER_DAY;
 
     private static boolean getTime(Level level, Time time) {
@@ -71,10 +80,6 @@ public class TimeUtils {
         long dayTime = level.getDayTime() % dayLength;
         CalmMornings.LOGGER.debug("current precise time: {}", dayTime);
         return dayTime >= start && dayTime < end;
-    }
-
-    private static boolean isBetweenTime(Time time, long start, long end) {
-        return time.start >= start && time.end <= end;
     }
 
     private static Time getLastTimeSlice(Time time) {
@@ -111,6 +116,11 @@ public class TimeUtils {
             case NIGHT_L -> { return Time.MORNING_E; }
             default -> { return null; } // this should never happen
         }
+    }
+
+    private static Time getPreviousStart(Time time) {
+        if (time.equals(Time.MORNING_E)) return time;
+        else return Time.MORNING_E;
     }
 
     private static Time getFollowingEnd(Time time) {

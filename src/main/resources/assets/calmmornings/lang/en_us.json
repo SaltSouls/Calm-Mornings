@@ -11,6 +11,7 @@
 
   "calmmornings.config.CATEGORY_CHECKS": "Conditional Checks",
   "calmmornings.config.LATE_CHECK": "Late Check",
+  "calmmornings.config.MORNING_CHECK": "Morning Check",
   "calmmornings.config.ENABLE_PLAYER_CHECK": "Player Check",
   "calmmornings.config.MOB_CHECK": "Monster Check",
   "calmmornings.config.BETTER_CHECKING": "Better Checking",

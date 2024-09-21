@@ -110,19 +110,13 @@ public class SleepEvents {
             // early return if player isn't sleeping/slept late
             if (SleepUtils.isPlayerValid(players)) return;
 
-            long worldTime = TimeUtils.getTimeSlice(level).getStart();
-            CalmMornings.LOGGER.debug("Current WorldTime: {}", worldTime);
+            Time levelTime = TimeUtils.getTimeSlice(level);
             Time playerTime = TimeUtils.getPlayerTimeSlice(players);
-            CalmMornings.LOGGER.debug("Current PlayerTime: {}", playerTime);
-
-            if (playerTime == null) return;
             Time timeChunk = TimeUtils.getPlayerTimeChunk(playerTime);
-            long wakeTime = SleepUtils.getWakeTime(level);
-            CalmMornings.LOGGER.debug("Wake Time: {}", wakeTime);
 
             switch (timeChunk) {
                 case EVENING, NIGHT -> {
-                    if (wakeTime != worldTime) return;
+                    if (!SleepUtils.validWakeTime(levelTime)) return;
                     DespawnUtils.despawnEntities(level, players);
                 }
             }
