@@ -93,10 +93,10 @@ public class SleepEvents {
         long time = level.getGameTime();
 
         if (time % 10 != 0) return;
-        if (noMonstersNear(level, player)) {
-            event.setContinueSleeping(false);
-            player.displayClientMessage(Component.translatable(CalmMornings.MODID + ".sleep.not_safe"), true);
-        }
+        if (noMonstersNear(level, player)) return;
+
+        event.setContinueSleeping(false);
+        player.displayClientMessage(Component.translatable(CalmMornings.MODID + ".sleep.not_safe"), true);
     }
 
     @SubscribeEvent
