@@ -1,6 +1,5 @@
 package salted.calmmornings.common;
 
-import net.minecraft.world.entity.MobCategory;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import salted.calmmornings.CalmMornings;
 import salted.calmmornings.common.utils.TimeUtils.Time;
@@ -8,21 +7,15 @@ import salted.calmmornings.common.utils.TimeUtils.Time;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class Config {
     public static ModConfigSpec COMMON_CONFIG;
     private static final List<String> defaultList = new ArrayList<>(List.of("minecraft:creeper", "minecraft:zombie", "minecraft:spider"));
+    private static final List<String> defaultCategoryList = new ArrayList<>(List.of("minecraft:villager:CREATURE"));
     // Configurable Entity Filters
-    public static ModConfigSpec.BooleanValue CREATURE;
-    public static ModConfigSpec.BooleanValue MONSTER;
-    public static ModConfigSpec.BooleanValue MISC;
-    public static ModConfigSpec.BooleanValue AMBIENT;
-    public static ModConfigSpec.BooleanValue WATER_CREATURE;
-    public static ModConfigSpec.BooleanValue UNDERGROUND_WATER_CREATURE;
-    public static ModConfigSpec.BooleanValue WATER_AMBIENT;
     public static ModConfigSpec.BooleanValue ENABLE_LIST;
     public static ModConfigSpec.BooleanValue IS_BLACKLIST;
     public static ModConfigSpec.ConfigValue<List<? extends String>> MOB_LIST;
+    public static ModConfigSpec.ConfigValue<List<? extends String>> MOBCATEGORY_LIST;
     public static ModConfigSpec.BooleanValue ENABLE_SCALING;
     public static ModConfigSpec.IntValue VERTICAL_RANGE;
     public static ModConfigSpec.IntValue HORIZONTAL_RANGE;
@@ -31,7 +24,14 @@ public class Config {
     public static ModConfigSpec.BooleanValue PLAYER_CHECK;
     public static ModConfigSpec.BooleanValue MOB_CHECK;
     public static ModConfigSpec.BooleanValue BETTER_CHECKING;
-
+    public static ModConfigSpec.BooleanValue MONSTER;
+    public static ModConfigSpec.BooleanValue CREATURE;
+    public static ModConfigSpec.BooleanValue AXOLOTLS;
+    public static ModConfigSpec.BooleanValue WATER_CREATURE;
+    public static ModConfigSpec.BooleanValue UNDERGROUND_WATER_CREATURE;
+    public static ModConfigSpec.BooleanValue AMBIENT;
+    public static ModConfigSpec.BooleanValue WATER_AMBIENT;
+    public static ModConfigSpec.BooleanValue MISC;
 
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
@@ -51,11 +51,17 @@ public class Config {
 
         MOB_LIST = builder
                 .comment("""
-                        List of mobs to despawn. Requires enableList.
-                        Formatting: ["minecraft:creeper", "minecraft:zombie", "minecraft:spider", "modID:entityID"]""")
+                        List of mobs to despawn. Use '*' to add all mobs in modId. Requires enableList.
+                        Formatting: ["minecraft:creeper", "minecraft:zombie", "minecraft:spider", "<modId>:<entityId>"]""")
                 .translation(modid + ".config." + "MOB_LIST").defineListAllowEmpty(List.of("mobs"), () -> defaultList, () -> "", mobs -> mobs instanceof String);
-        builder.pop();
 
+        MOBCATEGORY_LIST = builder
+                .comment("""
+                        Change mobs used MobCategory when despawning. Use '*' to add all mobs in modId.
+                        Formatting: ["minecraft:villager:creature", "<modId>:<entityId>:<MobCategory>"]
+                        MobCategories: [MONSTER, CREATURE, WATER_CREATURE, UNDERGROUND_WATER_CREATURE, AMBIENT, WATER_AMBIENT, MISC]""")
+                .translation(modid + ".config." + "MOBCATEGORY_LIST").defineListAllowEmpty(List.of("changed"), () -> defaultCategoryList, () -> "", mobs -> mobs instanceof String);
+        builder.pop();
 
         String CATEGORY_RANGE = "range";
         builder.comment("Range Settings").translation(modid + ".config." + "CATEGORY_RANGE").push(CATEGORY_RANGE);
@@ -104,17 +110,50 @@ public class Config {
                 .translation(modid + ".config." + "BETTER_CHECKING")
                 .define("betterChecking", true);
 
-        // Mob Category Filter Settings
-        String MOB_CATEGORY_FILTER = "Mob Category Filter";
-        builder.comment("Mob Category Filter Settings").translation(modid + ".config." + "MOB_CATEGORY_FILTER").push(MOB_CATEGORY_FILTER);
+        String CATEGORY_MOBCATEGORY_CHECK = "category_checks";
+        builder.comment("Allow listed MobCategories when despawning? Requires enableList.")
+                .translation(modid + ".config." + "CATEGORY_MOBCATEGORY_CHECK")
+                .push(CATEGORY_MOBCATEGORY_CHECK);
 
-        CREATURE = builder.translation(modid + ".config." + "CREATURE").define("Creature", true);
-        MONSTER = builder.translation(modid + ".config." + "MONSTER").define("Monster", true);
-        AMBIENT = builder.translation(modid + ".config." + "AMBIENT").define("Ambient", false);
-        WATER_CREATURE = builder.translation(modid + ".config." + "WATER_CREATURE").define("Water Creature", false);
-        UNDERGROUND_WATER_CREATURE = builder.translation(modid + ".config." + "UNDERGROUND_WATER_CREATURE").define("Underground Water Creature", false);
-        WATER_AMBIENT = builder.translation(modid + ".config." + "WATER_AMBIENT").define("Water Ambient", false);
-        MISC = builder.translation(modid + ".config." + "MISC").define("Misc", false);
+        MONSTER = builder
+                .comment("Enable MONSTER check?")
+                .translation(modid + ".config." + "MONSTER")
+                .define("MONSTER", true);
+
+        CREATURE = builder
+                .comment("Enable CREATURE check?")
+                .translation(modid + ".config." + "CREATURE")
+                .define("CREATURE", true);
+
+        AXOLOTLS = builder
+                .comment("Enable AXOLOTLS check?")
+                .translation(modid + ".config." + "AXOLOTLS")
+                .define("AXOLOTLS", true);
+
+        WATER_CREATURE = builder
+                .comment("Enable WATER_CREATURE check?")
+                .translation(modid + ".config." + "WATER_CREATURE")
+                .define("WATER_CREATURE", true);
+
+        UNDERGROUND_WATER_CREATURE = builder
+                .comment("Enable UNDERGROUND_WATER_CREATURE check?")
+                .translation(modid + ".config." + "UNDERGROUND_WATER_CREATURE")
+                .define("UNDERGROUND_WATER_CREATURE", true);
+
+        AMBIENT = builder
+                .comment("Enable AMBIENT check?")
+                .translation(modid + ".config." + "AMBIENT")
+                .define("AMBIENT", true);
+
+        WATER_AMBIENT = builder
+                .comment("Enable WATER_AMBIENT check?")
+                .translation(modid + ".config." + "WATER_AMBIENT")
+                .define("WATER_AMBIENT", true);
+
+        MISC = builder
+                .comment("Enable MISC check?")
+                .translation(modid + ".config." + "MISC")
+                .define("MISC", true);
         builder.pop();
 
         COMMON_CONFIG = builder.build();

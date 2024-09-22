@@ -15,29 +15,9 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class ListBuilder {
-
-    public static HashSet<MobCategory> filterList = new HashSet<>();
-    public static List<String> getBlackList() { return blackList; }
-    public static HashSet<MobCategory> getFilterList() { return filterList; }
     public static ConcurrentHashMap<String, ConcurrentHashMap<String, ListInfo>> getEntityMap() { return entityMap; }
-
-    public static void updateFilterList() {
-        HashSet<MobCategory> filterList = getFilterList();
-        if (Config.CREATURE.getAsBoolean()) { filterList.add(MobCategory.CREATURE); }
-        else { filterList.remove(MobCategory.CREATURE); }
-        if (Config.MONSTER.getAsBoolean()) { filterList.add(MobCategory.MONSTER); }
-        else { filterList.remove(MobCategory.MONSTER); }
-        if (Config.AMBIENT.getAsBoolean()) { filterList.add(MobCategory.AMBIENT); }
-        else { filterList.remove(MobCategory.AMBIENT); }
-        if (Config.WATER_CREATURE.getAsBoolean()) { filterList.add(MobCategory.WATER_CREATURE); }
-        else { filterList.remove(MobCategory.WATER_CREATURE); }
-        if (Config.WATER_AMBIENT.getAsBoolean()) { filterList.add(MobCategory.WATER_AMBIENT); }
-        else { filterList.remove(MobCategory.WATER_AMBIENT); }
-        if (Config.UNDERGROUND_WATER_CREATURE.getAsBoolean()) { filterList.add(MobCategory.UNDERGROUND_WATER_CREATURE); }
-        else { filterList.remove(MobCategory.UNDERGROUND_WATER_CREATURE); }
-        if (Config.MISC.getAsBoolean()) { filterList.add(MobCategory.MISC); }
-        else { filterList.remove(MobCategory.MISC); }
-    }
+    public static HashSet<MobCategory> getFilterList() { return filterList; }
+    public static List<String> getBlackList() { return blackList; }
 
     public static void addEntity(@NotNull String entity, EntityType<?> type) {
         // get modId and entityId if they exist
@@ -108,6 +88,26 @@ public final class ListBuilder {
         manger.awaitShutdown(5);
     }
 
+    public static void updateFilterList() {
+        HashSet<MobCategory> filterList = getFilterList();
+        if (Config.MONSTER.getAsBoolean()) { filterList.add(MobCategory.MONSTER); }
+        else { filterList.remove(MobCategory.MONSTER); }
+        if (Config.CREATURE.getAsBoolean()) { filterList.add(MobCategory.CREATURE); }
+        else { filterList.remove(MobCategory.CREATURE); }
+        if (Config.AXOLOTLS.getAsBoolean()) { filterList.add(MobCategory.AXOLOTLS); }
+        else { filterList.remove(MobCategory.AXOLOTLS); }
+        if (Config.WATER_CREATURE.getAsBoolean()) { filterList.add(MobCategory.WATER_CREATURE); }
+        else { filterList.remove(MobCategory.WATER_CREATURE); }
+        if (Config.UNDERGROUND_WATER_CREATURE.getAsBoolean()) { filterList.add(MobCategory.UNDERGROUND_WATER_CREATURE); }
+        else { filterList.remove(MobCategory.UNDERGROUND_WATER_CREATURE); }
+        if (Config.AMBIENT.getAsBoolean()) { filterList.add(MobCategory.AMBIENT); }
+        else { filterList.remove(MobCategory.AMBIENT); }
+        if (Config.WATER_AMBIENT.getAsBoolean()) { filterList.add(MobCategory.WATER_AMBIENT); }
+        else { filterList.remove(MobCategory.WATER_AMBIENT); }
+        if (Config.MISC.getAsBoolean()) { filterList.add(MobCategory.MISC); }
+        else { filterList.remove(MobCategory.MISC); }
+    }
+
     public static Optional<Tuple<String, String>> entityKey(String entity) {
         String[] key = entity.split(":");
 
@@ -121,7 +121,7 @@ public final class ListBuilder {
 
     // private methods for determining values/conditions
     private static final ConcurrentHashMap<String, ConcurrentHashMap<String, ListInfo>> entityMap = new ConcurrentHashMap<>();
-
+    private static final HashSet<MobCategory> filterList = new HashSet<>();
     private static final ArrayList<String> blackList = new ArrayList<>(List.of(
             // bosses/dungeon enemies
             "minecraft:ender_dragon",
