@@ -3,15 +3,13 @@ package salted.calmmornings.common.entitylist;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
+import org.apache.commons.lang3.tuple.Triple;
 import org.jetbrains.annotations.NotNull;
 import salted.calmmornings.CalmMornings;
 import salted.calmmornings.common.Config;
 import salted.calmmornings.common.threading.ThreadManager;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class ListBuilder {
@@ -181,6 +179,59 @@ public final class ListBuilder {
         });
         manger.shutdown();
         manger.awaitShutdown(5);
+    }
+
+    private static Optional<Triple<String, String, String>> getEntityTripleSafe(String entity) {
+        String[] split = entity.split(":");
+        if (split.length < 3) return Optional.empty();
+        return Optional.of(Triple.of(split[0], split[1], split[2]));
+    }
+
+    private static void setCategory(String modId, String entityId, MobCategory category) {
+        ConcurrentHashMap<String, ConcurrentHashMap<String, ListInfo>> map = getEntityMap();
+        if (!map.containsKey(modId)) return;
+        ConcurrentHashMap<String, ListInfo> inner_map = map.get(modId);
+        if (inner_map.containsKey(entityId)) inner_map.get(entityId).setCategory(category);
+
+    }
+
+    private static void setCategoryAll(String modId, MobCategory category) {
+        ConcurrentHashMap<String, ConcurrentHashMap<String, ListInfo>> entityMap = getEntityMap();
+        if (!entityMap.containsKey(modId)) return;
+        entityMap.get(modId).forEach((k, v) -> {
+            v.setCategory(category);
+        });
+    }
+
+    private static Optional<MobCategory> isValidCategory(String category) {
+        return switch (category) {
+            case "MONSTER" -> Optional.of(MobCategory.MONSTER);
+            case "CREATURE" -> Optional.of(MobCategory.CREATURE);
+            case "WATER_CREATURE" -> Optional.of(MobCategory.WATER_CREATURE);
+            case "UNDERGROUND_WATER_CREATURE" -> Optional.of(MobCategory.UNDERGROUND_WATER_CREATURE);
+            case "AMBIENT" -> Optional.of(MobCategory.AMBIENT);
+            case "WATER_AMBIENT" -> Optional.of(MobCategory.WATER_AMBIENT);
+            case "MISC" -> Optional.of(MobCategory.MISC);
+            case "AXOLOTLS" -> Optional.of(MobCategory.AXOLOTLS);
+            default -> Optional.empty();
+        };
+    }
+
+    public static void updateEntityCategory(String entity) {
+        Optional<Triple<String, String, String>> opt = getEntityTripleSafe(entity);
+        if (opt.isEmpty()) return;
+        Triple<String, String, String> key = opt.get();
+        Optional<MobCategory> mobOpt = isValidCategory(key.getRight());
+        if (mobOpt.isEmpty()) return;
+        MobCategory mobCategory = mobOpt.get();
+
+        if (Objects.equals(key.getMiddle(), "*")) {
+            setCategoryAll(key.getLeft(), mobCategory);
+        } else {
+            setCategory(key.getLeft(), key.getMiddle(), mobCategory);
+        }
+
+
     }
 
 }

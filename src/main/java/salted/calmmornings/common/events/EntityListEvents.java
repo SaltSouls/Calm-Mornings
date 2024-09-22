@@ -39,7 +39,17 @@ public class EntityListEvents {
 
         if (ModList.get().isLoaded("sleep_tight")) sleeptightCompat();
         ListBuilder.updateFilterList();
+
+        manger = new ThreadManager();
         ListBuilder.configureEntities(Config.ENABLE_LIST.get());
+        for (String mobCategory : Config.MOBCATEGORY_LIST.get()) {
+            Runnable task = () -> {
+                ListBuilder.updateEntityCategory(mobCategory);
+            };
+            manger.addTask(task);
+        }
+        manger.shutdown();
+        manger.awaitShutdown(5);
     }
 
     @SubscribeEvent
@@ -49,6 +59,18 @@ public class EntityListEvents {
 
         ListBuilder.updateFilterList();
         ListBuilder.configureEntities(Config.ENABLE_LIST.get());
+        ListBuilder.configureEntities(Config.ENABLE_LIST.get());
+        ThreadManager manager = new ThreadManager();
+
+        for (String mobCategory : Config.MOBCATEGORY_LIST.get()) {
+            Runnable task = () -> {
+                ListBuilder.updateEntityCategory(mobCategory);
+            };
+            manager.addTask(task);
+        }
+        manager.shutdown();
+        manager.awaitShutdown(5);
+
     }
 
     // private methods for determining values/conditions
