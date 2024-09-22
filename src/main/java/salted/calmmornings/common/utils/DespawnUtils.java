@@ -17,11 +17,16 @@ import salted.calmmornings.common.Config;
 import salted.calmmornings.common.entitylist.ListBuilder;
 import salted.calmmornings.common.entitylist.ListInfo;
 
-import java.util.HashSet;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class DespawnUtils {
+
+    @NotNull
+    public static AABB newAABB(@NotNull Entity entity, double horizontal, double vertical) {
+        Vec3 vec3 = Vec3.atBottomCenterOf(entity.getOnPos());
+        return new AABB(vec3.x() - horizontal, vec3.y() - vertical, vec3.z() - horizontal, vec3.x() + horizontal, vec3.y() + vertical, vec3.z() + horizontal);
+    }
 
     public static void despawnEntities(Level level, ServerPlayer player) {
         Difficulty difficulty = level.getDifficulty();
@@ -83,12 +88,6 @@ public class DespawnUtils {
             if (!(level instanceof ServerLevel serverLevel)) return;
             serverLevel.sendParticles(ParticleTypes.POOF, vec.x(), vec.y() + 1.0D, vec.z(), 15, 0.05D, 0.50D, 0.05D, 0.001D);
         }
-    }
-
-    @NotNull
-    public static AABB newAABB(@NotNull Entity entity, double horizontal, double vertical) {
-        Vec3 vec3 = Vec3.atBottomCenterOf(entity.getOnPos());
-        return new AABB(vec3.x() - horizontal, vec3.y() - vertical, vec3.z() - horizontal, vec3.x() + horizontal, vec3.y() + vertical, vec3.z() + horizontal);
     }
 
     @Nullable

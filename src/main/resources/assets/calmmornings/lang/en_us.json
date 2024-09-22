@@ -3,15 +3,7 @@
   "calmmornings.config.ENABLE_LIST": "Enable List",
   "calmmornings.config.IS_BLACKLIST": "Blacklist",
   "calmmornings.config.MOB_LIST": "Mobs",
-  "calmmornings.config.MOB_CATEGORY_FILTER": "Mob Category Filter",
-
-  "calmmornings.config.CREATURE": "Creature",
-  "calmmornings.config.MONSTER": "Monster",
-  "calmmornings.config.AMBIENT": "Ambient",
-  "calmmornings.config.WATER_CREATURE": "Water Creature",
-  "calmmornings.config.UNDERGROUND_WATER_CREATURE": "Underground Water Creature",
-  "calmmornings.config.WATER_AMBIENT": "Water Ambient",
-  "calmmornings.config.MISC": "Miscellaneous",
+  "calmmornings.config.MOBCATEGORY_LIST": "Changed Mobs",
 
   "calmmornings.config.CATEGORY_RANGE": "Range Settings",
   "calmmornings.config.ENABLED_SCALING": "Enable Scaling",
@@ -24,6 +16,16 @@
   "calmmornings.config.ENABLE_PLAYER_CHECK": "Player Check",
   "calmmornings.config.MOB_CHECK": "Monster Check",
   "calmmornings.config.BETTER_CHECKING": "Better Checking",
+
+  "calmmornings.config.CATEGORY_MOBCATEGORY_CHECKS": "MobCategory Checks",
+  "calmmornings.config.MONSTER": "MONSTER",
+  "calmmornings.config.CREATURE": "CREATURE",
+  "calmmornings.config.AXOLOTLS": "AXOLOTLS",
+  "calmmornings.config.WATER_CREATURE": "WATER_CREATURE",
+  "calmmornings.config.UNDERGROUND_WATER_CREATURE": "UNDERGROUND_WATER_CREATURE",
+  "calmmornings.config.AMBIENT": "AMBIENT",
+  "calmmornings.config.WATER_AMBIENT": "WATER_AMBIENT",
+  "calmmornings.config.MISC": "MISC",
 
   "calmmornings.sleep.not_safe": "A hostile presence wakes you..."
 }
