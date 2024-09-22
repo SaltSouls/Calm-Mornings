@@ -31,12 +31,13 @@ public class MobListEvents {
                 MobListUtils.addEntity(entity_id, entity);
             });
         }
+        MobListUtils.hydrateEntities(!Config.ENABLE_LIST.get());
     }
 
     @SubscribeEvent
     private static void configUpdated(ModConfigEvent.Reloading event) {
         if (Objects.equals(event.getConfig().getModId(), CalmMornings.MODID)) {
-            MobListUtils.hydrateEntities();
+            MobListUtils.hydrateEntities(!Config.ENABLE_LIST.get());
             CalmMornings.LOGGER.debug("config update event fired!");
         }
     }

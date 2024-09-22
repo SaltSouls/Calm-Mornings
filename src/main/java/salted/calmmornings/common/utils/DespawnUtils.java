@@ -51,25 +51,6 @@ public class DespawnUtils {
         }
     }
 
-    // private methods for despawning entities
-    // TODO: find a better way to do this
-    // a list of entities that should not be despawned
-    private static final ArrayList<EntityType<?>> blackList = new ArrayList<>(List.of(
-            // bosses/dungeon enemies
-            EntityType.ENDER_DRAGON,
-            EntityType.WITHER,
-            EntityType.GUARDIAN,
-            EntityType.ELDER_GUARDIAN,
-            /* this should prevent raids/roaming parties from being
-              affected, though there might be a better way to do this */
-            EntityType.PILLAGER,
-            EntityType.EVOKER,
-            EntityType.ILLUSIONER,
-            EntityType.RAVAGER,
-            // this shouldn't happen, but better safe than sorry
-            EntityType.PLAYER
-    ));
-
     // don't despawn bedbugs if mod is loaded
     private static boolean sleeptightCompat(EntityType<?> type) {
         String mobKey = EntityType.getKey(type).toString();
@@ -81,11 +62,14 @@ public class DespawnUtils {
         log = getLog();
         EntityType<?> type = entity.getType();
         String[] mob_inf = EntityType.getKey(type).toString().split(":");
+        String modId = mob_inf[0];
+        String entityId = mob_inf[1];
 
         HashMap<String, HashMap<String, EntityDetails>> map = MobListUtils.getEntityMap();
+        EntityDetails entityDetails = map.get(modId).get(entityId);
 
-        if (blackList.contains(type)) return false;
-        return (map.get(mob_inf[0]).get(mob_inf[1]).getCategory() == MobCategory.MONSTER);
+        if (Config.ENABLE_LIST.get()) return entityDetails.getDespawnable();
+        return (entityDetails.getCategory() == MobCategory.MONSTER && entityDetails.getDespawnable());
     }
 
     private static void despawn(@NotNull Entity entity) {
