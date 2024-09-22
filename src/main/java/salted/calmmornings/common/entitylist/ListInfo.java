@@ -22,5 +22,4 @@ public class ListInfo {
     public MobCategory getCategory() { return this.category; }
     public boolean getDespawnable() { return this.despawnable; }
 
-
 }

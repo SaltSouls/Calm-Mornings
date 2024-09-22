@@ -31,8 +31,8 @@ public class SleepEvents {
         Player player = event.getEntity();
         Level level = player.level();
 
-        // replacing the vanilla sleep check with my own
-        // while I don't like this, it seems like the best method
+        /* replacing the vanilla sleep check with my own.
+        while I don't like this, it seems like the best method */
         if (level.isClientSide()) return;
         if (level.isDay()) event.setProblem(event.getVanillaProblem());
         else if (Config.MOB_CHECK.get()) {
