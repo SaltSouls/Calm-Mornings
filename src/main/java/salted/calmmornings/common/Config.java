@@ -1,5 +1,6 @@
 package salted.calmmornings.common;
 
+import net.minecraft.world.entity.MobCategory;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import salted.calmmornings.CalmMornings;
 import salted.calmmornings.common.utils.TimeUtils.Time;
@@ -7,9 +8,18 @@ import salted.calmmornings.common.utils.TimeUtils.Time;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class Config {
     public static ModConfigSpec COMMON_CONFIG;
     private static final List<String> defaultList = new ArrayList<>(List.of("minecraft:creeper", "minecraft:zombie", "minecraft:spider"));
+    // Configurable Entity Filters
+    public static ModConfigSpec.BooleanValue CREATURE;
+    public static ModConfigSpec.BooleanValue MONSTER;
+    public static ModConfigSpec.BooleanValue MISC;
+    public static ModConfigSpec.BooleanValue AMBIENT;
+    public static ModConfigSpec.BooleanValue WATER_CREATURE;
+    public static ModConfigSpec.BooleanValue UNDERGROUND_WATER_CREATURE;
+    public static ModConfigSpec.BooleanValue WATER_AMBIENT;
     public static ModConfigSpec.BooleanValue ENABLE_LIST;
     public static ModConfigSpec.BooleanValue IS_BLACKLIST;
     public static ModConfigSpec.ConfigValue<List<? extends String>> MOB_LIST;
@@ -21,6 +31,7 @@ public class Config {
     public static ModConfigSpec.BooleanValue PLAYER_CHECK;
     public static ModConfigSpec.BooleanValue MOB_CHECK;
     public static ModConfigSpec.BooleanValue BETTER_CHECKING;
+
 
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
@@ -44,6 +55,7 @@ public class Config {
                         Formatting: ["minecraft:creeper", "minecraft:zombie", "minecraft:spider", "modID:entityID"]""")
                 .translation(modid + ".config." + "MOB_LIST").defineListAllowEmpty(List.of("mobs"), () -> defaultList, () -> "", mobs -> mobs instanceof String);
         builder.pop();
+
 
         String CATEGORY_RANGE = "range";
         builder.comment("Range Settings").translation(modid + ".config." + "CATEGORY_RANGE").push(CATEGORY_RANGE);
@@ -91,6 +103,18 @@ public class Config {
                 .comment("Should only monsters tracking the player prevent sleep? Requires monsterCheck.")
                 .translation(modid + ".config." + "BETTER_CHECKING")
                 .define("betterChecking", true);
+
+        // Mob Category Filter Settings
+        String MOB_CATEGORY_FILTER = "Mob Category Filter";
+        builder.comment("Mob Category Filter Settings").translation(modid + ".config." + "MOB_CATEGORY_FILTER").push(MOB_CATEGORY_FILTER);
+
+        CREATURE = builder.translation(modid + ".config." + "CREATURE").define("Creature", true);
+        MONSTER = builder.translation(modid + ".config." + "MONSTER").define("Monster", true);
+        AMBIENT = builder.translation(modid + ".config." + "AMBIENT").define("Ambient", false);
+        WATER_CREATURE = builder.translation(modid + ".config." + "WATER_CREATURE").define("Water Creature", false);
+        UNDERGROUND_WATER_CREATURE = builder.translation(modid + ".config." + "UNDERGROUND_WATER_CREATURE").define("Underground Water Creature", false);
+        WATER_AMBIENT = builder.translation(modid + ".config." + "WATER_AMBIENT").define("Water Ambient", false);
+        MISC = builder.translation(modid + ".config." + "MISC").define("Misc", false);
         builder.pop();
 
         COMMON_CONFIG = builder.build();

@@ -17,6 +17,7 @@ import salted.calmmornings.common.Config;
 import salted.calmmornings.common.entitylist.ListBuilder;
 import salted.calmmornings.common.entitylist.ListInfo;
 
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -57,7 +58,7 @@ public class DespawnUtils {
         ConcurrentHashMap<String, ConcurrentHashMap<String, ListInfo>> map = ListBuilder.getEntityMap();
         ListInfo listInfo = map.get(modId).get(entityId);
 
-        if (Config.ENABLE_LIST.get()) return listInfo.getDespawnable();
+        if (Config.ENABLE_LIST.get()) return listInfo.getDespawnable() && ListBuilder.getFilterList().contains(listInfo.getCategory());
         return (listInfo.getCategory() == MobCategory.MONSTER && listInfo.getDespawnable());
     }
 

@@ -38,6 +38,7 @@ public class EntityListEvents {
         manger.awaitShutdown(5);
 
         if (ModList.get().isLoaded("sleep_tight")) sleeptightCompat();
+        ListBuilder.updateFilterList();
         ListBuilder.configureEntities(Config.ENABLE_LIST.get());
     }
 
@@ -46,6 +47,7 @@ public class EntityListEvents {
         if (!Objects.equals(event.getConfig().getModId(), CalmMornings.MODID)) return;
         CalmMornings.LOGGER.debug("config update event fired!");
 
+        ListBuilder.updateFilterList();
         ListBuilder.configureEntities(Config.ENABLE_LIST.get());
     }
 
