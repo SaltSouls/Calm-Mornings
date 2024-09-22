@@ -3,6 +3,7 @@ package salted.calmmornings.common.utils;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Tuple;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
@@ -10,25 +11,18 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.fml.ModList;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import salted.calmmornings.CalmMornings;
 import salted.calmmornings.common.Config;
-import salted.calmmornings.common.utils.MobListUtils;
+import salted.calmmornings.common.entitylist.ListInfo;
+import salted.calmmornings.common.entitylist.ListBuilder;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Optional;
+
 
 
 public class DespawnUtils {
-    public static Logger log = LogManager.getLogger();
-
-    public static Logger getLog() { return log; }
-
 
     public static void despawnEntities(Level level, ServerPlayer player) {
         Difficulty difficulty = level.getDifficulty();
@@ -51,25 +45,22 @@ public class DespawnUtils {
         }
     }
 
-    // don't despawn bedbugs if mod is loaded
-    private static boolean sleeptightCompat(EntityType<?> type) {
-        String mobKey = EntityType.getKey(type).toString();
-        if (ModList.get().isLoaded("sleep_tight")) return !mobKey.equals("sleep_tight:bedbug");
-        return true;
-    }
-
+    // private methods for despawning entities
     private static boolean shouldDespawn(@NotNull Entity entity) {
-        log = getLog();
         EntityType<?> type = entity.getType();
-        String[] mob_inf = EntityType.getKey(type).toString().split(":");
-        String modId = mob_inf[0];
-        String entityId = mob_inf[1];
+        String entityKey = EntityType.getKey(type).toString();
+        Optional<Tuple<String, String>> optional = ListBuilder.entityKey(entityKey);
+        if (optional.isEmpty()) return false;
 
-        HashMap<String, HashMap<String, EntityDetails>> map = MobListUtils.getEntityMap();
-        EntityDetails entityDetails = map.get(modId).get(entityId);
+        Tuple<String, String> key = optional.get();
+        String modId = key.getA();
+        String entityId = key.getB();
 
-        if (Config.ENABLE_LIST.get()) return entityDetails.getDespawnable();
-        return (entityDetails.getCategory() == MobCategory.MONSTER && entityDetails.getDespawnable());
+        HashMap<String, HashMap<String, ListInfo>> map = ListBuilder.getEntityMap();
+        ListInfo listInfo = map.get(modId).get(entityId);
+
+        if (Config.ENABLE_LIST.get()) return listInfo.getDespawnable();
+        return (listInfo.getCategory() == MobCategory.MONSTER && listInfo.getDespawnable());
     }
 
     private static void despawn(@NotNull Entity entity) {

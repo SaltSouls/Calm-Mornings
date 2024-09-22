@@ -44,7 +44,7 @@ public class Config {
                 .comment("""
                         List of mobs to despawn. Requires enableList.
                         Formatting: ["minecraft:creeper", "minecraft:zombie", "minecraft:spider", "modID:entityID"]""")
-                .translation(modid + ".config." + "MOB_LIST").defineListAllowEmpty(List.of("mobs"), () -> defaultList, () -> "", mobs -> (mobs instanceof String string && ResourceLocation.tryParse(string) != null));
+                .translation(modid + ".config." + "MOB_LIST").defineListAllowEmpty(List.of("mobs"), () -> defaultList, () -> "", mobs -> mobs instanceof String);
         builder.pop();
 
         String CATEGORY_RANGE = "range";
