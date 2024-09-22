@@ -23,7 +23,7 @@ This mod is highly configurable, and most aspects of what this mod does can be a
 	isBlacklist = false
 	#List of mobs to despawn. Requires enableList.
 	#Formatting: ["minecraft:creeper", "minecraft:zombie", "minecraft:spider", "modID:entityID"]
-	mobs = ["minecraft:*", "weewoo:bear", "buttnugger", "minecraft:whores"]
+	mobs = ["minecraft:creeper", "minecraft:zombie", "minecraft:spider"]
 
 #Range Settings
 [range]
