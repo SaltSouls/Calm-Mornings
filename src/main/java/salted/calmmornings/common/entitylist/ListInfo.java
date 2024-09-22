@@ -1,12 +1,12 @@
-package salted.calmmornings.common.utils;
+package salted.calmmornings.common.entitylist;
 
 import net.minecraft.world.entity.MobCategory;
 
-public class EntityDetails {
+public class ListInfo {
     public MobCategory category;
     public boolean despawnable;
 
-    EntityDetails(MobCategory c, boolean d) {
+    ListInfo(MobCategory c, boolean d) {
         category = c;
         despawnable = d;
     }

@@ -26,16 +26,6 @@ import java.util.List;
 @EventBusSubscriber(modid = CalmMornings.MODID, bus = EventBusSubscriber.Bus.GAME)
 public class SleepEvents {
 
-    private static void updateSleepTime(String time, Player player) {
-        player.setData(CMData.SLEEPTIME, time);
-    }
-
-    private static boolean noMonstersNear(Level level, Player player) {
-        AABB bounds = DespawnUtils.newAABB(player, 32, 16);
-        List<Monster> list = level.getEntitiesOfClass(Monster.class, bounds, monster -> monster.getTarget() == player);
-        return list.isEmpty();
-    }
-
     @SubscribeEvent
     public static void onPlayerSleep(CanPlayerSleepEvent event) {
         Player player = event.getEntity();
@@ -121,6 +111,17 @@ public class SleepEvents {
                 }
             }
         }
+    }
+
+    // private methods for determining values/conditions
+    private static void updateSleepTime(String time, Player player) {
+        player.setData(CMData.SLEEPTIME, time);
+    }
+
+    private static boolean noMonstersNear(Level level, Player player) {
+        AABB bounds = DespawnUtils.newAABB(player, 32, 16);
+        List<Monster> list = level.getEntitiesOfClass(Monster.class, bounds, monster -> monster.getTarget() == player);
+        return list.isEmpty();
     }
 
 }
