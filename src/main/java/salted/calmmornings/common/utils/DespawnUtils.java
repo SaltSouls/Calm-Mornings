@@ -20,7 +20,6 @@ import salted.calmmornings.common.entitylist.ListInfo;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-
 public class DespawnUtils {
 
     public static void despawnEntities(Level level, ServerPlayer player) {

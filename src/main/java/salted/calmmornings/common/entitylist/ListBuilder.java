@@ -1,24 +1,19 @@
 package salted.calmmornings.common.entitylist;
 
-
 import net.minecraft.util.Tuple;
 import net.minecraft.world.entity.EntityType;
 import org.jetbrains.annotations.NotNull;
 import salted.calmmornings.CalmMornings;
 import salted.calmmornings.common.Config;
+import salted.calmmornings.common.threading.ThreadManager;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
 
 public final class ListBuilder {
     public static List<String> getBlackList() { return blackList; }
-
     public static ConcurrentHashMap<String, ConcurrentHashMap<String, ListInfo>> getEntityMap() { return entityMap; }
 
     public static void addEntity(@NotNull String entity, EntityType<?> type) {
@@ -31,28 +26,33 @@ public final class ListBuilder {
         String entityId = key.getB();
         // get hashmap
         ConcurrentHashMap<String, ConcurrentHashMap<String, ListInfo>> map = getEntityMap();
-        ConcurrentHashMap<String, ListInfo> inner_map = new ConcurrentHashMap<>();
+        ConcurrentHashMap<String, ListInfo> innerMap = new ConcurrentHashMap<>();
 
         // check if list is enabled else use default values
-        if (Config.ENABLE_LIST.get()) inner_map.put(entityId, new ListInfo(type.getCategory(), Config.IS_BLACKLIST.get()));
-        else inner_map.put(entityId, new ListInfo(type.getCategory(), true));
+        if (Config.ENABLE_LIST.get()) innerMap.put(entityId, new ListInfo(type.getCategory(), Config.IS_BLACKLIST.get()));
+        else innerMap.put(entityId, new ListInfo(type.getCategory(), true));
 
         // get the mod map if it exists, else create map
-        if (map.containsKey(modId)) map.get(modId).putAll(inner_map);
-        else map.put(modId, inner_map);
+        if (map.containsKey(modId)) map.get(modId).putAll(innerMap);
+        else map.put(modId, innerMap);
     }
 
-    public static void hydrateEntities(boolean isDefault) {
+    public static void configureEntities(boolean listEnabled) {
         ConcurrentHashMap<String, ConcurrentHashMap<String, ListInfo>> map = getEntityMap();
-        if (isDefault) { // use mobCategory if list is not enabled
+        ThreadManager manger = new ThreadManager();
+
+        if (!listEnabled) { // use mobCategory if list is not enabled
             setAllEntities(true);
 
             for (String entity : blackList) {
-                Optional<Tuple<String, String>> optional = entityKey(entity);
-                if (optional.isEmpty()) return;
-                Tuple<String, String> key = optional.get();
+                Runnable task = () -> {
+                    Optional<Tuple<String, String>> optional = entityKey(entity);
+                    if (optional.isEmpty()) return;
+                    Tuple<String, String> key = optional.get();
 
-                setDespawnValue(key, false, map);
+                    setDespawnValue(key, false, map);
+                };
+                manger.addTask(task);
             }
         } else { // set which entities can despawn based on list
             List<? extends String> list = Config.MOB_LIST.get();
@@ -60,25 +60,39 @@ public final class ListBuilder {
             setAllEntities(isBlackList);
 
             for (String entity : list) {
-                Optional<Tuple<String, String>> optional = entityKey(entity);
-                if (optional.isEmpty()) return;
+                Runnable task = () -> {
+                    Optional<Tuple<String, String>> optional = entityKey(entity);
+                    if (optional.isEmpty()) return;
 
-                Tuple<String, String> key = optional.get();
-                String modId = key.getA();
-                String entityId = key.getB();
+                    Tuple<String, String> key = optional.get();
+                    String modId = key.getA();
+                    String entityId = key.getB();
 
-                /* set value for all entities in modId if value in list equals "<modId>:*"
-                else set value for each individual entity in list */
-                if (entityId.equals("*")) setAllInModID(modId, !isBlackList, map);
-                else setDespawnValue(key, !isBlackList, map);
+                    /* set value for all entities in modId if value in list equals "<modId>:*"
+                    else set value for each individual entity in list */
+                    if (entityId.equals("*")) {
+                        CalmMornings.LOGGER.info("Configuring all [{}", modId + "] entities");
+                        setAllInModID(modId, !isBlackList, map);
+                    }
+                    else {
+                        setDespawnValue(key, !isBlackList, map);
+                    }
+                };
+                manger.addTask(task);
             }
         }
+        manger.shutdown();
+        manger.awaitShutdown(5);
     }
 
     public static Optional<Tuple<String, String>> entityKey(String entity) {
         String[] key = entity.split(":");
 
-        if (key.length == 1) return Optional.empty();
+        // get the modId(key[0]) and entityId(key[1]) from entityKey
+        if (key.length == 1) {
+            CalmMornings.LOGGER.error("[{}", key[0] + "] is not a valid list entry!");
+            return Optional.empty();
+        }
         return Optional.of(new Tuple<>(key[0], key[1]));
     }
 
@@ -103,31 +117,46 @@ public final class ListBuilder {
 
     private static void setDespawnValue(Tuple<String, String> key, boolean value, ConcurrentHashMap<String, ConcurrentHashMap<String, ListInfo>> map) {
         String modId = key.getA();
-        if (!map.containsKey(modId)) return;
+        if (!map.containsKey(modId)) {
+            CalmMornings.LOGGER.error("modId [{}", modId + "] is not in map!");
+            return;
+        }
 
         ConcurrentHashMap<String, ListInfo> innerMap = map.get(modId);
         String entityId = key.getB();
 
-        if (innerMap.containsKey(entityId)) innerMap.get(entityId).setDespawnable(value);
+        if (innerMap.containsKey(entityId)) {
+            CalmMornings.LOGGER.info("Configured: [" + modId + ":" + entityId + "]");
+            innerMap.get(entityId).setDespawnable(value);
+        }
+        else CalmMornings.LOGGER.error("[" + entityId + "] does not exist in [" + modId + "]!");
     }
 
     private static void setAllInModID(String modId, boolean value, ConcurrentHashMap<String, ConcurrentHashMap<String, ListInfo>> map) {
         if (!map.containsKey(modId)) return;
-        map.get(modId).forEach((entityId, listInfo) -> listInfo.setDespawnable(value));
+        ThreadManager manger = new ThreadManager();
+
+        map.get(modId).forEach((entityId, listInfo) -> {
+            Runnable task = () -> {
+                CalmMornings.LOGGER.debug("Configured: [" + modId + ":" + entityId + "]");
+                listInfo.setDespawnable(value);
+            };
+            manger.addTask(task);
+        });
+        manger.shutdown();
+        manger.awaitShutdown(5);
     }
 
     private static void setAllEntities(boolean value) {
         ConcurrentHashMap<String, ConcurrentHashMap<String, ListInfo>> entityMap = getEntityMap();
-        ExecutorService pool = Executors.newFixedThreadPool(10);
+        ThreadManager manger = new ThreadManager();
+
         entityMap.forEach((modId, innerMap) -> {
-            Runnable runnable = () -> setAllInModID(modId, value, entityMap);
-            pool.execute(runnable);
+            CalmMornings.LOGGER.debug("Defaulting all [{}", modId + "] entities:");
+            Runnable task = () -> setAllInModID(modId, value, entityMap);
+            manger.addTask(task);
         });
-        pool.shutdown();
-        try {
-            if(pool.awaitTermination(7, TimeUnit.SECONDS)) { CalmMornings.LOGGER.debug("Thread pool successfully terminated"); }
-        } catch (InterruptedException e) {
-            CalmMornings.LOGGER.debug("Failed to shutdown the thread pool in a timely manner");
-        }
+        manger.shutdown();
+        manger.awaitShutdown(5);
     }
 }

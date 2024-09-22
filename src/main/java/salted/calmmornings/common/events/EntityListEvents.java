@@ -11,47 +11,42 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import salted.calmmornings.CalmMornings;
 import salted.calmmornings.common.Config;
 import salted.calmmornings.common.entitylist.ListBuilder;
+import salted.calmmornings.common.threading.ThreadManager;
 
 import java.util.Objects;
 import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
-
 
 @EventBusSubscriber(modid = CalmMornings.MODID, bus = EventBusSubscriber.Bus.MOD)
 public class EntityListEvents {
 
     @SubscribeEvent
-    public static void onStartup(FMLCommonSetupEvent event) {
+    public static void addListStartup(FMLCommonSetupEvent event) {
         Set<ResourceLocation> names = BuiltInRegistries.ENTITY_TYPE.keySet();
-        ExecutorService pool = Executors.newFixedThreadPool(10);
+        ThreadManager manger = new ThreadManager();
 
-        for (ResourceLocation loc : names) {
-            Runnable runnable = () -> {
-                String entity_id = loc.toString();
-                EntityType.byString(entity_id).ifPresent(entity -> {
-                    CalmMornings.LOGGER.debug("Adding entity " + entity_id + " to map");
+        for (ResourceLocation resource : names) {
+            Runnable task = () -> {
+                String entityId = resource.toString();
+                EntityType.byString(entityId).ifPresent(entity -> {
+                    ListBuilder.addEntity(entityId, entity);
+                    CalmMornings.LOGGER.debug("Adding [{} ", entityId + "] to map");
                 });
             };
-            pool.execute(runnable);
+            manger.addTask(task);
         }
-        pool.shutdown();
-        try {
-            boolean didShutDown = pool.awaitTermination(5, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            CalmMornings.LOGGER.debug("Failed to shutdown threadpool in a timely manner");
-        }
+        manger.shutdown();
+        manger.awaitShutdown(5);
+
         if (ModList.get().isLoaded("sleep_tight")) sleeptightCompat();
-        ListBuilder.hydrateEntities(!Config.ENABLE_LIST.get());
+        ListBuilder.configureEntities(Config.ENABLE_LIST.get());
     }
 
     @SubscribeEvent
     public static void configUpdated(ModConfigEvent.Reloading event) {
         if (!Objects.equals(event.getConfig().getModId(), CalmMornings.MODID)) return;
-
-        ListBuilder.hydrateEntities(!Config.ENABLE_LIST.get());
         CalmMornings.LOGGER.debug("config update event fired!");
+
+        ListBuilder.configureEntities(Config.ENABLE_LIST.get());
     }
 
     // private methods for determining values/conditions

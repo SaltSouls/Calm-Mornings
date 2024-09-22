@@ -7,7 +7,6 @@ import salted.calmmornings.common.utils.TimeUtils.Time;
 import java.util.ArrayList;
 import java.util.List;
 
-
 public class Config {
     public static ModConfigSpec COMMON_CONFIG;
     private static final List<String> defaultList = new ArrayList<>(List.of("minecraft:creeper", "minecraft:zombie", "minecraft:spider"));
