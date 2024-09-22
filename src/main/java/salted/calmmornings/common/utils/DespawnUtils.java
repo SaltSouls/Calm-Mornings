@@ -11,14 +11,24 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.fml.ModList;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import salted.calmmornings.CalmMornings;
 import salted.calmmornings.common.Config;
+import salted.calmmornings.common.utils.MobListUtils;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
+
 public class DespawnUtils {
+    public static Logger log = LogManager.getLogger();
+
+    public static Logger getLog() { return log; }
+
 
     public static void despawnEntities(Level level, ServerPlayer player) {
         Difficulty difficulty = level.getDifficulty();
@@ -41,25 +51,6 @@ public class DespawnUtils {
         }
     }
 
-    // private methods for despawning entities
-    // TODO: find a better way to do this
-    // a list of entities that should not be despawned
-    private static final ArrayList<EntityType<?>> blackList = new ArrayList<>(List.of(
-            // bosses/dungeon enemies
-            EntityType.ENDER_DRAGON,
-            EntityType.WITHER,
-            EntityType.GUARDIAN,
-            EntityType.ELDER_GUARDIAN,
-            /* this should prevent raids/roaming parties from being
-              affected, though there might be a better way to do this */
-            EntityType.PILLAGER,
-            EntityType.EVOKER,
-            EntityType.ILLUSIONER,
-            EntityType.RAVAGER,
-            // this shouldn't happen, but better safe than sorry
-            EntityType.PLAYER
-    ));
-
     // don't despawn bedbugs if mod is loaded
     private static boolean sleeptightCompat(EntityType<?> type) {
         String mobKey = EntityType.getKey(type).toString();
@@ -68,20 +59,17 @@ public class DespawnUtils {
     }
 
     private static boolean shouldDespawn(@NotNull Entity entity) {
+        log = getLog();
         EntityType<?> type = entity.getType();
-        String mobKey = EntityType.getKey(type).toString();
+        String[] mob_inf = EntityType.getKey(type).toString().split(":");
+        String modId = mob_inf[0];
+        String entityId = mob_inf[1];
 
-        // see if the mob is in the list
-        if (Config.ENABLE_LIST.get()) {
-            if (Config.IS_BLACKLIST.get()) return !Config.MOB_LIST.get().contains(mobKey);
-            return Config.MOB_LIST.get().contains(mobKey);
-        }
-        // see if the mob is in the category, minus blacklisted ones
-        else if (!blackList.contains(type) && sleeptightCompat(type))  {
-            return type.getCategory().equals(MobCategory.MONSTER);
-        }
+        HashMap<String, HashMap<String, EntityDetails>> map = MobListUtils.getEntityMap();
+        EntityDetails entityDetails = map.get(modId).get(entityId);
 
-        return false;
+        if (Config.ENABLE_LIST.get()) return entityDetails.getDespawnable();
+        return (entityDetails.getCategory() == MobCategory.MONSTER && entityDetails.getDespawnable());
     }
 
     private static void despawn(@NotNull Entity entity) {
