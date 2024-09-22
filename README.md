@@ -18,12 +18,12 @@ This mod is highly configurable, and most aspects of what this mod does can be a
 #General Settings
 [general]
 	#Use list instead of mobCategory for despawning?
-	enableList = false
+	enableList = true
 	#Changes the list to be a blacklist. Requires enableList.
 	isBlacklist = false
 	#List of mobs to despawn. Requires enableList.
 	#Formatting: ["minecraft:creeper", "minecraft:zombie", "minecraft:spider", "modID:entityID"]
-	mobs = ["minecraft:creeper", "minecraft:zombie", "minecraft:spider"]
+	mobs = ["minecraft:*", "weewoo:bear", "buttnugger", "minecraft:whores"]
 
 #Range Settings
 [range]
@@ -42,6 +42,9 @@ This mod is highly configurable, and most aspects of what this mod does can be a
 	#Latest time a player can sleep to allow despawning.
 	#Allowed Values: MORNING_E, MORNING, MORNING_L, NOON_E, NOON, NOON_L, EVENING_E, EVENING, EVENING_L, NIGHT_E, NIGHT, NIGHT_L, DISABLED
 	lateCheck = "NIGHT_L"
+	#Latest time a player can wakeup to allow despawning.
+	#Allowed Values: MORNING_E, MORNING, MORNING_L, NOON_E, NOON, NOON_L, EVENING_E, EVENING, EVENING_L, NIGHT_E, NIGHT, NIGHT_L, DISABLED
+	morningCheck = "MORNING_E"
 	#Should non-sleeping players prevent despawning around them?
 	playerCheck = true
 	#Should nearby monsters prevent sleep?
