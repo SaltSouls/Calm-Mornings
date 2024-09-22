@@ -3,6 +3,15 @@
   "calmmornings.config.ENABLE_LIST": "Enable List",
   "calmmornings.config.IS_BLACKLIST": "Blacklist",
   "calmmornings.config.MOB_LIST": "Mobs",
+  "calmmornings.config.MOB_CATEGORY_FILTER": "Mob Category Filter",
+
+  "calmmornings.config.CREATURE": "Creature",
+  "calmmornings.config.MONSTER": "Monster",
+  "calmmornings.config.AMBIENT": "Ambient",
+  "calmmornings.config.WATER_CREATURE": "Water Creature",
+  "calmmornings.config.UNDERGROUND_WATER_CREATURE": "Underground Water Creature",
+  "calmmornings.config.WATER_AMBIENT": "Water Ambient",
+  "calmmornings.config.MISC": "Miscellaneous",
 
   "calmmornings.config.CATEGORY_RANGE": "Range Settings",
   "calmmornings.config.ENABLED_SCALING": "Enable Scaling",
