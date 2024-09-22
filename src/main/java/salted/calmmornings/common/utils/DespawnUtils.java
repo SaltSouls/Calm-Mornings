@@ -14,12 +14,11 @@ import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import salted.calmmornings.common.Config;
-import salted.calmmornings.common.entitylist.ListInfo;
 import salted.calmmornings.common.entitylist.ListBuilder;
+import salted.calmmornings.common.entitylist.ListInfo;
 
-import java.util.HashMap;
 import java.util.Optional;
-
+import java.util.concurrent.ConcurrentHashMap;
 
 
 public class DespawnUtils {
@@ -56,7 +55,7 @@ public class DespawnUtils {
         String modId = key.getA();
         String entityId = key.getB();
 
-        HashMap<String, HashMap<String, ListInfo>> map = ListBuilder.getEntityMap();
+        ConcurrentHashMap<String, ConcurrentHashMap<String, ListInfo>> map = ListBuilder.getEntityMap();
         ListInfo listInfo = map.get(modId).get(entityId);
 
         if (Config.ENABLE_LIST.get()) return listInfo.getDespawnable();

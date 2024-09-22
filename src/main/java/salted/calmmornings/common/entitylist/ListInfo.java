@@ -11,11 +11,11 @@ public class ListInfo {
         despawnable = d;
     }
 
-    public void setCategory(MobCategory c) {
+    public synchronized void setCategory(MobCategory c) {
         this.category = c;
     }
 
-    public void setDespawnable(boolean d) {
+    public synchronized void setDespawnable(boolean d) {
         this.despawnable = d;
     }
 

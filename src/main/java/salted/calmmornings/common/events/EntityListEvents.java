@@ -14,6 +14,10 @@ import salted.calmmornings.common.entitylist.ListBuilder;
 
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
 
 @EventBusSubscriber(modid = CalmMornings.MODID, bus = EventBusSubscriber.Bus.MOD)
 public class EntityListEvents {
@@ -21,12 +25,22 @@ public class EntityListEvents {
     @SubscribeEvent
     public static void onStartup(FMLCommonSetupEvent event) {
         Set<ResourceLocation> names = BuiltInRegistries.ENTITY_TYPE.keySet();
+        ExecutorService pool = Executors.newFixedThreadPool(10);
+
         for (ResourceLocation loc : names) {
-            String entity_id = loc.toString();
-            EntityType.byString(entity_id).ifPresent(entity -> {
-                CalmMornings.LOGGER.debug("Adding entity " + entity_id + " to map");
-                ListBuilder.addEntity(entity_id, entity);
-            });
+            Runnable runnable = () -> {
+                String entity_id = loc.toString();
+                EntityType.byString(entity_id).ifPresent(entity -> {
+                    CalmMornings.LOGGER.debug("Adding entity " + entity_id + " to map");
+                });
+            };
+            pool.execute(runnable);
+        }
+        pool.shutdown();
+        try {
+            boolean didShutDown = pool.awaitTermination(5, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            CalmMornings.LOGGER.debug("Failed to shutdown threadpool in a timely manner");
         }
         if (ModList.get().isLoaded("sleep_tight")) sleeptightCompat();
         ListBuilder.hydrateEntities(!Config.ENABLE_LIST.get());

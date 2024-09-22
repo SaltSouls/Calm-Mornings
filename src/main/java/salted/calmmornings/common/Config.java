@@ -1,6 +1,5 @@
 package salted.calmmornings.common;
 
-import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.common.ModConfigSpec;
 import salted.calmmornings.CalmMornings;
 import salted.calmmornings.common.utils.TimeUtils.Time;
