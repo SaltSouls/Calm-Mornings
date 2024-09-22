@@ -26,4 +26,5 @@ public class ThreadManager {
         try { if (this.pool.awaitTermination(seconds, TimeUnit.SECONDS)) CalmMornings.LOGGER.debug("Thread pool successfully shutdown!"); }
         catch (InterruptedException e) { CalmMornings.LOGGER.error("Failed to shutdown thread pool in a timely manner!"); }
     }
+
 }
