@@ -1,7 +1,6 @@
 package salted.calmmornings.common.entitylist;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -13,43 +12,17 @@ import org.apache.commons.lang3.tuple.Triple;
 import salted.calmmornings.CalmMornings;
 import salted.calmmornings.common.threading.ThreadManager;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
-
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 
 public class EntityListManager {
 
-    // private methods for determining values/conditions
-    private static HashSet<String> lastMobList = new HashSet<>();
-    private static HashSet<String> lastCategoryList = new HashSet<>();
-    private static boolean lastIsBlackList;
-    private static final HashSet<String> defaultBlackList = new HashSet<>(Arrays.asList(
-            // bosses/dungeon enemies
-            "minecraft:ender_dragon",
-            "minecraft:wither",
-            "minecraft:guardian",
-            "minecraft:elder_guardian",
-            /* this should prevent raids/roaming parties from being
-              affected, though there might be a better way to do this */
-            "minecraft:pillager",
-            "minecraft:evoker",
-            "minecraft:illusioner",
-            "minecraft:ravager",
-            // this shouldn't happen, but better safe than sorry
-            "minecraft:player"
-    ));
-
-    // private methods for determining values/conditions
-    private static void sleeptightCompat() {
-        defaultBlackList.add("sleep_tight:bedbug");
-    }
-
-    public static void initializeMap(HashSet<String> newMobList, HashSet<String> newCategoryList, boolean listEnabled, boolean isBlackList) {
+    public static void initMap(HashSet<String> mobList, HashSet<String> categoryList, boolean listEnabled, boolean isBlackList) {
         Set<ResourceLocation> names = BuiltInRegistries.ENTITY_TYPE.keySet();
+        HashSet<String> list = listEnabled ? mobList: defaultBlackList;
         ThreadManager manager = new ThreadManager();
-
-        HashSet<String> list = listEnabled ? newMobList: defaultBlackList;
 
         for (ResourceLocation resource : names) {
             Runnable task = () -> {
@@ -62,66 +35,99 @@ public class EntityListManager {
             manager.addTask(task);
         }
         manager.shutdown();
-        manager.awaitShutdown(5);
+        manager.restart(5);
 
-        if (ModList.get().isLoaded("sleep_tight")) sleeptightCompat();
+        // add bedbugs to the default blacklist if sleep tight is loaded
+        if (ModList.get().isLoaded("sleep_tight")) defaultBlackList.add("sleep_tight:bedbug");
         ListBuilder.updateFilterList();
+        oldListType = isBlackList;
 
-        lastIsBlackList = isBlackList;
-        updateMobList(list, listEnabled, isBlackList);
-        updateCategoryList(newCategoryList);
+        updateMobList(list, listEnabled, isBlackList, manager);
+        updateCategoryList(categoryList, manager);
+        manager.shutdown();
+        manager.awaitShutdown(5);
     }
 
-    public static void updateMobList(HashSet<String> newMobList, boolean listEnabled, boolean isBlackList) {
-        CalmMornings.LOGGER.debug("New Mob List {}\nOld Mob List {}", newMobList, lastMobList);
+    public static void updateMobList(HashSet<String> newMobList, boolean listEnabled, boolean isBlackList, ThreadManager manager) {
         HashSet<String> list = listEnabled ? newMobList : defaultBlackList;
+        Sets.SetView<String> deleted = Sets.difference(oldMobList, list);
+        CalmMornings.LOGGER.debug("Deleted list {}", deleted);
+        Sets.SetView<String> added = Sets.difference(list, oldMobList);
+        CalmMornings.LOGGER.debug("Added list {}", added);
 
-        Sets.SetView<String> deleted = Sets.difference(lastMobList, list);
-        Sets.SetView<String> added = Sets.difference(list, lastMobList);
-        CalmMornings.LOGGER.debug("added list {}", added);
-        CalmMornings.LOGGER.debug("deleted list {}", deleted);
-        
-        boolean newIsBlackList = !listEnabled || isBlackList;
-        CalmMornings.LOGGER.debug("Is BlackList: {}", newIsBlackList);
-        if (lastIsBlackList != newIsBlackList) flipAllValues();
+        CalmMornings.LOGGER.debug("Is ListEnabled {}", listEnabled);
+        boolean newListType = !listEnabled || isBlackList;
+        CalmMornings.LOGGER.debug("Is BlackList: {}", newListType);
+        if (oldListType != newListType) ListBuilder.flipAllValues();
 
         // set all removed entries to false
-        deleted.forEach(entityId -> setEntityValues(entityId, newIsBlackList));
+        deleted.forEach(entityId -> setEntityValues(entityId, newListType, manager));
         // set all changed entries to true
-        added.forEach(entityId -> setEntityValues(entityId, !newIsBlackList));
+        added.forEach(entityId -> setEntityValues(entityId, !newListType, manager));
 
-        lastIsBlackList = newIsBlackList;
-        lastMobList = new HashSet<>(newMobList);
+        oldListType = newListType;
+        oldMobList = new HashSet<>(newMobList);
     }
 
-    public static void updateCategoryList(HashSet<String> newCategoryList) {
-        CalmMornings.LOGGER.debug("New CategoryList List {}\nOld Category List {}", newCategoryList, lastCategoryList);
-        Sets.SetView<String> deleted = Sets.difference(lastCategoryList, newCategoryList);
-        Sets.SetView<String> added = Sets.difference(newCategoryList, lastCategoryList);
-        CalmMornings.LOGGER.debug("added category list {}", added);
-        CalmMornings.LOGGER.debug("deleted category list {}", deleted);
+    public static void updateCategoryList(HashSet<String> newCategoryList, ThreadManager manager) {
+        Sets.SetView<String> deleted = Sets.difference(oldCategoryList, newCategoryList);
+        CalmMornings.LOGGER.debug("Deleted category list {}", deleted);
+        Sets.SetView<String> added = Sets.difference(newCategoryList, oldCategoryList);
+        CalmMornings.LOGGER.debug("Added category list {}", added);
 
         // set all removed entries to false
-        deleted.forEach(entityId -> setCategoryValues(entityId, false));
+        deleted.forEach(entityId -> setCategories(entityId, false, manager));
         // set all changed entries categories
-        added.forEach(entityId -> setCategoryValues(entityId, true));
+        added.forEach(entityId -> setCategories(entityId, true, manager));
 
-        lastCategoryList = new HashSet<>(newCategoryList);
+        oldCategoryList = new HashSet<>(newCategoryList);
     }
+    
+    // private methods for determining values/conditions
+    private static HashSet<String> oldMobList = new HashSet<>();
+    private static HashSet<String> oldCategoryList = new HashSet<>();
+    private static boolean oldListType;
+    private static final HashSet<String> defaultBlackList = new HashSet<>(Arrays.asList(
+            // bosses/dungeon enemies
+            "minecraft:ender_dragon",
+            "minecraft:wither",
+            "minecraft:warden",
+            "minecraft:guardian",
+            "minecraft:elder_guardian",
+            /* this should prevent raids/roaming parties from being
+              affected, though there might be a better way to do this */
+            "minecraft:pillager",
+            "minecraft:evoker",
+            "minecraft:illusioner",
+            "minecraft:ravager",
+            // this shouldn't happen, but better safe than sorry
+            "minecraft:player"
+    ));
 
-    private static void setEntityValues(String entity, boolean added) {
-        CalmMornings.LOGGER.debug("Setting Entity Value for {} to {}", entity, added);
+    // entity despawn value methods
+    private static void setEntityValues(String entity, boolean added, ThreadManager manager) {
         Optional<Pair<String, String>> optional = ListBuilder.entityKey(entity);
         if (optional.isEmpty()) return;
         Pair<String, String> key = optional.get();
         String modId = key.getLeft();
         String entityId = key.getRight();
 
-        if (entityId.equals("*")) updateAllValues(modId, added);
-        else ListBuilder.updateEntity(key, added, ListBuilder.getEntityMap());
+        if (entityId.equals("*")) setAllValues(modId, added, manager);
+        else ListBuilder.updateEntity(key, added);
     }
 
-    private static void setCategoryValues(String entity, boolean added) {
+    private static void setAllValues(String modId, boolean added, ThreadManager manager) {
+        ImmutableMap<String, ListInfo> entityIdMap = ListBuilder.getEntityIdMap(modId);
+
+        // construct keys from all entity ids in map and change value
+        for (String entityId: entityIdMap.keySet()) {
+            Runnable task = () -> ListBuilder.updateEntity(Pair.of(modId, entityId), added);
+            manager.addTask(task);
+        }
+    }
+
+    // entity category methods
+    private static void setCategories(String entity, boolean added, ThreadManager manager) {
         Optional<Triple<String, String, String>> optional = ListBuilder.categoryKey(entity);
         if (optional.isEmpty()) return;
         Triple<String, String, String> key = optional.get();
@@ -129,44 +135,22 @@ public class EntityListManager {
         String entityId = key.getMiddle();
         String mobCategory = key.getRight();
 
-        if (entityId.equals("*")) updateAllCategory(modId, mobCategory, added);
+        if (entityId.equals("*")) setAllCategories(modId, mobCategory, added, manager);
         else if (added) ListBuilder.updateEntityCategory(key);
         else setDefaultCategory(modId, entityId);
     }
 
-    private static void updateAllCategory(String modId, String mobCategory, boolean added) {
-        ImmutableMap<String, ListInfo> map = ListBuilder.getImmutableMap(modId);
-        ThreadManager manager = new ThreadManager();
+    private static void setAllCategories(String modId, String mobCategory, boolean added, ThreadManager manager) {
+        ImmutableMap<String, ListInfo> entityIdMap = ListBuilder.getEntityIdMap(modId);
 
-        for (String entityId: map.keySet()) {
+        // construct keys from all entity ids in map and change mobCategory
+        for (String entityId: entityIdMap.keySet()) {
             Runnable task = () -> {
-                Triple<String, String, String> key = Triple.of(modId, entityId, mobCategory);
-
-                if (added) ListBuilder.updateEntityCategory(key);
+                if (added) ListBuilder.updateEntityCategory(Triple.of(modId, entityId, mobCategory));
                 else setDefaultCategory(modId, entityId);
             };
             manager.addTask(task);
         }
-        manager.shutdown();
-        manager.awaitShutdown(5);
-    }
-
-    // returns all entities contained in a specific modId
-    private static void updateAllValues(String modId, boolean added) {
-        ImmutableMap<String, ListInfo> map = ListBuilder.getImmutableMap(modId);
-        ThreadManager manager = new ThreadManager();
-
-        for (String entityId: map.keySet()) {
-            Runnable task = () -> ListBuilder.updateEntity(Pair.of(modId, entityId), added, ListBuilder.getEntityMap());
-            manager.addTask(task);
-        }
-        manager.shutdown();
-        manager.awaitShutdown(5);
-    }
-
-    private static void flipAllValues() {
-        ConcurrentHashMap<String, ConcurrentHashMap<String, ListInfo>> map = ListBuilder.getEntityMap();
-        map.forEach((modId, innerMap) -> innerMap.forEach((entityId, listInfo) -> listInfo.setDespawnable(!listInfo.getDespawnable())));
     }
 
     private static void setDefaultCategory(String modId, String entityId) {
@@ -174,7 +158,7 @@ public class EntityListManager {
         EntityType<?> type = BuiltInRegistries.ENTITY_TYPE.get(resourceKey);
 
         MobCategory category = type.getCategory();
-        String mobCategory = category.getName().toUpperCase();
+        String mobCategory = category.getName();
 
         Triple<String, String, String> key = Triple.of(modId, entityId, mobCategory);
         ListBuilder.updateEntityCategory(key);

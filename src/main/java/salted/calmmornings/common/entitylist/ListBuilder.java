@@ -13,24 +13,28 @@ import java.util.HashSet;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-public final class ListBuilder {
-    public static ConcurrentHashMap<String, ConcurrentHashMap<String, ListInfo>> getEntityMap() { return entityMap; }
-    public static HashSet<MobCategory> getFilterList() { return filterList; }
-
-    public static ImmutableMap<String, ListInfo> getImmutableMap(String modId) {
-        return ImmutableMap.copyOf(getEntityMap().get(modId));
+public class ListBuilder {
+    public static ConcurrentHashMap<String, ConcurrentHashMap<String, ListInfo>> getEntityMap() {
+        return entityMap;
+    }
+    public static ImmutableMap<String, ListInfo> getEntityIdMap(String modId) {
+        return ImmutableMap.copyOf(entityMap.get(modId));
+    }
+    public static HashSet<MobCategory> getFilterList() {
+        return filterList;
     }
 
+    // entity despawn value methods
     public static void addEntity(@NotNull String entity, EntityType<?> type, boolean isBlackList) {
-        // get modId and entityId if they exist
+        // get mod/entity id if they exist
         Optional<Pair<String, String>> optional = entityKey(entity);
         if (optional.isEmpty()) return;
         Pair<String, String> key = optional.get();
-
         String modId = key.getLeft();
         String entityId = key.getRight();
-        // get hashmap
-        ConcurrentHashMap<String, ConcurrentHashMap<String, ListInfo>> map = getEntityMap();
+
+        // get outer/inner hashmaps
+        ConcurrentHashMap<String, ConcurrentHashMap<String, ListInfo>> map = entityMap;
         ConcurrentHashMap<String, ListInfo> innerMap = new ConcurrentHashMap<>();
 
         // check if list is enabled else use default values
@@ -40,6 +44,54 @@ public final class ListBuilder {
         // get the mod map if it exists, else create map
         if (map.containsKey(modId)) map.get(modId).putAll(innerMap);
         else map.put(modId, innerMap);
+    }
+
+    public static void updateEntity(Pair<String, String> key, boolean value) {
+        // check if mod/entity ids are valid
+        String modId = key.getLeft();
+        String entityId = key.getRight();
+        if (isNotValidEntity(modId, entityId)) return;
+
+        // get inner hashmap
+        ConcurrentHashMap<String, ListInfo> innerMap = entityMap.get(modId);
+
+        CalmMornings.LOGGER.debug("Configured: [{}:{}] to {}", modId, entityId, value);
+        innerMap.get(entityId).setDespawnable(value);
+    }
+
+    public static void flipAllValues() {
+        entityMap.forEach((modId, innerMap) -> innerMap.forEach((entityId, listInfo) -> listInfo.setDespawnable(!listInfo.getDespawnable())));
+    }
+
+    public static Optional<Pair<String, String>> entityKey(String entity) {
+        String[] key = entity.split(":");
+
+        // get the modId(key[0]) and entityId(key[1]) from entityKey
+        if (key.length == 1) {
+            CalmMornings.LOGGER.error("[{}] is not a valid list entry!", key[0]);
+            return Optional.empty();
+        }
+        return Optional.of(Pair.of(key[0], key[1]));
+    }
+
+    // entity category methods
+    public static void updateEntityCategory(Triple<String, String, String> key) {
+        // check if mod/entity ids are valid
+        String modId = key.getLeft();
+        String entityId = key.getMiddle();
+        if (isNotValidEntity(modId, entityId)) return;
+
+        // check if MobCategory actually exists
+        String category = key.getRight();
+        Optional<MobCategory> categoryOpt = isValidCategory(category);
+        if (categoryOpt.isEmpty()) return;
+        MobCategory mobCategory = categoryOpt.get();
+
+        // get inner hashmap
+        ConcurrentHashMap<String, ListInfo> innerMap = entityMap.get(modId);
+
+        CalmMornings.LOGGER.debug("Configured: [{}:{}] category to {}", modId, entityId, mobCategory.getName());
+        if (innerMap.containsKey(entityId)) innerMap.get(entityId).setCategory(mobCategory);
     }
 
     public static void updateFilterList() {
@@ -62,88 +114,55 @@ public final class ListBuilder {
         else { filterList.remove(MobCategory.MISC); }
     }
 
-    public static Optional<Pair<String, String>> entityKey(String entity) {
+    public static Optional<Triple<String, String, String>> categoryKey(String entity) {
         String[] key = entity.split(":");
 
-        // get the modId(key[0]) and entityId(key[1]) from entityKey
-        if (key.length == 1) {
-            CalmMornings.LOGGER.error("[{}] is not a valid list entry!", key[0]);
+        // get the modId(key[0]), entityId(key[1]) abd mobCategory(key[2]) from entity
+        if (key.length < 3) {
+            CalmMornings.LOGGER.error("[{}:{}] is not a valid category entry!", key[0], key[1]);
             return Optional.empty();
         }
-        return Optional.of(Pair.of(key[0], key[1]));
-    }
-
-    public static Optional<Triple<String, String, String>> categoryKey(String entity) {
-        String[] split = entity.split(":");
-        if (split.length < 3) return Optional.empty();
-        return Optional.of(Triple.of(split[0], split[1], split[2]));
+        return Optional.of(Triple.of(key[0], key[1], key[2]));
     }
 
     // private methods for determining values/conditions
     private static final ConcurrentHashMap<String, ConcurrentHashMap<String, ListInfo>> entityMap = new ConcurrentHashMap<>();
     private static final HashSet<MobCategory> filterList = new HashSet<>();
 
-    public static void updateEntity(Pair<String, String> key, boolean value, ConcurrentHashMap<String, ConcurrentHashMap<String, ListInfo>> map) {
-        String modId = key.getLeft();
-        if (modIdError(modId, map)) return;
+    private static boolean isNotValidEntity(String modId, String entityId) {
+        ConcurrentHashMap<String, ConcurrentHashMap<String, ListInfo>> map = entityMap;
 
-        ConcurrentHashMap<String, ListInfo> innerMap = map.get(modId);
-        String entityId = key.getRight();
-        if (entityIdError(entityId, innerMap)) return;
-
-        CalmMornings.LOGGER.info("Configured: [{}:{}] to {}", modId, entityId, value);
-        innerMap.get(entityId).setDespawnable(value);
-    }
-
-    public static void updateEntityCategory(Triple<String, String, String> key) {
-        String modId = key.getLeft();
-        String entityId = key.getMiddle();
-        String category = key.getRight();
-        
-        // check if MobCategory actually exists
-        Optional<MobCategory> categoryOpt = isValidCategory(category);
-        if (categoryOpt.isEmpty()) {
-            CalmMornings.LOGGER.error("MobCategory: [{}] does not exist!", category);
-            return;
+        // check if modId actually exists
+        if (!map.containsKey(modId)) {
+            CalmMornings.LOGGER.error("modId: [{}] does not exist!", modId);
+            return true;
         }
-        MobCategory mobCategory = categoryOpt.get();
 
-        CalmMornings.LOGGER.info("Setting mobCategory of [{}:{}] to {}", modId, entityId, mobCategory.getName().toUpperCase());
-        updateMobCategory(modId, entityId, mobCategory);
-    }
-
-    private static void updateMobCategory(String modId, String entityId, MobCategory category) {
-        ConcurrentHashMap<String, ConcurrentHashMap<String, ListInfo>> map = getEntityMap();
-        if (modIdError(modId, map)) return;
+        // check if entityId actually exists
         ConcurrentHashMap<String, ListInfo> innerMap = map.get(modId);
-        if (innerMap.containsKey(entityId)) innerMap.get(entityId).setCategory(category);
+        if (!innerMap.containsKey(entityId)) {
+            CalmMornings.LOGGER.error("entityId: [{}] does not exist!", entityId);
+            return true;
+        }
 
+        return false;
     }
 
     private static Optional<MobCategory> isValidCategory(String category) {
         return switch (category) {
-            case "MONSTER" -> Optional.of(MobCategory.MONSTER);
-            case "CREATURE" -> Optional.of(MobCategory.CREATURE);
-            case "WATER_CREATURE" -> Optional.of(MobCategory.WATER_CREATURE);
-            case "UNDERGROUND_WATER_CREATURE" -> Optional.of(MobCategory.UNDERGROUND_WATER_CREATURE);
-            case "AMBIENT" -> Optional.of(MobCategory.AMBIENT);
-            case "WATER_AMBIENT" -> Optional.of(MobCategory.WATER_AMBIENT);
-            case "MISC" -> Optional.of(MobCategory.MISC);
-            case "AXOLOTLS" -> Optional.of(MobCategory.AXOLOTLS);
-            default -> Optional.empty();
+            case "monster" -> Optional.of(MobCategory.MONSTER);
+            case "creature" -> Optional.of(MobCategory.CREATURE);
+            case "axolotls" -> Optional.of(MobCategory.AXOLOTLS);
+            case "water_creature" -> Optional.of(MobCategory.WATER_CREATURE);
+            case "underground_water_creature" -> Optional.of(MobCategory.UNDERGROUND_WATER_CREATURE);
+            case "ambient" -> Optional.of(MobCategory.AMBIENT);
+            case "water_ambient" -> Optional.of(MobCategory.WATER_AMBIENT);
+            case "misc" -> Optional.of(MobCategory.MISC);
+            default -> {
+                CalmMornings.LOGGER.error("mobCategory: [{}] does not exist!", category);
+                yield Optional.empty();
+            }
         };
-    }
-
-    private static boolean modIdError(String modId, ConcurrentHashMap<String, ConcurrentHashMap<String, ListInfo>> map) {
-        if (map.containsKey(modId)) return false;
-        CalmMornings.LOGGER.error("modId: [{}] is not in map!", modId);
-        return true;
-    }
-
-    private static boolean entityIdError(String entityId, ConcurrentHashMap<String, ListInfo> map) {
-        if (map.containsKey(entityId)) return false;
-        CalmMornings.LOGGER.error("entityId: [{}] does not exist!", entityId);
-        return true;
     }
 
 }

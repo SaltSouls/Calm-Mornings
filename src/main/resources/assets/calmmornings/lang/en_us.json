@@ -3,7 +3,7 @@
   "calmmornings.config.ENABLE_LIST": "Enable List",
   "calmmornings.config.IS_BLACKLIST": "Blacklist",
   "calmmornings.config.MOB_LIST": "Mobs",
-  "calmmornings.config.MOBCATEGORY_LIST": "Changed Mobs",
+  "calmmornings.config.MOBCATEGORY_LIST": "Mob Categories",
 
   "calmmornings.config.CATEGORY_RANGE": "Range Settings",
   "calmmornings.config.ENABLED_SCALING": "Enable Scaling",
