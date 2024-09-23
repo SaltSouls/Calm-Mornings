@@ -3,7 +3,6 @@ package salted.calmmornings.common.utils;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.Tuple;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
@@ -11,6 +10,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import salted.calmmornings.common.Config;
@@ -53,12 +53,12 @@ public class DespawnUtils {
     private static boolean shouldDespawn(@NotNull Entity entity) {
         EntityType<?> type = entity.getType();
         String entityKey = EntityType.getKey(type).toString();
-        Optional<Tuple<String, String>> optional = ListBuilder.entityKey(entityKey);
+        Optional<Pair<String, String>> optional = ListBuilder.entityKey(entityKey);
         if (optional.isEmpty()) return false;
 
-        Tuple<String, String> key = optional.get();
-        String modId = key.getA();
-        String entityId = key.getB();
+        Pair<String, String> key = optional.get();
+        String modId = key.getLeft();
+        String entityId = key.getRight();
 
         ConcurrentHashMap<String, ConcurrentHashMap<String, ListInfo>> map = ListBuilder.getEntityMap();
         ListInfo listInfo = map.get(modId).get(entityId);
