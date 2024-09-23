@@ -10,14 +10,13 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import org.apache.commons.lang3.tuple.Pair;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import salted.calmmornings.common.Config;
 import salted.calmmornings.common.entitylist.ListBuilder;
 import salted.calmmornings.common.entitylist.ListInfo;
 
-import java.util.Optional;
+import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class DespawnUtils {
@@ -53,17 +52,19 @@ public class DespawnUtils {
     private static boolean shouldDespawn(@NotNull Entity entity) {
         EntityType<?> type = entity.getType();
         String entityKey = EntityType.getKey(type).toString();
-        Optional<Pair<String, String>> optional = ListBuilder.entityKey(entityKey);
-        if (optional.isEmpty()) return false;
 
-        Pair<String, String> key = optional.get();
-        String modId = key.getLeft();
-        String entityId = key.getRight();
+        // separate mod/entity ids
+        String[] key = entityKey.split(":");
+        String modId = key[0];
+        String entityId = key[1];
 
+        // get mobCategory and categoryFilter for check
         ConcurrentHashMap<String, ConcurrentHashMap<String, ListInfo>> map = ListBuilder.getEntityMap();
         ListInfo listInfo = map.get(modId).get(entityId);
+        MobCategory mobCategory = listInfo.getCategory();
+        HashSet<MobCategory> categoryFilter = ListBuilder.getFilterList();
 
-        if (Config.ENABLE_LIST.get()) return listInfo.getDespawnable() && ListBuilder.getFilterList().contains(listInfo.getCategory());
+        if (Config.ENABLE_LIST.get()) return listInfo.getDespawnable() && categoryFilter.contains(mobCategory);
         return (listInfo.getCategory() == MobCategory.MONSTER && listInfo.getDespawnable());
     }
 
