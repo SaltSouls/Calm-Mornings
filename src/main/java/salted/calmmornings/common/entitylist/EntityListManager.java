@@ -19,6 +19,8 @@ import java.util.Set;
 
 public class EntityListManager {
 
+
+
     public static void initMap(HashSet<String> mobList, HashSet<String> categoryList, boolean listEnabled, boolean isBlackList) {
         Set<ResourceLocation> names = BuiltInRegistries.ENTITY_TYPE.keySet();
         HashSet<String> list = listEnabled ? mobList: defaultBlackList;
@@ -31,12 +33,26 @@ public class EntityListManager {
         if (listEnabled) listType = isBlackList;
         else listType = true;
 
+        HashSet<String> modIds = new HashSet<>();
+
         // build initial map based on passed in parameters
         for (ResourceLocation resource : names) {
+            String modId = resource.getNamespace();
+
+            // check if modId has already been added to the map
+            if (!modIds.contains(modId)) {
+                CalmMornings.LOGGER.debug("New modId [{}] added to map", modId);
+                ListBuilder.addModIdToMap(modId);
+                modIds.add(modId);
+            }
+
             Runnable task = () -> {
-                String entityId = resource.toString();
-                EntityType.byString(entityId).ifPresent(entity -> {
-                    ListBuilder.addEntity(entityId, entity, listType);
+                String entityKey = resource.toString();
+                String entityId = resource.getPath();
+
+                // add entities to map
+                EntityType.byString(entityKey).ifPresent(entity -> {
+                    ListBuilder.addEntity(modId, entityId, entity, listType);
                     CalmMornings.LOGGER.debug("Adding [{}] to map", entityId);
                 });
             };
@@ -44,6 +60,12 @@ public class EntityListManager {
         }
         manager.shutdown();
         manager.restart(5);
+
+        names.forEach(name -> {
+            ImmutableMap<String, ListInfo> map = ListBuilder.getEntityIdMap(name.getNamespace());
+            if (map.containsKey(name.getPath())) CalmMornings.LOGGER.debug("Found [{}] in map", name.getPath());
+            else CalmMornings.LOGGER.error("[{}] missing from map", name.getPath());
+        });
 
         // add bedbugs to the default blacklist if sleep tight is loaded
         if (ModList.get().isLoaded("sleep_tight")) defaultBlackList.add("sleep_tight:bedbug");
