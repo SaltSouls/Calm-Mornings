@@ -20,6 +20,12 @@ import java.util.Set;
 public class EntityListManager {
 
     public static void initMap(HashSet<String> mobList, HashSet<String> categoryList, boolean listEnabled, boolean isBlackList) {
+        boolean listType;
+        if (listEnabled) {
+            listType = isBlackList;
+        } else {
+            listType = true;
+        }
         Set<ResourceLocation> names = BuiltInRegistries.ENTITY_TYPE.keySet();
         HashSet<String> list = listEnabled ? mobList: defaultBlackList;
         ThreadManager manager = new ThreadManager();
@@ -28,19 +34,20 @@ public class EntityListManager {
             Runnable task = () -> {
                 String entityId = resource.toString();
                 EntityType.byString(entityId).ifPresent(entity -> {
-                    ListBuilder.addEntity(entityId, entity, isBlackList);
+                    ListBuilder.addEntity(entityId, entity, listType);
                     CalmMornings.LOGGER.debug("Adding [{}] to map", entityId);
                 });
             };
             manager.addTask(task);
         }
+
+        oldListType = listType;
         manager.shutdown();
         manager.restart(5);
 
         // add bedbugs to the default blacklist if sleep tight is loaded
         if (ModList.get().isLoaded("sleep_tight")) defaultBlackList.add("sleep_tight:bedbug");
         ListBuilder.updateFilterList();
-        oldListType = isBlackList;
 
         updateMobList(list, listEnabled, isBlackList, manager);
         updateCategoryList(categoryList, manager);
@@ -49,27 +56,40 @@ public class EntityListManager {
     }
 
     public static void updateMobList(HashSet<String> newMobList, boolean listEnabled, boolean isBlackList, ThreadManager manager) {
-        HashSet<String> list = listEnabled ? newMobList : defaultBlackList;
+        HashSet<String> list = listEnabled ? new HashSet<>(newMobList) : new HashSet<>(defaultBlackList);
+        CalmMornings.LOGGER.debug("List Enabled: {} using {}", listEnabled, list);
         Sets.SetView<String> deleted = Sets.difference(oldMobList, list);
-        CalmMornings.LOGGER.debug("Deleted list {}", deleted);
+        CalmMornings.LOGGER.debug("Deleted category list {}", deleted);
         Sets.SetView<String> added = Sets.difference(list, oldMobList);
-        CalmMornings.LOGGER.debug("Added list {}", added);
+        CalmMornings.LOGGER.debug("Added category list {}", added);
 
-        CalmMornings.LOGGER.debug("Is ListEnabled {}", listEnabled);
-        boolean newListType = !listEnabled || isBlackList;
-        CalmMornings.LOGGER.debug("Is BlackList: {}", newListType);
+        boolean newListType;
+        if (listEnabled) {
+            CalmMornings.LOGGER.debug("List Enabled. isBlackList = {}", isBlackList);
+            newListType = isBlackList;
+        } else {
+            CalmMornings.LOGGER.debug("List disabled. isBlackList = {}", true);
+            newListType = true;
+        }
+
+        boolean addValue;
+        boolean deleteValue;
+        if (newListType) { addValue = false; deleteValue = true; } else { addValue = true; deleteValue = false; }
         if (oldListType != newListType) ListBuilder.flipAllValues();
 
+
         // set all removed entries to false
-        deleted.forEach(entityId -> setEntityValues(entityId, newListType, manager));
+        deleted.forEach(entityId -> setEntityValues(entityId, deleteValue, manager));
         // set all changed entries to true
-        added.forEach(entityId -> setEntityValues(entityId, !newListType, manager));
+        added.forEach(entityId -> setEntityValues(entityId, addValue, manager));
 
         oldListType = newListType;
-        oldMobList = new HashSet<>(newMobList);
+        oldMobList = list;
+        CalmMornings.LOGGER.debug("Old List and mob list updated {} {}", oldListType, oldMobList);
     }
 
     public static void updateCategoryList(HashSet<String> newCategoryList, ThreadManager manager) {
+        HashSet<String> list = new HashSet<>(newCategoryList);
         Sets.SetView<String> deleted = Sets.difference(oldCategoryList, newCategoryList);
         CalmMornings.LOGGER.debug("Deleted category list {}", deleted);
         Sets.SetView<String> added = Sets.difference(newCategoryList, oldCategoryList);
@@ -80,7 +100,7 @@ public class EntityListManager {
         // set all changed entries categories
         added.forEach(entityId -> setCategories(entityId, true, manager));
 
-        oldCategoryList = new HashSet<>(newCategoryList);
+        oldCategoryList = list;
     }
     
     // private methods for determining values/conditions
