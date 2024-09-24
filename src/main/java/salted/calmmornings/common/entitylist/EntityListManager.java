@@ -19,8 +19,6 @@ import java.util.Set;
 
 public class EntityListManager {
 
-
-
     public static void initMap(HashSet<String> mobList, HashSet<String> categoryList, boolean listEnabled, boolean isBlackList) {
         Set<ResourceLocation> names = BuiltInRegistries.ENTITY_TYPE.keySet();
         HashSet<String> list = listEnabled ? mobList: defaultBlackList;
