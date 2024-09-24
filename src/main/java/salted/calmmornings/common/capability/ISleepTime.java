@@ -1,8 +1,6 @@
 package salted.calmmornings.common.capability;
 
-
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.capabilities.AutoRegisterCapability;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.CapabilityManager;
@@ -17,9 +15,5 @@ public interface ISleepTime {
 
     String getSleepTime();
     void setSleepTime(String time);
-
-    Player getPlayer();
-    void onDeath();
-    void syncToClient();
 
 }

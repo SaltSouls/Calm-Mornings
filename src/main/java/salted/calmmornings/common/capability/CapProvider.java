@@ -34,4 +34,5 @@ public class CapProvider implements ICapabilitySerializable<CompoundTag> {
     public void deserializeNBT(CompoundTag compoundTag) {
         this.sleepTimeHandler.orElse(null).read(compoundTag);
     }
+
 }

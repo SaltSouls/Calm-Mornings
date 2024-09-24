@@ -11,15 +11,22 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.fml.ModList;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import salted.calmmornings.common.config.IConfig;
+import salted.calmmornings.common.entitylist.ListBuilder;
+import salted.calmmornings.common.entitylist.ListInfo;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class DespawnUtils {
+
+    @NotNull
+    public static AABB newAABB(@NotNull Entity entity, double horizontal, double vertical) {
+        Vec3 vec3 = Vec3.atBottomCenterOf(entity.getOnPos());
+        return new AABB(vec3.x() - horizontal, vec3.y() - vertical, vec3.z() - horizontal, vec3.x() + horizontal, vec3.y() + vertical, vec3.z() + horizontal);
+    }
 
     public static void despawnEntities(Level level, ServerPlayer player) {
         Difficulty difficulty = level.getDifficulty();
@@ -43,51 +50,29 @@ public class DespawnUtils {
     }
 
     // private methods for despawning entities
-    // TODO: find a better way to do this
-    // a list of entities that should not be despawned
-    private static final ArrayList<EntityType<?>> blackList = new ArrayList<>(List.of(
-            // bosses/dungeon enemies
-            EntityType.ENDER_DRAGON,
-            EntityType.WITHER,
-            EntityType.GUARDIAN,
-            EntityType.ELDER_GUARDIAN,
-            /* this should prevent raids/roaming parties from being
-              affected, though there might be a better way to do this */
-            EntityType.PILLAGER,
-            EntityType.EVOKER,
-            EntityType.ILLUSIONER,
-            EntityType.RAVAGER,
-            // this shouldn't happen, but better safe than sorry
-            EntityType.PLAYER
-    ));
-
-    // don't despawn bedbugs if mod is loaded
-    private static boolean sleeptightCompat(EntityType<?> type) {
-        String mobKey = EntityType.getKey(type).toString();
-        if (ModList.get().isLoaded("sleep_tight")) return !mobKey.equals("sleep_tight:bedbug");
-        return true;
-    }
-
     private static boolean shouldDespawn(@NotNull Entity entity) {
         EntityType<?> type = entity.getType();
-        String mobKey = EntityType.getKey(type).toString();
+        String entityKey = EntityType.getKey(type).toString();
 
-        // see if the mob is in the list
-        if (IConfig.getEnableList()) {
-            if (IConfig.isBlacklist()) return !IConfig.getMobList().contains(mobKey);
-            return IConfig.getMobList().contains(mobKey);
-        }
-        // see if the mob is in the category, minus blacklisted ones
-        else if (!blackList.contains(type) && sleeptightCompat(type))  {
-            return type.getCategory().equals(MobCategory.MONSTER);
-        }
+        // separate mod/entity ids
+        String[] key = entityKey.split(":");
+        String modId = key[0];
+        String entityId = key[1];
 
-        return false;
+        // get mobCategory and categoryFilter for check
+        ConcurrentHashMap<String, ConcurrentHashMap<String, ListInfo>> map = ListBuilder.getEntityMap();
+        ListInfo listInfo = map.get(modId).get(entityId);
+        MobCategory mobCategory = listInfo.getCategory();
+        HashSet<MobCategory> categoryFilter = ListBuilder.getFilterList();
+
+        if (IConfig.getEnableList()) return listInfo.getDespawnable() && categoryFilter.contains(mobCategory);
+        return (listInfo.getCategory() == MobCategory.MONSTER && listInfo.getDespawnable());
     }
 
     private static void despawn(@NotNull Entity entity) {
         Level level = entity.level();
 
+        // ignore entities with custom names
         if (shouldDespawn(entity) && !entity.hasCustomName()) {
             // get entity's position for particles
             Vec3 vec = Vec3.atBottomCenterOf(entity.blockPosition());
@@ -107,12 +92,6 @@ public class DespawnUtils {
             if (!(level instanceof ServerLevel serverLevel)) return;
             serverLevel.sendParticles(ParticleTypes.POOF, vec.x(), vec.y() + 1.0D, vec.z(), 15, 0.05D, 0.50D, 0.05D, 0.001D);
         }
-    }
-
-    @NotNull
-    public static AABB newAABB(@NotNull Entity entity, double horizontal, double vertical) {
-        Vec3 vec3 = Vec3.atBottomCenterOf(entity.getOnPos());
-        return new AABB(vec3.x() - horizontal, vec3.y() - vertical, vec3.z() - horizontal, vec3.x() + horizontal, vec3.y() + vertical, vec3.z() + horizontal);
     }
 
     @Nullable

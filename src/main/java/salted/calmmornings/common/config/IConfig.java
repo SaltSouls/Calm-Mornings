@@ -20,6 +20,10 @@ public interface IConfig {
         return COMMON.MOB_LIST.get();
     }
 
+    static List<? extends String> getCategoryList() {
+        return COMMON.MOBCATEGORY_LIST.get();
+    }
+
     static boolean getEnableScaling() {
         return COMMON.ENABLE_SCALING.get();
     }
@@ -32,8 +36,12 @@ public interface IConfig {
         return COMMON.HORIZONTAL_RANGE.get();
     }
 
-    static Enum<Time> getLateCheck() {
+    static Time getLateCheck() {
         return COMMON.LATE_CHECK.get();
+    }
+
+    static Time getMorningCheck() {
+        return COMMON.MORNING_CHECK.get();
     }
 
     static boolean getEnablePlayerCheck() {
@@ -46,6 +54,38 @@ public interface IConfig {
 
     static boolean getBetterChecking() {
         return COMMON.BETTER_CHECKING.get();
+    }
+
+    static boolean getMonsterCheck() {
+        return COMMON.MONSTER.get();
+    }
+
+    static boolean getCreatureCheck() {
+        return COMMON.CREATURE.get();
+    }
+
+    static boolean getAxolotlsCheck() {
+        return COMMON.AXOLOTLS.get();
+    }
+
+    static boolean getWaterCreatureCheck() {
+        return COMMON.WATER_CREATURE.get();
+    }
+
+    static boolean getUndergroundWaterCreatureCheck() {
+        return COMMON.UNDERGROUND_WATER_CREATURE.get();
+    }
+
+    static boolean getAmbientCheck() {
+        return COMMON.AMBIENT.get();
+    }
+
+    static boolean getWaterAmbientCheck() {
+        return COMMON.WATER_AMBIENT.get();
+    }
+
+    static boolean getMiscCheck() {
+        return COMMON.MISC.get();
     }
     
 }

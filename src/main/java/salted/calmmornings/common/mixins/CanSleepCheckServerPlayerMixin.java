@@ -32,4 +32,5 @@ public abstract class CanSleepCheckServerPlayerMixin {
         if (IConfig.getBetterChecking()) return original.call(level, clazz, bounds, predicate.and(monster -> monster.getTarget() == player));
         return original.call(level, clazz, aabb, predicate);
     }
+
 }

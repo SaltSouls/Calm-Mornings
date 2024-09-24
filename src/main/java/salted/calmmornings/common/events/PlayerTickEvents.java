@@ -25,10 +25,9 @@ public class PlayerTickEvents {
         if (level.isClientSide() && !(event.player instanceof ServerPlayer)) return;
         ISleepTime sleepPlayer = SleepTime.get(player);
         String sleepTime = sleepPlayer.getSleepTime();
-
         if (sleepTime.equals("awake") || player.isSleeping()) return;
 
         sleepPlayer.setSleepTime("awake");
-        sleepPlayer.syncToClient();
     }
+
 }
