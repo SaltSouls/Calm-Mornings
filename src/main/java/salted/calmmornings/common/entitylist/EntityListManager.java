@@ -51,7 +51,7 @@ public class EntityListManager {
 
     public static void updateMobList(HashSet<String> newMobList, boolean listEnabled, boolean isBlackList, ThreadManager manager) {
         HashSet<String> list = listEnabled ? newMobList : defaultBlackList;
-        boolean shouldDespawn;
+        boolean shouldNotDespawn;
 
         // compare old list against incoming list
         Sets.SetView<String> deleted = Sets.difference(oldMobList, list);
@@ -61,21 +61,21 @@ public class EntityListManager {
 
         // check for which entities should despawn
         CalmMornings.LOGGER.debug("Is ListEnabled {}", listEnabled);
-        if (!listEnabled) shouldDespawn = true; else shouldDespawn = isBlackList;
-        CalmMornings.LOGGER.debug("Is BlackList: {}", shouldDespawn);
+        if (!listEnabled) shouldNotDespawn = true; else shouldNotDespawn = isBlackList;
+        CalmMornings.LOGGER.debug("Is BlackList: {}", shouldNotDespawn);
 
         // check old list to make sure values only flip when needed
         if (oldListCheck(listEnabled, isBlackList)) {
-            if (oldListType != shouldDespawn) ListBuilder.flipAllValues();
+            if (oldListType != shouldNotDespawn) ListBuilder.flipAllValues();
         }
 
         // set all removed entries to shouldDespawn
-        deleted.forEach(entityId -> setEntityValues(entityId, shouldDespawn, manager));
+        deleted.forEach(entityId -> setEntityValues(entityId, shouldNotDespawn, manager));
         // set all changed entries to opposite of deleted
-        added.forEach(entityId -> setEntityValues(entityId, !shouldDespawn, manager));
+        added.forEach(entityId -> setEntityValues(entityId, !shouldNotDespawn, manager));
 
         wasListEnabled = listEnabled;
-        oldListType = shouldDespawn;
+        oldListType = shouldNotDespawn;
         oldMobList = new HashSet<>(newMobList);
     }
 
@@ -117,7 +117,6 @@ public class EntityListManager {
 
     private static boolean oldListCheck(boolean listEnabled, boolean isBlackList) {
         CalmMornings.LOGGER.debug("Values of [wasListEnabled, listEnabled, isBlackList]: [{}, {}, {}]", wasListEnabled, listEnabled, isBlackList);
-        if (wasListEnabled && listEnabled && isBlackList) return false;
         if (wasListEnabled && listEnabled) return true;
         else return listEnabled && isBlackList;
     }

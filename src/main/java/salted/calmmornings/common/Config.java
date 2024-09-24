@@ -59,7 +59,7 @@ public class Config {
                 .comment("""
                         Change mob's viewed MobCategory when despawning. '*' adds all entities in modId.
                         Formatting: ["minecraft:villager:creature", "<modId>:<entityId>:<mobCategory>"]
-                        MobCategories: [monster, creature, water_creature, underground_water_creature, ambient, water_ambient, misc]""")
+                        Allowed Categories: [monster, creature, water_creature, underground_water_creature, ambient, water_ambient, misc]""")
                 .translation(modid + ".config." + "MOBCATEGORY_LIST").defineListAllowEmpty(List.of("changed"), () -> defaultCategoryList, () -> "", mobs -> mobs instanceof String);
         builder.pop();
 
