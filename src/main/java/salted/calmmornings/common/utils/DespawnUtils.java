@@ -71,6 +71,7 @@ public class DespawnUtils {
     private static void despawn(@NotNull Entity entity) {
         Level level = entity.level();
 
+        // ignore entities with custom names
         if (shouldDespawn(entity) && !entity.hasCustomName()) {
             // get entity's position for particles
             Vec3 vec = Vec3.atBottomCenterOf(entity.blockPosition());

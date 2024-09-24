@@ -10,40 +10,34 @@ public class TimeUtils {
     public static Time getTimeSlice(Level level) {
         Time timeChunk = getTimeChunk(level);
         if (timeChunk == null) return null; // this should never happen
-        switch (timeChunk) {
-            case MORNING -> { return determineTimeSlice(level, Time.MORNING); }
-            case NOON -> { return determineTimeSlice(level, Time.NOON); }
-            case EVENING -> { return determineTimeSlice(level, Time.EVENING); }
-            case NIGHT -> { return determineTimeSlice(level, Time.NIGHT); }
-            default -> {
-                // this should never happen
-                CalmMornings.LOGGER.error("""
-                Time = null
-                Some how you managed to make time null. This shouldn't be possible.
-                Please let me know what you were doing when this occurred.""");
-                return null;
-            }
-        }
+
+        return switch (timeChunk) {
+            case MORNING -> determineTimeSlice(level, Time.MORNING);
+            case NOON -> determineTimeSlice(level, Time.NOON);
+            case EVENING -> determineTimeSlice(level, Time.EVENING);
+            case NIGHT -> determineTimeSlice(level, Time.NIGHT);
+            default -> timeError("time");
+        };
     }
 
     public static Time getPlayerTimeSlice(ServerPlayer player) {
         String sleepTime = player.getData(CMData.SLEEPTIME);
 
-        switch (sleepTime) {
-            case "early_morning" -> { return Time.MORNING_E; }
-            case "morning" -> { return Time.MORNING; }
-            case "late_morning" -> { return Time.MORNING_L; }
-            case "early_afternoon" -> { return Time.NOON_E; }
-            case "afternoon" -> { return Time.NOON; }
-            case "late_afternoon" -> { return Time.NOON_L; }
-            case "early_evening" -> { return Time.EVENING_E; }
-            case "evening" -> { return Time.EVENING; }
-            case "late_evening" -> { return Time.EVENING_L; }
-            case "early_night" -> { return Time.NIGHT_E; }
-            case "night" -> { return Time.NIGHT; }
-            case "late_night" -> { return Time.NIGHT_L; }
-            default -> { return null; } // this should never happen
-        }
+        return switch (sleepTime) {
+            case "early_morning" -> Time.MORNING_E;
+            case "morning" -> Time.MORNING;
+            case "late_morning" -> Time.MORNING_L;
+            case "early_afternoon" -> Time.NOON_E;
+            case "afternoon" -> Time.NOON;
+            case "late_afternoon" -> Time.NOON_L;
+            case "early_evening" -> Time.EVENING_E;
+            case "evening" -> Time.EVENING;
+            case "late_evening" -> Time.EVENING_L;
+            case "early_night" -> Time.NIGHT_E;
+            case "night" -> Time.NIGHT;
+            case "late_night" -> Time.NIGHT_L;
+            default -> timeError("sleep time");
+        };
     }
 
     public static Time getPlayerTimeChunk(Time time) {
@@ -68,6 +62,42 @@ public class TimeUtils {
         return time.start >= start && time.end <= end;
     }
 
+    // enums used for determining the current time the player slept/woke up
+    public enum Time {
+        /* These calculations are based around a 24000 tick day
+         * and may not result in the same level of accuracy if
+         * the total ticks in a day are changed. */
+        MORNING_E(0, dayLength/12),                             // start:0      | end: 2,000
+        MORNING(MORNING_E.getEnd(), dayLength / 6),                  // start:2,000  | end: 4,000
+        MORNING_L(MORNING.getEnd(), dayLength / 4),                  // start:4,000  | end: 6,000
+        NOON_E(MORNING_L.getEnd(), dayLength / 3),                   // start:6,000  | end: 8,000
+        NOON(NOON_E.getEnd(), (int)(dayLength / 2.4)),                    // start:8,000  | end: 10,000
+        NOON_L(NOON.getEnd(), dayLength / 2),                        // start:10,000 | end: 12,000
+        EVENING_E(NOON_L.getEnd(), (int)(NOON_E.getEnd() * 1.75)),        // start:12,000 | end: 14,000
+        EVENING(EVENING_E.getEnd(), NOON_E.getEnd() * 2),            // start:14,000 | end: 16,000
+        EVENING_L(EVENING.getEnd(), (int)(NOON_L.getEnd() * 1.5)),        // start:16,000 | end: 18,000
+        NIGHT_E(EVENING_L.getEnd(), NOON.getEnd() * 2),              // start:18,000 | end: 20,000
+        NIGHT(NIGHT_E.getEnd(), (int)(EVENING.getEnd() * 1.375)),         // start:20,000 | end: 22,000
+        NIGHT_L(NIGHT.getEnd(), dayLength),                               // start:22,000 | end: 24,000
+        DISABLED(0, 0);                                         // only used for LATE_CHECK
+
+        private final int start;
+        private final int end;
+
+        Time(int start, int end) {
+            this.start = start;
+            this.end = end;
+        }
+
+        public int getStart() {
+            return start;
+        }
+
+        public int getEnd() {
+            return end;
+        }
+    }
+
     // private methods for determining values/conditions
     private static final int dayLength = Level.TICKS_PER_DAY;
 
@@ -76,46 +106,46 @@ public class TimeUtils {
         long start = time.getStart();
         long end = time.getEnd();
         /* apparently, this is how the game gets the time of day. don't know
-         why it doesn't reset to 0 on waking or hitting 24000, but whatever. */
+         * why it doesn't reset to 0 on waking or hitting 24000, but whatever. */
         long dayTime = level.getDayTime() % dayLength;
         CalmMornings.LOGGER.debug("current precise time: {}", dayTime);
         return dayTime >= start && dayTime < end;
     }
 
     private static Time getLastTimeSlice(Time time) {
-        switch (time) {
-            case MORNING_E -> { return Time.NIGHT_L; }
-            case MORNING -> { return Time.MORNING_E; }
-            case MORNING_L -> { return Time.MORNING; }
-            case NOON_E -> { return Time.MORNING_L; }
-            case NOON -> { return Time.NOON_E; }
-            case NOON_L -> { return Time.NOON; }
-            case EVENING_E -> { return Time.NOON_L; }
-            case EVENING -> { return Time.EVENING_E; }
-            case EVENING_L -> { return Time.EVENING; }
-            case NIGHT_E -> { return Time.EVENING_L; }
-            case NIGHT -> { return Time.NIGHT_E; }
-            case NIGHT_L -> { return Time.NIGHT; }
-            default -> { return null; } // this should never happen
-        }
+        return switch (time) {
+            case MORNING_E -> Time.NIGHT_L;
+            case MORNING -> Time.MORNING_E;
+            case MORNING_L -> Time.MORNING;
+            case NOON_E -> Time.MORNING_L;
+            case NOON -> Time.NOON_E;
+            case NOON_L -> Time.NOON;
+            case EVENING_E -> Time.NOON_L;
+            case EVENING -> Time.EVENING_E;
+            case EVENING_L -> Time.EVENING;
+            case NIGHT_E -> Time.EVENING_L;
+            case NIGHT -> Time.NIGHT_E;
+            case NIGHT_L -> Time.NIGHT;
+            default -> timeError("time");
+        };
     }
 
     private static Time getNextTimeSlice(Time time) {
-        switch (time) {
-            case MORNING_E -> { return Time.MORNING; }
-            case MORNING -> { return Time.MORNING_L; }
-            case MORNING_L -> { return Time.NOON_E; }
-            case NOON_E -> { return Time.NOON; }
-            case NOON -> { return Time.NOON_L; }
-            case NOON_L -> { return Time.EVENING_E; }
-            case EVENING_E -> { return Time.EVENING; }
-            case EVENING -> { return Time.EVENING_L; }
-            case EVENING_L -> { return Time.NIGHT_E; }
-            case NIGHT_E -> { return Time.NIGHT; }
-            case NIGHT -> { return Time.NIGHT_L; }
-            case NIGHT_L -> { return Time.MORNING_E; }
-            default -> { return null; } // this should never happen
-        }
+        return switch (time) {
+            case MORNING_E -> Time.MORNING;
+            case MORNING -> Time.MORNING_L;
+            case MORNING_L -> Time.NOON_E;
+            case NOON_E -> Time.NOON;
+            case NOON -> Time.NOON_L;
+            case NOON_L -> Time.EVENING_E;
+            case EVENING_E -> Time.EVENING;
+            case EVENING -> Time.EVENING_L;
+            case EVENING_L -> Time.NIGHT_E;
+            case NIGHT_E -> Time.NIGHT;
+            case NIGHT -> Time.NIGHT_L;
+            case NIGHT_L -> Time.MORNING_E;
+            default -> timeError("time");
+        };
     }
 
     private static Time getPreviousStart(Time time) {
@@ -147,7 +177,7 @@ public class TimeUtils {
         else if (isBetweenTimeSlice(level, Time.NOON)) return Time.NOON;
         else if (isBetweenTimeSlice(level, Time.EVENING)) return Time.EVENING;
         else if (isBetweenTimeSlice(level, Time.NIGHT)) return Time.NIGHT;
-        else return null;
+        else return timeError("time");
     }
 
     private static Time determineTimeSlice(Level level, Time slice) {
@@ -159,41 +189,12 @@ public class TimeUtils {
         else return nextSlice;
     }
 
-    public enum Time {
-        /*
-        These calculations are based around a 24000 tick day
-        and may not result in the same level of accuracy if
-        the total ticks in a day are changed.
-        */
-        MORNING_E(0, dayLength/12),                             // start:0      | end: 2,000
-        MORNING(MORNING_E.getEnd(), dayLength / 6),                  // start:2,000  | end: 4,000
-        MORNING_L(MORNING.getEnd(), dayLength / 4),                  // start:4,000  | end: 6,000
-        NOON_E(MORNING_L.getEnd(), dayLength / 3),                   // start:6,000  | end: 8,000
-        NOON(NOON_E.getEnd(), (int)(dayLength / 2.4)),                    // start:8,000  | end: 10,000
-        NOON_L(NOON.getEnd(), dayLength / 2),                        // start:10,000 | end: 12,000
-        EVENING_E(NOON_L.getEnd(), (int)(NOON_E.getEnd() * 1.75)),        // start:12,000 | end: 14,000
-        EVENING(EVENING_E.getEnd(), NOON_E.getEnd() * 2),            // start:14,000 | end: 16,000
-        EVENING_L(EVENING.getEnd(), (int)(NOON_L.getEnd() * 1.5)),        // start:16,000 | end: 18,000
-        NIGHT_E(EVENING_L.getEnd(), NOON.getEnd() * 2),              // start:18,000 | end: 20,000
-        NIGHT(NIGHT_E.getEnd(), (int)(EVENING.getEnd() * 1.375)),         // start:20,000 | end: 22,000
-        NIGHT_L(NIGHT.getEnd(), dayLength),                               // start:22,000 | end: 24,000
-        DISABLED(0, 0);                                         // only used for LATE_CHECK
-
-        private final int start;
-        private final int end;
-
-        Time(int start, int end) {
-            this.start = start;
-            this.end = end;
-        }
-
-        public int getStart() {
-            return start;
-        }
-
-        public int getEnd() {
-            return end;
-        }
+    // error handling
+    private static Time timeError(String type) {
+        CalmMornings.LOGGER.error("""
+                Somehow you managed to make {} null. This shouldn't be possible.
+                Please let me know what you were doing when this occurred.""", type);
+        return null;
     }
 
 }
