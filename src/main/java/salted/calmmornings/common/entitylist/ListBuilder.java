@@ -60,7 +60,11 @@ public class ListBuilder {
     }
 
     public static void flipAllValues() {
-        entityMap.forEach((modId, innerMap) -> innerMap.forEach((entityId, listInfo) -> listInfo.setDespawnable(!listInfo.getDespawnable())));
+        entityMap.forEach((modId, innerMap) ->
+            innerMap.forEach((entityId, listInfo) ->
+                listInfo.setDespawnable(!listInfo.getDespawnable())
+            )
+        );
     }
 
     public static Optional<Pair<String, String>> entityKey(String entity) {

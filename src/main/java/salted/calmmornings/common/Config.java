@@ -59,7 +59,7 @@ public class Config {
                 .comment("""
                         Change mob's viewed MobCategory when despawning. '*' adds all entities in modId.
                         Formatting: ["minecraft:villager:creature", "<modId>:<entityId>:<mobCategory>"]
-                        MobCategories: [monster, creature, water_creature, underground_water_creature, ambient, water_ambient, misc]""")
+                        Allowed Categories: [monster, creature, water_creature, underground_water_creature, ambient, water_ambient, misc]""")
                 .translation(modid + ".config." + "MOBCATEGORY_LIST").defineListAllowEmpty(List.of("changed"), () -> defaultCategoryList, () -> "", mobs -> mobs instanceof String);
         builder.pop();
 
@@ -86,12 +86,12 @@ public class Config {
         String CATEGORY_CHECKS = "checks";
         builder.comment("Conditional Checks").translation(modid + ".config." + "CATEGORY_CHECKS").push(CATEGORY_CHECKS);
         LATE_CHECK = builder
-                .comment("Latest time a player can sleep to allow despawning.")
+                .comment("Player must sleep before this time to allow despawning.")
                 .translation(modid + ".config." + "LATE_CHECK")
                 .defineEnum("lateCheck", Time.NIGHT_L);
 
         MORNING_CHECK = builder
-                .comment("Latest time a player can wakeup to allow despawning.")
+                .comment("Latest time the player can wakeup to allow despawning.")
                 .translation(modid + ".config." + "MORNING_CHECK")
                 .defineEnum("morningCheck", Time.MORNING_E);
 

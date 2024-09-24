@@ -20,16 +20,18 @@ import java.util.Set;
 public class EntityListManager {
 
     public static void initMap(HashSet<String> mobList, HashSet<String> categoryList, boolean listEnabled, boolean isBlackList) {
-        boolean listType;
-        if (listEnabled) {
-            listType = isBlackList;
-        } else {
-            listType = true;
-        }
         Set<ResourceLocation> names = BuiltInRegistries.ENTITY_TYPE.keySet();
         HashSet<String> list = listEnabled ? mobList: defaultBlackList;
         ThreadManager manager = new ThreadManager();
+        boolean listType;
 
+        // check if the list is enabled and if list is a blacklist
+        CalmMornings.LOGGER.debug("listEnabled: {}", listEnabled);
+        CalmMornings.LOGGER.debug("isBlackList: {}", isBlackList);
+        if (listEnabled) listType = isBlackList;
+        else listType = true;
+
+        // build initial map based on passed in parameters
         for (ResourceLocation resource : names) {
             Runnable task = () -> {
                 String entityId = resource.toString();
@@ -40,18 +42,15 @@ public class EntityListManager {
             };
             manager.addTask(task);
         }
-
-        oldListType = listType;
         manager.shutdown();
         manager.restart(5);
 
         // add bedbugs to the default blacklist if sleep tight is loaded
         if (ModList.get().isLoaded("sleep_tight")) defaultBlackList.add("sleep_tight:bedbug");
         ListBuilder.updateFilterList();
+        oldListType = listType;
 
-        wasListEnabled = listEnabled;
-        oldListType = isBlackList;
-
+        // update initialized map if needed
         updateMobList(list, listEnabled, isBlackList, manager);
         updateCategoryList(categoryList, manager);
         manager.shutdown();
@@ -60,7 +59,7 @@ public class EntityListManager {
 
     public static void updateMobList(HashSet<String> newMobList, boolean listEnabled, boolean isBlackList, ThreadManager manager) {
         HashSet<String> list = listEnabled ? new HashSet<>(newMobList) : new HashSet<>(defaultBlackList);
-        CalmMornings.LOGGER.debug("List Enabled: {} using {}", listEnabled, list);
+        boolean newListType;
 
         // compare old list against incoming list
         Sets.SetView<String> deleted = Sets.difference(oldMobList, list);
@@ -68,32 +67,33 @@ public class EntityListManager {
         Sets.SetView<String> added = Sets.difference(list, oldMobList);
         CalmMornings.LOGGER.debug("Added category list {}", added);
 
-        boolean newListType;
-        if (listEnabled) {
-            CalmMornings.LOGGER.debug("List Enabled. isBlackList = {}", isBlackList);
-            newListType = isBlackList;
-        } else {
-            CalmMornings.LOGGER.debug("List disabled. isBlackList = {}", true);
-            newListType = true;
-        }
+        // check if the list is enabled and if list is a blacklist
+        CalmMornings.LOGGER.debug("listEnabled: {}", listEnabled);
+        CalmMornings.LOGGER.debug("isBlackList: {}", isBlackList);
+        if (listEnabled) newListType = isBlackList;
+        else newListType = true;
 
-        boolean addValue;
-        boolean deleteValue;
-        if (newListType) { addValue = false; deleteValue = true; } else { addValue = true; deleteValue = false; }
+        // get if the mob should despawn or not
+        Pair<Boolean, Boolean> shouldDespawn;
+        if (newListType) shouldDespawn = Pair.of(false, true);
+        else shouldDespawn = Pair.of(true, false);
+
+        // flip all values if the new and old list are not the same
         if (oldListType != newListType) ListBuilder.flipAllValues();
 
         // set all removed entries to false
-        deleted.forEach(entityId -> setEntityValues(entityId, deleteValue, manager));
+        deleted.forEach(entityId -> setEntityValues(entityId, shouldDespawn.getRight(), manager));
         // set all changed entries to true
-        added.forEach(entityId -> setEntityValues(entityId, addValue, manager));
+        added.forEach(entityId -> setEntityValues(entityId, shouldDespawn.getLeft(), manager));
 
-        oldListType = newListType;
         oldMobList = list;
-        CalmMornings.LOGGER.debug("Old List and mob list updated {} {}", oldListType, oldMobList);
+        oldListType = newListType;
     }
 
     public static void updateCategoryList(HashSet<String> newCategoryList, ThreadManager manager) {
         HashSet<String> list = new HashSet<>(newCategoryList);
+
+        // compare old list against incoming list
         Sets.SetView<String> deleted = Sets.difference(oldCategoryList, newCategoryList);
         CalmMornings.LOGGER.debug("Deleted category list {}", deleted);
         Sets.SetView<String> added = Sets.difference(newCategoryList, oldCategoryList);
@@ -129,13 +129,6 @@ public class EntityListManager {
             "minecraft:player"
     ));
 
-    private static boolean oldListCheck(boolean listEnabled, boolean isBlackList) {
-        CalmMornings.LOGGER.debug("Values of [wasListEnabled, listEnabled, isBlackList]: [{}, {}, {}]", wasListEnabled, listEnabled, isBlackList);
-        if (wasListEnabled && listEnabled && isBlackList) return false;
-        if (wasListEnabled && listEnabled) return true;
-        else return listEnabled && isBlackList;
-    }
-
     // entity despawn value methods
     private static void setEntityValues(String entity, boolean added, ThreadManager manager) {
         Optional<Pair<String, String>> optional = ListBuilder.entityKey(entity);
@@ -144,6 +137,7 @@ public class EntityListManager {
         String modId = key.getLeft();
         String entityId = key.getRight();
 
+        // update all entities in modId if glob else update individual entity
         if (entityId.equals("*")) setAllValues(modId, added, manager);
         else ListBuilder.updateEntity(key, added);
     }
@@ -167,6 +161,7 @@ public class EntityListManager {
         String entityId = key.getMiddle();
         String mobCategory = key.getRight();
 
+        // update all entities in modId if glob else update individual entity
         if (entityId.equals("*")) setAllCategories(modId, mobCategory, added, manager);
         else if (added) ListBuilder.updateEntityCategory(key);
         else setDefaultCategory(modId, entityId);
@@ -192,6 +187,7 @@ public class EntityListManager {
         MobCategory category = type.getCategory();
         String mobCategory = category.getName();
 
+        // reset entity category to its internally registered category
         Triple<String, String, String> key = Triple.of(modId, entityId, mobCategory);
         ListBuilder.updateEntityCategory(key);
     }
