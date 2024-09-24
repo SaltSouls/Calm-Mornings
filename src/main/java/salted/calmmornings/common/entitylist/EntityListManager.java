@@ -49,6 +49,9 @@ public class EntityListManager {
         if (ModList.get().isLoaded("sleep_tight")) defaultBlackList.add("sleep_tight:bedbug");
         ListBuilder.updateFilterList();
 
+        wasListEnabled = listEnabled;
+        oldListType = isBlackList;
+
         updateMobList(list, listEnabled, isBlackList, manager);
         updateCategoryList(categoryList, manager);
         manager.shutdown();
@@ -58,6 +61,8 @@ public class EntityListManager {
     public static void updateMobList(HashSet<String> newMobList, boolean listEnabled, boolean isBlackList, ThreadManager manager) {
         HashSet<String> list = listEnabled ? new HashSet<>(newMobList) : new HashSet<>(defaultBlackList);
         CalmMornings.LOGGER.debug("List Enabled: {} using {}", listEnabled, list);
+
+        // compare old list against incoming list
         Sets.SetView<String> deleted = Sets.difference(oldMobList, list);
         CalmMornings.LOGGER.debug("Deleted category list {}", deleted);
         Sets.SetView<String> added = Sets.difference(list, oldMobList);
@@ -76,7 +81,6 @@ public class EntityListManager {
         boolean deleteValue;
         if (newListType) { addValue = false; deleteValue = true; } else { addValue = true; deleteValue = false; }
         if (oldListType != newListType) ListBuilder.flipAllValues();
-
 
         // set all removed entries to false
         deleted.forEach(entityId -> setEntityValues(entityId, deleteValue, manager));
@@ -107,6 +111,7 @@ public class EntityListManager {
     private static HashSet<String> oldMobList = new HashSet<>();
     private static HashSet<String> oldCategoryList = new HashSet<>();
     private static boolean oldListType;
+    private static boolean wasListEnabled;
     private static final HashSet<String> defaultBlackList = new HashSet<>(Arrays.asList(
             // bosses/dungeon enemies
             "minecraft:ender_dragon",
@@ -115,7 +120,7 @@ public class EntityListManager {
             "minecraft:guardian",
             "minecraft:elder_guardian",
             /* this should prevent raids/roaming parties from being
-              affected, though there might be a better way to do this */
+             * affected, though there might be a better way to do this */
             "minecraft:pillager",
             "minecraft:evoker",
             "minecraft:illusioner",
@@ -123,6 +128,13 @@ public class EntityListManager {
             // this shouldn't happen, but better safe than sorry
             "minecraft:player"
     ));
+
+    private static boolean oldListCheck(boolean listEnabled, boolean isBlackList) {
+        CalmMornings.LOGGER.debug("Values of [wasListEnabled, listEnabled, isBlackList]: [{}, {}, {}]", wasListEnabled, listEnabled, isBlackList);
+        if (wasListEnabled && listEnabled && isBlackList) return false;
+        if (wasListEnabled && listEnabled) return true;
+        else return listEnabled && isBlackList;
+    }
 
     // entity despawn value methods
     private static void setEntityValues(String entity, boolean added, ThreadManager manager) {

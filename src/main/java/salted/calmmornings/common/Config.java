@@ -9,7 +9,7 @@ import java.util.List;
 
 public class Config {
     public static ModConfigSpec COMMON_CONFIG;
-    private static final List<String> defaultList = new ArrayList<>(List.of("minecraft:zombie", "minecraft:skeleton", "minecraft:spider", "minecraft:creeper"));
+    private static final List<String> defaultMobList = new ArrayList<>(List.of("minecraft:zombie", "minecraft:skeleton", "minecraft:spider", "minecraft:creeper"));
     private static final List<String> defaultCategoryList = new ArrayList<>(List.of("minecraft:villager:creature", "minecraft:iron_golem:creature", "minecraft:snow_golem:creature"));
     // Configurable Entity Filters
     public static ModConfigSpec.BooleanValue ENABLE_LIST;
@@ -52,12 +52,12 @@ public class Config {
         MOB_LIST = builder
                 .comment("""
                         List of mobs to despawn. '*' adds all entities in modId. Requires enableList.
-                        Formatting: [minecraft:zombie", "minecraft:skeleton", "<modId>:<entityId>"]""")
-                .translation(modid + ".config." + "MOB_LIST").defineListAllowEmpty(List.of("mobs"), () -> defaultList, () -> "", mobs -> mobs instanceof String);
+                        Formatting: ["minecraft:zombie", "minecraft:skeleton", "<modId>:<entityId>"]""")
+                .translation(modid + ".config." + "MOB_LIST").defineListAllowEmpty(List.of("mobs"), () -> defaultMobList, () -> "", mobs -> mobs instanceof String);
 
         MOBCATEGORY_LIST = builder
                 .comment("""
-                        Change mobs viewed MobCategory when despawning. '*' adds all entities in modId.
+                        Change mob's viewed MobCategory when despawning. '*' adds all entities in modId.
                         Formatting: ["minecraft:villager:creature", "<modId>:<entityId>:<mobCategory>"]
                         MobCategories: [monster, creature, water_creature, underground_water_creature, ambient, water_ambient, misc]""")
                 .translation(modid + ".config." + "MOBCATEGORY_LIST").defineListAllowEmpty(List.of("changed"), () -> defaultCategoryList, () -> "", mobs -> mobs instanceof String);
