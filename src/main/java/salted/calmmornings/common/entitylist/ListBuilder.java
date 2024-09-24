@@ -24,26 +24,21 @@ public class ListBuilder {
         return filterList;
     }
 
-    // entity despawn value methods
-    public static void addEntity(@NotNull String entity, EntityType<?> type, boolean isBlackList) {
-        // get mod/entity id if they exist
-        Optional<Pair<String, String>> optional = entityKey(entity);
-        if (optional.isEmpty()) return;
-        Pair<String, String> key = optional.get();
-        String modId = key.getLeft();
-        String entityId = key.getRight();
-
-        // get outer/inner hashmaps
+    public static void addModIdToMap(@NotNull final String modId) {
         ConcurrentHashMap<String, ConcurrentHashMap<String, ListInfo>> map = entityMap;
+        map.put(modId, new ConcurrentHashMap<>());
+    }
+
+    // entity despawn value methods
+    public static void addEntity(@NotNull String modId, @NotNull String entityId, EntityType<?> type, boolean isBlackList) {
+        // get inner hashmap
         ConcurrentHashMap<String, ListInfo> innerMap = new ConcurrentHashMap<>();
 
         // check if list is enabled else use default values
         if (Config.ENABLE_LIST.get()) innerMap.put(entityId, new ListInfo(type.getCategory(), isBlackList));
         else innerMap.put(entityId, new ListInfo(type.getCategory(), true));
 
-        // get the mod map if it exists, else create map
-        if (map.containsKey(modId)) map.get(modId).putAll(innerMap);
-        else map.put(modId, innerMap);
+        entityMap.get(modId).putAll(innerMap);
     }
 
     public static void updateEntity(Pair<String, String> key, boolean value) {
@@ -133,6 +128,7 @@ public class ListBuilder {
     private static final ConcurrentHashMap<String, ConcurrentHashMap<String, ListInfo>> entityMap = new ConcurrentHashMap<>();
     private static final HashSet<MobCategory> filterList = new HashSet<>();
 
+    // error handling
     private static boolean isNotValidEntity(String modId, String entityId) {
         ConcurrentHashMap<String, ConcurrentHashMap<String, ListInfo>> map = entityMap;
 

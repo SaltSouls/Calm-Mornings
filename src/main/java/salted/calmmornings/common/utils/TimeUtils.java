@@ -108,7 +108,6 @@ public class TimeUtils {
         /* apparently, this is how the game gets the time of day. don't know
          * why it doesn't reset to 0 on waking or hitting 24000, but whatever. */
         long dayTime = level.getDayTime() % dayLength;
-        CalmMornings.LOGGER.debug("current precise time: {}", dayTime);
         return dayTime >= start && dayTime < end;
     }
 
