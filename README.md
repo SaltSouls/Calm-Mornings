@@ -18,12 +18,16 @@ This mod is highly configurable, and most aspects of what this mod does can be a
 #General Settings
 [general]
 	#Use list instead of mobCategory for despawning?
-	enableList = true
+	enableList = false
 	#Changes the list to be a blacklist. Requires enableList.
 	isBlacklist = false
-	#List of mobs to despawn. Requires enableList.
-	#Formatting: ["minecraft:creeper", "minecraft:zombie", "minecraft:spider", "modID:entityID"]
-	mobs = ["minecraft:creeper", "minecraft:zombie", "minecraft:spider"]
+	#List of mobs to despawn. '*' adds all entities in modId. Requires enableList.
+	#Formatting: ["minecraft:zombie", "minecraft:skeleton", "<modId>:<entityId>"]
+	mobs = ["minecraft:zombie", "minecraft:skeleton", "minecraft:spider", "minecraft:creeper"]
+	#Change mob's viewed MobCategory when despawning. '*' adds all entities in modId.
+	#Formatting: ["minecraft:villager:creature", "<modId>:<entityId>:<mobCategory>"]
+	#Allowed Categories: [monster, creature, water_creature, underground_water_creature, ambient, water_ambient, misc]
+	changed = ["minecraft:villager:creature", "minecraft:iron_golem:creature", "minecraft:snow_golem:creature"]
 
 #Range Settings
 [range]
@@ -39,10 +43,10 @@ This mod is highly configurable, and most aspects of what this mod does can be a
 
 #Conditional Checks
 [checks]
-	#Latest time a player can sleep to allow despawning.
+	#Player must sleep before this time to allow despawning.
 	#Allowed Values: MORNING_E, MORNING, MORNING_L, NOON_E, NOON, NOON_L, EVENING_E, EVENING, EVENING_L, NIGHT_E, NIGHT, NIGHT_L, DISABLED
 	lateCheck = "NIGHT_L"
-	#Latest time a player can wakeup to allow despawning.
+	#Latest time the player can wakeup to allow despawning.
 	#Allowed Values: MORNING_E, MORNING, MORNING_L, NOON_E, NOON, NOON_L, EVENING_E, EVENING, EVENING_L, NIGHT_E, NIGHT, NIGHT_L, DISABLED
 	morningCheck = "MORNING_E"
 	#Should non-sleeping players prevent despawning around them?
@@ -51,6 +55,25 @@ This mod is highly configurable, and most aspects of what this mod does can be a
 	monsterCheck = true
 	#Should only monsters tracking the player prevent sleep? Requires monsterCheck.
 	betterChecking = true
+
+	#Allow listed MobCategories when despawning? Requires enableList.
+	[checks.category_checks]
+		#Enable MONSTER check?
+		MONSTER = true
+		#Enable CREATURE check?
+		CREATURE = true
+		#Enable AXOLOTLS check?
+		AXOLOTLS = true
+		#Enable WATER_CREATURE check?
+		WATER_CREATURE = true
+		#Enable UNDERGROUND_WATER_CREATURE check?
+		UNDERGROUND_WATER_CREATURE = true
+		#Enable AMBIENT check?
+		AMBIENT = true
+		#Enable WATER_AMBIENT check?
+		WATER_AMBIENT = true
+		#Enable MISC check?
+		MISC = false
 ```
 <details>
   <summary><b>FAQ:</b></summary>
