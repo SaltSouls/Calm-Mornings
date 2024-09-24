@@ -40,6 +40,7 @@ public class EntityListManager {
         // add bedbugs to the default blacklist if sleep tight is loaded
         if (ModList.get().isLoaded("sleep_tight")) defaultBlackList.add("sleep_tight:bedbug");
         ListBuilder.updateFilterList();
+        wasListEnabled = listEnabled;
         oldListType = isBlackList;
 
         updateMobList(list, listEnabled, isBlackList, manager);
@@ -50,22 +51,31 @@ public class EntityListManager {
 
     public static void updateMobList(HashSet<String> newMobList, boolean listEnabled, boolean isBlackList, ThreadManager manager) {
         HashSet<String> list = listEnabled ? newMobList : defaultBlackList;
+        boolean shouldDespawn;
+
+        // compare old list against incoming list
         Sets.SetView<String> deleted = Sets.difference(oldMobList, list);
         CalmMornings.LOGGER.debug("Deleted list {}", deleted);
         Sets.SetView<String> added = Sets.difference(list, oldMobList);
         CalmMornings.LOGGER.debug("Added list {}", added);
 
+        // check for which entities should despawn
         CalmMornings.LOGGER.debug("Is ListEnabled {}", listEnabled);
-        boolean newListType = !listEnabled || isBlackList;
-        CalmMornings.LOGGER.debug("Is BlackList: {}", newListType);
-        if (oldListType != newListType) ListBuilder.flipAllValues();
+        if (!listEnabled) shouldDespawn = true; else shouldDespawn = isBlackList;
+        CalmMornings.LOGGER.debug("Is BlackList: {}", shouldDespawn);
 
-        // set all removed entries to false
-        deleted.forEach(entityId -> setEntityValues(entityId, newListType, manager));
-        // set all changed entries to true
-        added.forEach(entityId -> setEntityValues(entityId, !newListType, manager));
+        // check old list to make sure values only flip when needed
+        if (oldListCheck(listEnabled, isBlackList)) {
+            if (oldListType != shouldDespawn) ListBuilder.flipAllValues();
+        }
 
-        oldListType = newListType;
+        // set all removed entries to shouldDespawn
+        deleted.forEach(entityId -> setEntityValues(entityId, shouldDespawn, manager));
+        // set all changed entries to opposite of deleted
+        added.forEach(entityId -> setEntityValues(entityId, !shouldDespawn, manager));
+
+        wasListEnabled = listEnabled;
+        oldListType = shouldDespawn;
         oldMobList = new HashSet<>(newMobList);
     }
 
@@ -87,6 +97,7 @@ public class EntityListManager {
     private static HashSet<String> oldMobList = new HashSet<>();
     private static HashSet<String> oldCategoryList = new HashSet<>();
     private static boolean oldListType;
+    private static boolean wasListEnabled;
     private static final HashSet<String> defaultBlackList = new HashSet<>(Arrays.asList(
             // bosses/dungeon enemies
             "minecraft:ender_dragon",
@@ -95,7 +106,7 @@ public class EntityListManager {
             "minecraft:guardian",
             "minecraft:elder_guardian",
             /* this should prevent raids/roaming parties from being
-              affected, though there might be a better way to do this */
+             * affected, though there might be a better way to do this */
             "minecraft:pillager",
             "minecraft:evoker",
             "minecraft:illusioner",
@@ -103,6 +114,13 @@ public class EntityListManager {
             // this shouldn't happen, but better safe than sorry
             "minecraft:player"
     ));
+
+    private static boolean oldListCheck(boolean listEnabled, boolean isBlackList) {
+        CalmMornings.LOGGER.debug("Values of [wasListEnabled, listEnabled, isBlackList]: [{}, {}, {}]", wasListEnabled, listEnabled, isBlackList);
+        if (wasListEnabled && listEnabled && isBlackList) return false;
+        if (wasListEnabled && listEnabled) return true;
+        else return listEnabled && isBlackList;
+    }
 
     // entity despawn value methods
     private static void setEntityValues(String entity, boolean added, ThreadManager manager) {

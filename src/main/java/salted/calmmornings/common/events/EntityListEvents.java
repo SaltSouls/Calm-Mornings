@@ -31,6 +31,7 @@ public class EntityListEvents {
 
     @SubscribeEvent
     public static void configUpdated(ModConfigEvent.Reloading event) {
+        CalmMornings.LOGGER.debug("Currently reloading: {}.toml", event.getConfig().getModId());
         if (!event.getConfig().getModId().equals(CalmMornings.MODID)) return;
         CalmMornings.LOGGER.debug("Calm Mornings config was reloaded!");
 
