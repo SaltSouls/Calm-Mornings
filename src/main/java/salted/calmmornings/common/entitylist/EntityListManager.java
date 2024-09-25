@@ -34,6 +34,7 @@ public class EntityListManager {
         HashSet<String> modIds = new HashSet<>();
 
         // build initial map based on passed in parameters
+
         for (ResourceLocation resource : names) {
             String modId = resource.getNamespace();
 
