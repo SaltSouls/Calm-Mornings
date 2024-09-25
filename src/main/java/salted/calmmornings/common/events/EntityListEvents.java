@@ -14,6 +14,7 @@ import java.util.HashSet;
 
 @Mod.EventBusSubscriber(modid = CalmMornings.MODID, bus = Mod.EventBusSubscriber.Bus.MOD)
 public class EntityListEvents {
+    private static boolean setupEventLoading = true; // because forge is dumb
 
     @SubscribeEvent
     public static void onStartup(FMLCommonSetupEvent event) {
@@ -27,10 +28,12 @@ public class EntityListEvents {
                 IConfig.getEnableList(),
                 IConfig.isBlacklist()
         );
+        setupEventLoading = false;
     }
 
     @SubscribeEvent
     public static void configUpdated(ModConfigEvent.Reloading event) {
+        if (setupEventLoading) return;
         CalmMornings.LOGGER.debug("Currently reloading: {}.toml", event.getConfig().getModId());
         if (!event.getConfig().getModId().equals(CalmMornings.MODID)) return;
         CalmMornings.LOGGER.debug("Calm Mornings config was reloaded!");
