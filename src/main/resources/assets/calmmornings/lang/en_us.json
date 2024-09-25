@@ -1,0 +1,29 @@
+{
+  "calmmornings.config.CATEGORY_GENERAL": "General Settings",
+  "calmmornings.config.ENABLE_LIST": "Enable List",
+  "calmmornings.config.IS_BLACKLIST": "Blacklist",
+  "calmmornings.config.MOB_LIST": "Mobs",
+  "calmmornings.config.MOBCATEGORY_LIST": "Mob Categories",
+
+  "calmmornings.config.CATEGORY_RANGE": "Range Settings",
+  "calmmornings.config.ENABLED_SCALING": "Enable Scaling",
+  "calmmornings.config.HORIZONTAL_RANGE": "Horizontal Range",
+  "calmmornings.config.VERTICAL_RANGE": "Vertical Range",
+
+  "calmmornings.config.CATEGORY_CHECKS": "Conditional Checks",
+  "calmmornings.config.LATE_CHECK": "Late Check",
+  "calmmornings.config.MORNING_CHECK": "Morning Check",
+  "calmmornings.config.ENABLE_PLAYER_CHECK": "Player Check",
+  "calmmornings.config.MOB_CHECK": "Monster Check",
+  "calmmornings.config.BETTER_CHECKING": "Better Checking",
+
+  "calmmornings.config.CATEGORY_MOBCATEGORY_CHECKS": "MobCategory Checks",
+  "calmmornings.config.MONSTER": "MONSTER",
+  "calmmornings.config.CREATURE": "CREATURE",
+  "calmmornings.config.AXOLOTLS": "AXOLOTLS",
+  "calmmornings.config.WATER_CREATURE": "WATER_CREATURE",
+  "calmmornings.config.UNDERGROUND_WATER_CREATURE": "UNDERGROUND_WATER_CREATURE",
+  "calmmornings.config.AMBIENT": "AMBIENT",
+  "calmmornings.config.WATER_AMBIENT": "WATER_AMBIENT",
+  "calmmornings.config.MISC": "MISC"
+}
