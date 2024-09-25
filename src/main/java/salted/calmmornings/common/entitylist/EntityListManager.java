@@ -58,6 +58,7 @@ public class EntityListManager {
         manager.shutdown();
         manager.restart(5);
 
+        // only for debugging purposes
         names.forEach(name -> {
             ImmutableMap<String, ListInfo> map = ListBuilder.getEntityIdMap(name.getNamespace());
             if (map.containsKey(name.getPath())) CalmMornings.LOGGER.debug("Found [{}] in map", name.getPath());
