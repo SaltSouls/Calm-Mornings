@@ -1,28 +1,36 @@
 modLoader = "javafml"
-loaderVersion = "[41,)"
-license = "MIT License"
-issueTrackerURL="https://github.com/SaltSouls/Calm-Mornings/issues"
+loaderVersion = "${loader_version_range}"
+issueTrackerURL = "https://github.com/SaltSouls/Calm-Mornings/issues"
+license = "${mod_license}"
+
 [[mods]]
-modId = "calmmornings"
-version = "${file.jarVersion}"
-displayName = "Calm Mornings"
-logoFile="banner.png"
-displayURL="https://www.curseforge.com/minecraft/mc-mods/calm-mornings"
-description = '''
-Despawns hostile entities in a configurable radius around the player upon waking. No more stressful mornings worrying about creepers lurking outside your front door.'''
-authors = "TwinSouls"
-credits="Kreezxil, MacTso, vectorwing, Random"
-[modproperties.calmmornings]
-catalogueImageIcon = "icon.png"
-[[dependencies.calmmornings]]
-modId = "forge"
-mandatory = true
-versionRange = "[41,)"
-ordering = "NONE"
-side = "BOTH"
-[[dependencies.calmmornings]]
-modId = "minecraft"
-mandatory = true
-versionRange = "[1.19,)"
-ordering = "NONE"
-side = "BOTH"
+    modId = "${mod_id}"
+    version = "${mod_version}"
+    displayName = "${mod_name}"
+    displayURL = "https://github.com/SaltSouls/Calm-Mornings"
+    updateJSONURL = "https://modrinth.com/mod/calm-mornings"
+    logoFile = "banner.png"
+    authors = "${mod_authors}"
+    credits = "${mod_credits}"
+    description = '''${mod_description}'''
+# Catalogue compat
+[modproperties."${mod_id}"]
+    catalogueImageIcon="icon.png"
+    catalogueBackground="background.png"
+
+[[dependencies."${mod_id}"]]
+    modId = "minecraft"
+    mandatory = true
+    versionRange = "${minecraft_version_range}"
+    ordering = "NONE"
+    ide = "BOTH"
+[[dependencies."${mod_id}"]]
+    modId = "forge"
+    mandatory = true
+    versionRange = "${forge_version_range}"
+    ordering = "NONE"
+[[dependencies."${mod_id}"]]
+    modId = "sleep_tight"
+    mandatory = false
+    versionRange = "${sleeptight_version_range}"
+    ordering = "AFTER"
