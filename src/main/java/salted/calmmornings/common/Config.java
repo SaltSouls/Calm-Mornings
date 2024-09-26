@@ -5,17 +5,20 @@ import salted.calmmornings.CalmMornings;
 import salted.calmmornings.common.utils.TimeUtils.Time;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class Config {
     public static ModConfigSpec COMMON_CONFIG;
-    private static final List<String> defaultMobList = new ArrayList<>(List.of("minecraft:zombie", "minecraft:skeleton", "minecraft:spider", "minecraft:creeper"));
-    private static final List<String> defaultCategoryList = new ArrayList<>(List.of("minecraft:villager:creature", "minecraft:iron_golem:creature", "minecraft:snow_golem:creature"));
+    private static final ArrayList<? extends String> defaultMobList = new ArrayList<>(List.of("minecraft:zombie", "minecraft:skeleton", "minecraft:spider", "minecraft:creeper"));
+    private static final ArrayList<? extends String> defaultCategoryList = new ArrayList<>(List.of("minecraft:villager:CREATURE", "minecraft:iron_golem:CREATURE", "minecraft:snow_golem:CREATURE"));
     // Configurable Entity Filters
+    public static HashMap<String, String> CATEGORY = new HashMap<>();
     public static ModConfigSpec.BooleanValue ENABLE_LIST;
     public static ModConfigSpec.BooleanValue IS_BLACKLIST;
     public static ModConfigSpec.ConfigValue<List<? extends String>> MOB_LIST;
-    public static ModConfigSpec.ConfigValue<List<? extends String>> MOBCATEGORY_LIST;
+    private static ModConfigSpec.ConfigValue<List<? extends String>> MOBCATEGORY_LIST;
     public static ModConfigSpec.BooleanValue ENABLE_SCALING;
     public static ModConfigSpec.IntValue VERTICAL_RANGE;
     public static ModConfigSpec.IntValue HORIZONTAL_RANGE;
@@ -157,6 +160,15 @@ public class Config {
         builder.pop();
 
         COMMON_CONFIG = builder.build();
+    }
+
+    public static void reloadHashMap() {
+        CATEGORY.clear();
+        for (String mob : MOBCATEGORY_LIST.get()) {
+            String[] split = mob.split(":");
+            if (split.length < 3) continue;
+            CATEGORY.put(split[0] + ":" + split[1], split[2]);
+        }
     }
 
 }

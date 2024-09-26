@@ -1,6 +1,7 @@
 package salted.calmmornings.common.utils;
 
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Difficulty;
@@ -12,11 +13,11 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import salted.calmmornings.CalmMornings;
 import salted.calmmornings.common.Config;
-import salted.calmmornings.common.entitylist.ListBuilder;
-import salted.calmmornings.common.entitylist.ListInfo;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class DespawnUtils {
@@ -48,24 +49,36 @@ public class DespawnUtils {
         }
     }
 
+    private static boolean isCategoryEnabled(String category) {
+        return switch (category) {
+            case "CREATURE" -> Config.CREATURE.get();
+            case "MONSTER" -> Config.MONSTER.get();
+            case "AMBIENT" -> Config.AMBIENT.get();
+            case "AXOLOTLS" -> Config.AXOLOTLS.get();
+            case "WATER_CREATURE" -> Config.WATER_CREATURE.get();
+            case "UNDERGROUND_WATER_CREATURE" -> Config.UNDERGROUND_WATER_CREATURE.get();
+            case "WATER_AMBIENT" -> Config.WATER_AMBIENT.get();
+            case "MISC" -> Config.MISC.get();
+            default -> false;
+        };
+    }
+
     // private methods for despawning entities
-    private static boolean shouldDespawn(@NotNull Entity entity) {
-        EntityType<?> type = entity.getType();
-        String entityKey = EntityType.getKey(type).toString();
+    private static boolean shouldDespawn(@NotNull Entity e) {
+        if (!Config.ENABLE_LIST.get()) return shouldDespawnBuiltin(e);
+        ResourceLocation key = EntityType.getKey(e.getType());
+        boolean match = Config.MOB_LIST.get().contains(key.toString())  || Config.MOB_LIST.get().contains(key.getNamespace() + ":*");
 
-        // separate mod/entity ids
-        String[] key = entityKey.split(":");
-        String modId = key[0];
-        String entityId = key[1];
+        String category = Config.CATEGORY.getOrDefault(key.toString(), e.getType().getCategory().toString());
+        category = Config.CATEGORY.getOrDefault(key.getNamespace() + ":*", category);
+        if (!isCategoryEnabled(category)) return false;
 
-        // get mobCategory and categoryFilter for check
-        ConcurrentHashMap<String, ConcurrentHashMap<String, ListInfo>> map = ListBuilder.getEntityMap();
-        ListInfo listInfo = map.get(modId).get(entityId);
-        MobCategory mobCategory = listInfo.getCategory();
-        HashSet<MobCategory> categoryFilter = ListBuilder.getFilterList();
+        return Config.IS_BLACKLIST.get() != match;
+    }
 
-        if (Config.ENABLE_LIST.get()) return listInfo.getDespawnable() && categoryFilter.contains(mobCategory);
-        return (listInfo.getCategory() == MobCategory.MONSTER && listInfo.getDespawnable());
+    private static boolean shouldDespawnBuiltin(Entity e) {
+        ResourceLocation key = EntityType.getKey(e.getType());
+        return Config.MOB_LIST.get().contains(key.toString()) && e.getType().getCategory() == MobCategory.MONSTER;
     }
 
     private static void despawn(@NotNull Entity entity) {
