@@ -6,12 +6,16 @@ import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.capabilities.CapabilityToken;
 
 public interface ISleepTime {
-    Capability<ISleepTime> SLEEPTIME = CapabilityManager.get(new CapabilityToken<>() { });
+
+    Capability<ISleepTime> SLEEPTIME = CapabilityManager.get(new CapabilityToken<>() {
+    });
 
     CompoundTag write(CompoundTag tag);
+
     void read(CompoundTag tag);
 
     String getSleepTime();
+
     void setSleepTime(String time);
 
 }

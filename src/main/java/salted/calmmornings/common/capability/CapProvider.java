@@ -1,3 +1,4 @@
+
 package salted.calmmornings.common.capability;
 
 import net.minecraft.core.Direction;
@@ -11,8 +12,8 @@ import salted.calmmornings.CalmMornings;
 
 public class CapProvider implements ICapabilitySerializable<CompoundTag> {
 
-    private final LazyOptional<ISleepTime> sleepTimeHandler;
     public static final ResourceLocation NAME = CalmMornings.resLoc("data");
+    private final LazyOptional<ISleepTime> sleepTimeHandler;
 
     public CapProvider(ISleepTime sleepTimeHandler) {
         this.sleepTimeHandler = LazyOptional.of(() -> sleepTimeHandler);

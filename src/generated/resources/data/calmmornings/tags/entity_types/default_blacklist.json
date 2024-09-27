@@ -1,0 +1,16 @@
+{
+  "replace": false,
+  "values": [
+    "minecraft:player",
+    "minecraft:ender_dragon",
+    "minecraft:wither",
+    "minecraft:guardian",
+    "minecraft:elder_guardian",
+    "minecraft:ravager",
+    "#minecraft:raiders",
+    {
+      "id": "sleep_tight:bedbug",
+      "required": false
+    }
+  ]
+}

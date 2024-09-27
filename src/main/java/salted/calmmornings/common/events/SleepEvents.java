@@ -11,21 +11,26 @@ import net.minecraftforge.fml.common.Mod;
 import salted.calmmornings.CalmMornings;
 import salted.calmmornings.common.capability.ISleepTime;
 import salted.calmmornings.common.capability.SleepTime;
-import salted.calmmornings.common.utils.DespawnUtils;
-import salted.calmmornings.common.utils.SleepUtils;
-import salted.calmmornings.common.utils.TimeUtils;
-import salted.calmmornings.common.utils.TimeUtils.Time;
+import salted.calmmornings.common.managers.DespawnManager;
+import salted.calmmornings.common.managers.TimeManager;
+import salted.calmmornings.common.managers.utils.TimeUtils.Time;
 
 @Mod.EventBusSubscriber(modid = CalmMornings.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class SleepEvents {
+
+    private static void updateSleepTime(String time, Player player) {
+        ISleepTime sleepPlayer = SleepTime.get(player);
+        sleepPlayer.setSleepTime(time);
+    }
 
     @SubscribeEvent
     public static void onPlayerSleep(PlayerSleepInBedEvent event) {
         Player player = event.getPlayer();
         Level level = player.getLevel();
         if (level.isClientSide && !(player instanceof ServerPlayer)) return;
+        TimeManager timeManager = new TimeManager();
 
-        Time dayTime = TimeUtils.getTimeSlice(level);
+        Time dayTime = timeManager.getTimeSlice(level);
         CalmMornings.LOGGER.info("Current DayTime: {}", dayTime);
         if (dayTime == null) return; // this should never happen
 
@@ -54,25 +59,22 @@ public class SleepEvents {
         if (level.isClientSide && !(player instanceof ServerPlayer)) return;
         for (ServerPlayer players : server.getPlayerList().getPlayers()) {
             // early return if player isn't sleeping/slept late
-            if (SleepUtils.isPlayerValid(players)) return;
+            TimeManager timeManager = new TimeManager();
+            if (!timeManager.isPlayerValid(players)) return;
 
-            Time levelTime = TimeUtils.getTimeSlice(level);
-            Time playerTime = TimeUtils.getPlayerTimeSlice(players);
-            Time timeChunk = TimeUtils.getPlayerTimeChunk(playerTime);
+            Time levelTime = timeManager.getTimeSlice(level);
+            Time playerTime = timeManager.getPlayerTimeSlice(players);
+            Time timeChunk = timeManager.getPlayerTimeChunk(playerTime);
 
             switch (timeChunk) {
                 case EVENING, NIGHT -> {
-                    if (!SleepUtils.validWakeTime(levelTime)) return;
-                    DespawnUtils.despawnEntities(level, players);
+                    if (!timeManager.validWakeTime(levelTime)) return;
+
+                    DespawnManager despawnManager = new DespawnManager();
+                    despawnManager.despawn(level, players, timeManager);
                 }
             }
         }
-    }
-
-    // private methods for determining values/conditions
-    private static void updateSleepTime(String time, Player player) {
-        ISleepTime sleepPlayer = SleepTime.get(player);
-        sleepPlayer.setSleepTime(time);
     }
 
 }

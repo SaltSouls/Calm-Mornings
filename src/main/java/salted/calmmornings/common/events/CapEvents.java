@@ -15,7 +15,7 @@ import salted.calmmornings.common.capability.ISleepTime;
 import salted.calmmornings.common.capability.SleepTime;
 
 @Mod.EventBusSubscriber(modid = CalmMornings.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
-public class PlayerCapEvents {
+public class CapEvents {
 
     @SubscribeEvent
     public static void attachCapability(AttachCapabilitiesEvent<Entity> event) {
@@ -32,6 +32,8 @@ public class PlayerCapEvents {
     }
 
     @SubscribeEvent
-    public static void onRegisterCapabilities(@NotNull RegisterCapabilitiesEvent event) { event.register(ISleepTime.class); }
+    public static void onRegisterCapabilities(@NotNull RegisterCapabilitiesEvent event) {
+        event.register(ISleepTime.class);
+    }
 
 }

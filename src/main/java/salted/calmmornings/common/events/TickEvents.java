@@ -12,7 +12,7 @@ import salted.calmmornings.common.capability.ISleepTime;
 import salted.calmmornings.common.capability.SleepTime;
 
 @Mod.EventBusSubscriber(modid = CalmMornings.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
-public class PlayerTickEvents {
+public class TickEvents {
 
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent event) {
