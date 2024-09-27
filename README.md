@@ -17,15 +17,15 @@ This mod is highly configurable, and most aspects of what this mod does can be a
 ```toml
 #General Settings
 [general]
-	#Use list instead of mobCategory for despawning?
+	#Use list instead of builtin rules for despawning?
 	enableList = false
-	#List of mobs to despawn. '*' adds all entities in modId. Requires enableList.
-	#Formatting: ["minecraft:zombie", "minecraft:skeleton", "<modId>:<entityId>"]
+	#List of mobs to despawn. [Requires enableList]
+	#Formatting: ["minecraft:zombie", "minecraft:*", "<modId>:<entityId>"]
 	mobs = ["minecraft:zombie", "minecraft:skeleton", "minecraft:spider", "minecraft:creeper"]
-	#Adds mob to custom category. Blacklisted completely prevents despawning. '*' adds all entities in modId.
-	#Formatting: ["minecraft:villager:villager", "minecraft:iron_golem:construct", "<modId>:<entityId>:<mobCategory>"]
-	#Allowed Categories: [boss, monster, villager, creature, ambient, construct, misc, blacklisted]
-	categories = ["minecraft:ender_dragon:boss", "minecraft:wither:boss", "minecraft:warden:boss", "minecraft:villager:villager", "minecraft:wandering_trader:villager", "minecraft:iron_golem:construct", "minecraft:snow_golem:construct"]
+	#Adds mobs to despawn group. Mobs in blacklisted are prevented from despawning.
+	#Allowed Groups: boss, monster, villager, creature, ambient, construct, misc, blacklisted
+	#Formatting: ["minecraft:villager:villager", "minecraft:*:creature", "<modId>:<entityId>:<mobCategory>"]
+	groups = ["minecraft:ender_dragon:boss", "minecraft:wither:boss", "minecraft:warden:boss", "minecraft:villager:villager", "minecraft:wandering_trader:villager", "minecraft:iron_golem:construct", "minecraft:snow_golem:construct"]
 
 #Range Settings
 [range]
@@ -50,22 +50,22 @@ This mod is highly configurable, and most aspects of what this mod does can be a
 	#Should non-sleeping players prevent despawning around them?
 	playerCheck = true
 
-	#Check listed categories when despawning? Requires enableList.
-	[checks.category_checks]
-		#Enable BOSS check?
-		BOSS = false
-		#Enable MONSTER check?
-		MONSTER = true
-		#Enable VILLAGER check?
-		VILLAGER = false
-		#Enable CREATURE check?
-		CREATURE = true
-		#Enable AMBIENT check?
-		AMBIENT = true
-		#Enable CONSTRUCT check?
-		CONSTRUCT = false
-		#Enable MISC check?
-		MISC = false
+	#Group Checks [Requires enableList]
+	[checks.group_checks]
+		#Check boss group?
+		bossCheck = false
+		#Check monster group?
+		monsterCheck = true
+		#Check villager group?
+		villagerCheck = false
+		#Check creature group?
+		creatureCheck = true
+		#Check ambient group?
+		ambientCheck = true
+		#Check construct group?
+		constructCheck = false
+		#Check misc group?
+		miscCheck = false
 ```
 <details>
   <summary><b>FAQ:</b></summary>
