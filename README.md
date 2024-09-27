@@ -69,7 +69,7 @@ This mod is highly configurable, and most aspects of what this mod does can be a
 ```
 <details>
   <summary><b>FAQ:</b></summary>
-	
+
 **Q: How does this work with Persistent mobs?**
 
 A: If they are named, it ignores them; otherwise it will drop their equipment when despawning them.
