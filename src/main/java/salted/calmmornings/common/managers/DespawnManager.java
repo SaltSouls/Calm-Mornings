@@ -59,8 +59,8 @@ public class DespawnManager extends DespawnUtils {
         return validMob && isValidGroup(entity.getType(), group);
     }
 
-    private boolean shouldDespawnBuiltin(EntityType<?> entity, String mobCategory) {
-        return mobCategory.equals(MobCategory.MONSTER.getName()) && !entity.is(CMTags.DEFAULT_BLACKLIST);
+    private boolean shouldDespawnBuiltin(EntityType<?> entity, String group) {
+        return group.equals(MobCategory.MONSTER.getName()) && !entity.is(CMTags.DEFAULT_BLACKLIST);
     }
 
     private void despawnEntity(@NotNull Entity entity) {
