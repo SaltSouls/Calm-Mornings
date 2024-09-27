@@ -8,7 +8,7 @@ import salted.calmmornings.CalmMornings;
 import salted.calmmornings.common.registry.CMData;
 
 @EventBusSubscriber(modid = CalmMornings.MODID, bus = EventBusSubscriber.Bus.GAME)
-public class PlayerDataEvents {
+public class DataEvents {
 
     @SubscribeEvent
     public static void onJoinWorld(EntityJoinLevelEvent event) {

@@ -2,36 +2,71 @@ package salted.calmmornings.common;
 
 import net.neoforged.neoforge.common.ModConfigSpec;
 import salted.calmmornings.CalmMornings;
-import salted.calmmornings.common.utils.TimeUtils.Time;
+import salted.calmmornings.common.managers.utils.TimeUtils.Time;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 public class Config {
     public static ModConfigSpec COMMON_CONFIG;
-    private static final List<String> defaultMobList = new ArrayList<>(List.of("minecraft:zombie", "minecraft:skeleton", "minecraft:spider", "minecraft:creeper"));
-    private static final List<String> defaultCategoryList = new ArrayList<>(List.of("minecraft:villager:creature", "minecraft:iron_golem:creature", "minecraft:snow_golem:creature"));
-    // Configurable Entity Filters
+
+    public static void setupDespawnLists() {
+        // clear entries
+        MOB_GROUP_MAP.clear();
+        MOB_SET.clear();
+
+        // build maps
+        if (!MOB_GROUP_LIST.get().isEmpty()) {
+            MOB_GROUP_LIST.get().forEach(mob -> {
+                String[] split = mob.split(":");
+                if (split.length < 3) {
+                    CalmMornings.LOGGER.error("[{}] does not contain a valid mob category!", mob);
+                    return;
+                }
+                MOB_GROUP_MAP.put(split[0] + ":" + split[1], split[2]);
+            });
+        }
+
+        if (MOB_LIST.get().isEmpty()) return;
+        MOB_SET.addAll(MOB_LIST.get());
+    }
+
+    private static final List<String> defaultMobList = new ArrayList<>(List.of(
+            "minecraft:zombie",
+            "minecraft:skeleton",
+            "minecraft:spider",
+            "minecraft:creeper"
+    ));
+    private static final List<? extends String> defaultMobGroupList = new ArrayList<>(List.of(
+            "minecraft:ender_dragon:boss",
+            "minecraft:wither:boss",
+            "minecraft:warden:boss",
+            "minecraft:villager:villager",
+            "minecraft:wandering_trader:villager",
+            "minecraft:iron_golem:construct",
+            "minecraft:snow_golem:construct"
+    ));
+    public static final HashSet<String> MOB_SET = new HashSet<>();
+    public static final HashMap<String, String> MOB_GROUP_MAP = new HashMap<>();
+
     public static ModConfigSpec.BooleanValue ENABLE_LIST;
-    public static ModConfigSpec.BooleanValue IS_BLACKLIST;
-    public static ModConfigSpec.ConfigValue<List<? extends String>> MOB_LIST;
-    public static ModConfigSpec.ConfigValue<List<? extends String>> MOBCATEGORY_LIST;
+    private static final ModConfigSpec.ConfigValue<List<? extends String>> MOB_LIST;
+    private static final ModConfigSpec.ConfigValue<List<? extends String>> MOB_GROUP_LIST;
     public static ModConfigSpec.BooleanValue ENABLE_SCALING;
     public static ModConfigSpec.IntValue VERTICAL_RANGE;
     public static ModConfigSpec.IntValue HORIZONTAL_RANGE;
     public static ModConfigSpec.EnumValue<Time> LATE_CHECK;
     public static ModConfigSpec.EnumValue<Time> MORNING_CHECK;
     public static ModConfigSpec.BooleanValue PLAYER_CHECK;
-    public static ModConfigSpec.BooleanValue MOB_CHECK;
-    public static ModConfigSpec.BooleanValue BETTER_CHECKING;
-    public static ModConfigSpec.BooleanValue MONSTER;
-    public static ModConfigSpec.BooleanValue CREATURE;
-    public static ModConfigSpec.BooleanValue AXOLOTLS;
-    public static ModConfigSpec.BooleanValue WATER_CREATURE;
-    public static ModConfigSpec.BooleanValue UNDERGROUND_WATER_CREATURE;
-    public static ModConfigSpec.BooleanValue AMBIENT;
-    public static ModConfigSpec.BooleanValue WATER_AMBIENT;
-    public static ModConfigSpec.BooleanValue MISC;
+    public static ModConfigSpec.BooleanValue BOSS_CHECK;
+    public static ModConfigSpec.BooleanValue MONSTER_CHECK;
+    public static ModConfigSpec.BooleanValue VILLAGER_CHECK;
+    public static ModConfigSpec.BooleanValue CREATURE_CHECK;
+    public static ModConfigSpec.BooleanValue AMBIENT_CHECK;
+    public static ModConfigSpec.BooleanValue CONSTRUCT_CHECK;
+    public static ModConfigSpec.BooleanValue MISC_CHECK;
 
     static {
         ModConfigSpec.Builder builder = new ModConfigSpec.Builder();
@@ -40,35 +75,30 @@ public class Config {
         String CATEGORY_GENERAL = "general";
         builder.comment("General Settings").translation(modid + ".config." + "CATEGORY_GENERAL").push(CATEGORY_GENERAL);
         ENABLE_LIST = builder
-                .comment("Use list instead of mobCategory for despawning?")
+                .comment("Use list instead of builtin rules for despawning?")
                 .translation(modid + ".config." + "ENABLE_LIST")
                 .define("enableList", false);
 
-        IS_BLACKLIST = builder
-                .comment("Changes the list to be a blacklist. Requires enableList.")
-                .translation( modid + ".config." + "IS_BLACKLIST")
-                .define("isBlacklist", false);
-
         MOB_LIST = builder
                 .comment("""
-                        List of mobs to despawn. '*' adds all entities in modId. Requires enableList.
-                        Formatting: ["minecraft:zombie", "minecraft:skeleton", "<modId>:<entityId>"]""")
+                            List of mobs to despawn. [Requires enableList]
+                            Formatting: ["minecraft:zombie", "minecraft:*", "<modId>:<entityId>"]""")
                 .translation(modid + ".config." + "MOB_LIST").defineListAllowEmpty(List.of("mobs"), () -> defaultMobList, () -> "", mobs -> mobs instanceof String);
 
-        MOBCATEGORY_LIST = builder
+        MOB_GROUP_LIST = builder
                 .comment("""
-                        Change mob's viewed MobCategory when despawning. '*' adds all entities in modId.
-                        Formatting: ["minecraft:villager:creature", "<modId>:<entityId>:<mobCategory>"]
-                        Allowed Categories: [monster, creature, water_creature, underground_water_creature, ambient, water_ambient, misc]""")
-                .translation(modid + ".config." + "MOBCATEGORY_LIST").defineListAllowEmpty(List.of("changed"), () -> defaultCategoryList, () -> "", mobs -> mobs instanceof String);
+                            Adds mobs to despawn group. Mobs in blacklisted are prevented from despawning.
+                            Allowed Groups: boss, monster, villager, creature, ambient, construct, misc, blacklisted
+                            Formatting: ["minecraft:villager:villager", "minecraft:*:creature", "<modId>:<entityId>:<mobCategory>"]""")
+                .translation(modid + ".config." + "MOB_GROUP_LIST").defineListAllowEmpty(List.of("groups"), () -> defaultMobGroupList, () -> "", groups -> groups instanceof String);
         builder.pop();
 
         String CATEGORY_RANGE = "range";
         builder.comment("Range Settings").translation(modid + ".config." + "CATEGORY_RANGE").push(CATEGORY_RANGE);
         ENABLE_SCALING = builder
                 .comment("""
-                        Should difficulty based range scaling be enabled?
-                        Difficulty Scaling: EASY = base | NORMAL = base / 2 | HARD = base / 4""")
+                            Should difficulty based range scaling be enabled?
+                            Difficulty Scaling: EASY = base | NORMAL = base / 2 | HARD = base / 4""")
                 .translation(modid + ".config." + "ENABLED_SCALING")
                 .define("enableScaling", true);
 
@@ -97,63 +127,48 @@ public class Config {
 
         PLAYER_CHECK = builder
                 .comment("Should non-sleeping players prevent despawning around them?")
-                .translation(modid + ".config." + "ENABLE_PLAYER_CHECK")
+                .translation(modid + ".config." + "PLAYER_CHECK")
                 .define("playerCheck", true);
 
-        MOB_CHECK = builder
-                .comment("Should nearby monsters prevent sleep?")
-                .translation(modid + ".config." + "MOB_CHECK")
+        String CATEGORY_MOB_GROUP_CHECKS = "group_checks";
+        builder.comment("Group Checks [Requires enableList]")
+                .translation(modid + ".config." + "CATEGORY_MOB_GROUP_CHECKS")
+                .push(CATEGORY_MOB_GROUP_CHECKS);
+
+        BOSS_CHECK = builder
+                .comment("Check boss group?")
+                .translation(modid + ".config." + "BOSS_CHECK")
+                .define("bossCheck", false);
+
+        MONSTER_CHECK = builder
+                .comment("Check monster group?")
+                .translation(modid + ".config." + "MONSTER_CHECK")
                 .define("monsterCheck", true);
 
-        BETTER_CHECKING = builder
-                .comment("Should only monsters tracking the player prevent sleep? Requires monsterCheck.")
-                .translation(modid + ".config." + "BETTER_CHECKING")
-                .define("betterChecking", true);
+        VILLAGER_CHECK = builder
+                .comment("Check villager group?")
+                .translation(modid + ".config." + "VILLAGER_CHECK")
+                .define("villagerCheck", false);
 
-        String CATEGORY_MOBCATEGORY_CHECKS = "category_checks";
-        builder.comment("Allow listed MobCategories when despawning? Requires enableList.")
-                .translation(modid + ".config." + "CATEGORY_MOBCATEGORY_CHECKS")
-                .push(CATEGORY_MOBCATEGORY_CHECKS);
+        CREATURE_CHECK = builder
+                .comment("Check creature group?")
+                .translation(modid + ".config." + "CREATURE_CHECK")
+                .define("creatureCheck", true);
 
-        MONSTER = builder
-                .comment("Enable MONSTER check?")
-                .translation(modid + ".config." + "MONSTER")
-                .define("MONSTER", true);
+        AMBIENT_CHECK = builder
+                .comment("Check ambient group?")
+                .translation(modid + ".config." + "AMBIENT_CHECK")
+                .define("ambientCheck", true);
 
-        CREATURE = builder
-                .comment("Enable CREATURE check?")
-                .translation(modid + ".config." + "CREATURE")
-                .define("CREATURE", true);
+        CONSTRUCT_CHECK = builder
+                .comment("Check construct group?")
+                .translation(modid + ".config." + "CONSTRUCT_CHECK")
+                .define("constructCheck", false);
 
-        AXOLOTLS = builder
-                .comment("Enable AXOLOTLS check?")
-                .translation(modid + ".config." + "AXOLOTLS")
-                .define("AXOLOTLS", true);
-
-        WATER_CREATURE = builder
-                .comment("Enable WATER_CREATURE check?")
-                .translation(modid + ".config." + "WATER_CREATURE")
-                .define("WATER_CREATURE", true);
-
-        UNDERGROUND_WATER_CREATURE = builder
-                .comment("Enable UNDERGROUND_WATER_CREATURE check?")
-                .translation(modid + ".config." + "UNDERGROUND_WATER_CREATURE")
-                .define("UNDERGROUND_WATER_CREATURE", true);
-
-        AMBIENT = builder
-                .comment("Enable AMBIENT check?")
-                .translation(modid + ".config." + "AMBIENT")
-                .define("AMBIENT", true);
-
-        WATER_AMBIENT = builder
-                .comment("Enable WATER_AMBIENT check?")
-                .translation(modid + ".config." + "WATER_AMBIENT")
-                .define("WATER_AMBIENT", true);
-
-        MISC = builder
-                .comment("Enable MISC check?")
-                .translation(modid + ".config." + "MISC")
-                .define("MISC", false);
+        MISC_CHECK = builder
+                .comment("Check misc group?")
+                .translation(modid + ".config." + "MISC_CHECK")
+                .define("miscCheck", false);
         builder.pop();
 
         COMMON_CONFIG = builder.build();

@@ -1,9 +1,8 @@
 {
   "calmmornings.config.CATEGORY_GENERAL": "General Settings",
   "calmmornings.config.ENABLE_LIST": "Enable List",
-  "calmmornings.config.IS_BLACKLIST": "Blacklist",
   "calmmornings.config.MOB_LIST": "Mobs",
-  "calmmornings.config.MOBCATEGORY_LIST": "Mob Categories",
+  "calmmornings.config.MOB_GROUP_LIST": "Groups",
 
   "calmmornings.config.CATEGORY_RANGE": "Range Settings",
   "calmmornings.config.ENABLED_SCALING": "Enable Scaling",
@@ -13,19 +12,14 @@
   "calmmornings.config.CATEGORY_CHECKS": "Conditional Checks",
   "calmmornings.config.LATE_CHECK": "Late Check",
   "calmmornings.config.MORNING_CHECK": "Morning Check",
-  "calmmornings.config.ENABLE_PLAYER_CHECK": "Player Check",
-  "calmmornings.config.MOB_CHECK": "Monster Check",
-  "calmmornings.config.BETTER_CHECKING": "Better Checking",
+  "calmmornings.config.PLAYER_CHECK": "Player Check",
 
-  "calmmornings.config.CATEGORY_MOBCATEGORY_CHECKS": "MobCategory Checks",
-  "calmmornings.config.MONSTER": "MONSTER",
-  "calmmornings.config.CREATURE": "CREATURE",
-  "calmmornings.config.AXOLOTLS": "AXOLOTLS",
-  "calmmornings.config.WATER_CREATURE": "WATER_CREATURE",
-  "calmmornings.config.UNDERGROUND_WATER_CREATURE": "UNDERGROUND_WATER_CREATURE",
-  "calmmornings.config.AMBIENT": "AMBIENT",
-  "calmmornings.config.WATER_AMBIENT": "WATER_AMBIENT",
-  "calmmornings.config.MISC": "MISC",
-
-  "calmmornings.sleep.not_safe": "A hostile presence wakes you..."
+  "calmmornings.config.CATEGORY_MOB_GROUP_CHECKS": "Mob Group Checks",
+  "calmmornings.config.BOSS_CHECK": "Boss Check",
+  "calmmornings.config.MONSTER_CHECK": "Monster Check",
+  "calmmornings.config.VILLAGER_CHECK": "Villager Check",
+  "calmmornings.config.CREATURE_CHECK": "Creature Check",
+  "calmmornings.config.AMBIENT_CHECK": "Ambient Check",
+  "calmmornings.config.CONSTRUCT_CHECK": "Construct Check",
+  "calmmornings.config.MISC_CHECK": "Misc Check"
 }

@@ -10,7 +10,7 @@ import salted.calmmornings.CalmMornings;
 import salted.calmmornings.common.registry.CMData;
 
 @EventBusSubscriber(modid = CalmMornings.MODID, bus = EventBusSubscriber.Bus.GAME)
-public class PlayerTickEvents {
+public class TickEvents {
 
     @SubscribeEvent
     public static void onPlayerTick(PlayerTickEvent.Post event) {
