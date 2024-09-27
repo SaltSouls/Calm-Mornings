@@ -17,44 +17,59 @@ This mod is highly configurable, and most aspects of what this mod does can be a
 ```toml
 #General Settings
 [general]
-	#Use list instead of mobCategory for despawning?
-	enableList = true
-	#Changes the list to be a blacklist. Requires enableList.
-	isBlacklist = false
-	#List of mobs to despawn. Requires enableList.
-	#Formatting: ["minecraft:creeper", "minecraft:zombie", "minecraft:spider", "modID:entityID"]
-	mobs = ["minecraft:creeper", "minecraft:zombie", "minecraft:spider"]
+#Use list instead of built-in rules for despawning?
+enableList = false
+#List of mobs to despawn. [Requires enableList]
+#Formatting: ["minecraft:zombie", "minecraft:*", "<modId>:<entityId>"]
+mobs = ["minecraft:zombie", "minecraft:skeleton", "minecraft:spider", "minecraft:creeper"]
+#Adds mobs to despawn group. Mobs in blacklisted are prevented from despawning.
+#Allowed Groups: boss, monster, villager, creature, ambient, construct, misc, blacklisted
+#Formatting: ["minecraft:villager:villager", "minecraft:*:creature", "<modId>:<entityId>:<group>"]
+groups = ["minecraft:ender_dragon:boss", "minecraft:wither:boss", "minecraft:warden:boss", "minecraft:villager:villager", "minecraft:wandering_trader:villager", "minecraft:iron_golem:construct", "minecraft:snow_golem:construct"]
 
 #Range Settings
 [range]
-	#Should difficulty based range scaling be enabled?
-	#Difficulty Scaling: EASY = base | NORMAL = base / 2 | HARD = base / 4
-	enableScaling = true
-	#Horizontal radius to check for mobs to despawn.
-	#Range: 0 ~ 256
-	horizontalRange = 64
-	#Vertical radius to check for mobs to despawn.
-	#Range: 0 ~ 64
-	verticalRange = 16
+#Should difficulty based range scaling be enabled?
+#Difficulty Scaling: EASY = base | NORMAL = base / 2 | HARD = base / 4
+enableScaling = true
+#Horizontal radius to check for mobs to despawn.
+#Range: 0 ~ 256
+horizontalRange = 64
+#Vertical radius to check for mobs to despawn.
+#Range: 0 ~ 64
+verticalRange = 16
 
 #Conditional Checks
 [checks]
-	#Latest time a player can sleep to allow despawning.
-	#Allowed Values: MORNING_E, MORNING, MORNING_L, NOON_E, NOON, NOON_L, EVENING_E, EVENING, EVENING_L, NIGHT_E, NIGHT, NIGHT_L, DISABLED
-	lateCheck = "NIGHT_L"
-	#Latest time a player can wakeup to allow despawning.
-	#Allowed Values: MORNING_E, MORNING, MORNING_L, NOON_E, NOON, NOON_L, EVENING_E, EVENING, EVENING_L, NIGHT_E, NIGHT, NIGHT_L, DISABLED
-	morningCheck = "MORNING_E"
-	#Should non-sleeping players prevent despawning around them?
-	playerCheck = true
-	#Should nearby monsters prevent sleep?
-	monsterCheck = true
-	#Should only monsters tracking the player prevent sleep? Requires monsterCheck.
-	betterChecking = true
+#Player must sleep before this time to allow despawning.
+#Allowed Values: MORNING_E, MORNING, MORNING_L, NOON_E, NOON, NOON_L, EVENING_E, EVENING, EVENING_L, NIGHT_E, NIGHT, NIGHT_L, DISABLED
+lateCheck = "NIGHT_L"
+#Latest time the player can wakeup to allow despawning.
+#Allowed Values: MORNING_E, MORNING, MORNING_L, NOON_E, NOON, NOON_L, EVENING_E, EVENING, EVENING_L, NIGHT_E, NIGHT, NIGHT_L, DISABLED
+morningCheck = "MORNING_E"
+#Should non-sleeping players prevent despawning around them?
+playerCheck = true
+
+#Group Checks [Requires enableList]
+[checks.group_checks]
+#Check boss group?
+bossCheck = false
+#Check monster group?
+monsterCheck = true
+#Check villager group?
+villagerCheck = false
+#Check creature group?
+creatureCheck = true
+#Check ambient group?
+ambientCheck = true
+#Check construct group?
+constructCheck = false
+#Check misc group?
+miscCheck = false
 ```
 <details>
   <summary><b>FAQ:</b></summary>
-	
+
 **Q: How does this work with Persistent mobs?**
 
 A: If they are named, it ignores them; otherwise it will drop their equipment when despawning them.

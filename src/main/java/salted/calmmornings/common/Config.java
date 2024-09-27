@@ -75,7 +75,7 @@ public class Config {
         String CATEGORY_GENERAL = "general";
         builder.comment("General Settings").translation(modid + ".config." + "CATEGORY_GENERAL").push(CATEGORY_GENERAL);
         ENABLE_LIST = builder
-                .comment("Use list instead of builtin rules for despawning?")
+                .comment("Use list instead of built-in rules for despawning?")
                 .translation(modid + ".config." + "ENABLE_LIST")
                 .define("enableList", false);
 
