@@ -17,7 +17,7 @@ This mod is highly configurable, and most aspects of what this mod does can be a
 ```toml
 #General Settings
 [general]
-	#Use list instead of builtin rules for despawning?
+	#Use list instead of built-in rules for despawning?
 	enableList = false
 	#List of mobs to despawn. [Requires enableList]
 	#Formatting: ["minecraft:zombie", "minecraft:*", "<modId>:<entityId>"]
