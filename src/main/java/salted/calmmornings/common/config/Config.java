@@ -96,7 +96,7 @@ public class Config implements IConfig {
                     .comment("""
                             Adds mobs to despawn group. Mobs in blacklisted are prevented from despawning.
                             Allowed Groups: boss, monster, villager, creature, ambient, construct, misc, blacklisted
-                            Formatting: ["minecraft:villager:villager", "minecraft:*:creature", "<modId>:<entityId>:<mobCategory>"]""")
+                            Formatting: ["minecraft:villager:villager", "minecraft:*:creature", "<modId>:<entityId>:<group>"]""")
                     .translation(modid + ".config." + "MOB_GROUP_LIST").defineListAllowEmpty(List.of("groups"), () -> defaultMobGroupList, groups -> groups instanceof String);
             builder.pop();
 

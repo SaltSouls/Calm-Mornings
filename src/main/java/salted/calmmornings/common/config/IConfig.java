@@ -17,7 +17,7 @@ public interface IConfig {
         return COMMON.MOB_SET;
     }
 
-    static Map<String, String> getCategoryMap() {
+    static Map<String, String> getMobGroupMap() {
         return COMMON.MOB_GROUP_MAP;
     }
 
