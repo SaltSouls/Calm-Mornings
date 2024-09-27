@@ -52,16 +52,16 @@ public class DespawnManager extends DespawnUtils {
         String explicitPath = entityKey.toString();
 
         // for check/get custom entity categories
-        String category = getMobCategory(abstractPath, explicitPath, mobCategory);
-        if (!IConfig.getEnableList()) return shouldDespawnBuiltin(entity.getType(), category);
+        String group = getMobGroup(abstractPath, explicitPath, mobCategory);
+        if (!IConfig.getEnableList()) return shouldDespawnBuiltin(entity.getType(), group);
 
         // check if the mob is a valid entity and attempt to despawn
         boolean validMob = IConfig.getMobSet().contains(abstractPath) || IConfig.getMobSet().contains(explicitPath);
-        return validMob && isValidCategory(entity.getType(), category);
+        return validMob && isValidGroup(entity.getType(), group);
     }
 
-    private boolean shouldDespawnBuiltin(EntityType<?> entity, String mobCategory) {
-        return mobCategory.equals(MobCategory.MONSTER.getName()) && !entity.is(CMTags.DEFAULT_BLACKLIST);
+    private boolean shouldDespawnBuiltin(EntityType<?> entity, String group) {
+        return group.equals(MobCategory.MONSTER.getName()) && !entity.is(CMTags.DEFAULT_BLACKLIST);
     }
 
     private void despawnEntity(@NotNull Entity entity) {
