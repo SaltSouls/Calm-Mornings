@@ -19,15 +19,13 @@ This mod is highly configurable, and most aspects of what this mod does can be a
 [general]
 	#Use list instead of mobCategory for despawning?
 	enableList = false
-	#Changes the list to be a blacklist. Requires enableList.
-	isBlacklist = false
 	#List of mobs to despawn. '*' adds all entities in modId. Requires enableList.
 	#Formatting: ["minecraft:zombie", "minecraft:skeleton", "<modId>:<entityId>"]
 	mobs = ["minecraft:zombie", "minecraft:skeleton", "minecraft:spider", "minecraft:creeper"]
-	#Change mob's viewed MobCategory when despawning. '*' adds all entities in modId.
+	#Category to check when despawning. Blacklisted completely prevents despawning. '*' adds all entities in modId.
 	#Formatting: ["minecraft:villager:creature", "<modId>:<entityId>:<mobCategory>"]
-	#Allowed Categories: [monster, creature, water_creature, underground_water_creature, ambient, water_ambient, misc]
-	changed = ["minecraft:villager:creature", "minecraft:iron_golem:creature", "minecraft:snow_golem:creature"]
+	#Allowed Categories: [boss, monster, villager, creature, ambient, construct, misc, blacklisted]
+	categories = ["minecraft:ender_dragon:boss", "minecraft:wither:boss", "minecraft:warden:boss", "minecraft:villager:villager", "minecraft:wandering_trader:villager", "minecraft:iron_golem:construct", "minecraft:snow_golem:construct"]
 
 #Range Settings
 [range]
@@ -51,27 +49,21 @@ This mod is highly configurable, and most aspects of what this mod does can be a
 	morningCheck = "MORNING_E"
 	#Should non-sleeping players prevent despawning around them?
 	playerCheck = true
-	#Should nearby monsters prevent sleep?
-	monsterCheck = true
-	#Should only monsters tracking the player prevent sleep? Requires monsterCheck.
-	betterChecking = true
 
 	#Allow listed MobCategories when despawning? Requires enableList.
 	[checks.category_checks]
+		#Enable BOSS check?
+		BOSS = false
 		#Enable MONSTER check?
 		MONSTER = true
+		#Enable VILLAGER check?
+		VILLAGER = false
 		#Enable CREATURE check?
 		CREATURE = true
-		#Enable AXOLOTLS check?
-		AXOLOTLS = true
-		#Enable WATER_CREATURE check?
-		WATER_CREATURE = true
-		#Enable UNDERGROUND_WATER_CREATURE check?
-		UNDERGROUND_WATER_CREATURE = true
 		#Enable AMBIENT check?
 		AMBIENT = true
-		#Enable WATER_AMBIENT check?
-		WATER_AMBIENT = true
+		#Enable CONSTRUCT check?
+		CONSTRUCT = false
 		#Enable MISC check?
 		MISC = false
 ```
