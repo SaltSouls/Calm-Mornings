@@ -2,7 +2,7 @@
   "calmmornings.config.CATEGORY_GENERAL": "General Settings",
   "calmmornings.config.ENABLE_LIST": "Enable List",
   "calmmornings.config.MOB_LIST": "Mobs",
-  "calmmornings.config.MOBCATEGORY_LIST": "Groups",
+  "calmmornings.config.MOB_GROUP_LIST": "Groups",
 
   "calmmornings.config.CATEGORY_RANGE": "Range Settings",
   "calmmornings.config.ENABLED_SCALING": "Enable Scaling",
