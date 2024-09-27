@@ -29,8 +29,3 @@ license = "${mod_license}"
     mandatory = true
     versionRange = "${forge_version_range}"
     ordering = "NONE"
-[[dependencies."${mod_id}"]]
-    modId = "sleep_tight"
-    mandatory = false
-    versionRange = "${sleeptight_version_range}"
-    ordering = "AFTER"

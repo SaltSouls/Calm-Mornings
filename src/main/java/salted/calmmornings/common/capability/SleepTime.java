@@ -43,12 +43,18 @@ public class SleepTime implements ISleepTime {
     }
 
     @Override
-    public void read(CompoundTag tag) { this.setSleepTime(tag.getString("sleeptime")); }
+    public void read(CompoundTag tag) {
+        this.setSleepTime(tag.getString("sleeptime"));
+    }
 
     @Override
-    public String getSleepTime() { return this.sleepTime; }
+    public String getSleepTime() {
+        return this.sleepTime;
+    }
 
     @Override
-    public void setSleepTime(String time) { this.sleepTime = time; }
+    public void setSleepTime(String time) {
+        this.sleepTime = time;
+    }
 
 }

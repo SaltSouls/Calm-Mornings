@@ -116,3 +116,11 @@ run/
 
 # Avoid ignoring Gradle wrapper jar file (.jar files are usually ignored)
 !gradle-wrapper.jar
+/run-data/logs/2024-09-27-1.log.gz
+/run-data/logs/2024-09-27-2.log.gz
+/run-data/logs/2024-09-27-3.log.gz
+/run-data/logs/debug-1.log.gz
+/run-data/logs/debug-2.log.gz
+/run-data/logs/debug-3.log.gz
+/run-data/config/fml.toml
+/run-data/

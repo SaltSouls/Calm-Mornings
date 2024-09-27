@@ -12,7 +12,7 @@ import salted.calmmornings.common.capability.CapProvider;
 import salted.calmmornings.common.capability.SleepTime;
 
 @Mod.EventBusSubscriber(modid = CalmMornings.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
-public class PlayerCapEvents {
+public class CapEvents {
 
     @SubscribeEvent
     public static void attachCapability(AttachCapabilitiesEvent<Entity> event) {
