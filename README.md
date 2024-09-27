@@ -22,8 +22,8 @@ This mod is highly configurable, and most aspects of what this mod does can be a
 	#List of mobs to despawn. '*' adds all entities in modId. Requires enableList.
 	#Formatting: ["minecraft:zombie", "minecraft:skeleton", "<modId>:<entityId>"]
 	mobs = ["minecraft:zombie", "minecraft:skeleton", "minecraft:spider", "minecraft:creeper"]
-	#Category to check when despawning. Blacklisted completely prevents despawning. '*' adds all entities in modId.
-	#Formatting: ["minecraft:villager:creature", "<modId>:<entityId>:<mobCategory>"]
+	#Adds mob to custom category. Blacklisted completely prevents despawning. '*' adds all entities in modId.
+	#Formatting: ["minecraft:villager:villager", "minecraft:iron_golem:construct", "<modId>:<entityId>:<mobCategory>"]
 	#Allowed Categories: [boss, monster, villager, creature, ambient, construct, misc, blacklisted]
 	categories = ["minecraft:ender_dragon:boss", "minecraft:wither:boss", "minecraft:warden:boss", "minecraft:villager:villager", "minecraft:wandering_trader:villager", "minecraft:iron_golem:construct", "minecraft:snow_golem:construct"]
 
@@ -50,7 +50,7 @@ This mod is highly configurable, and most aspects of what this mod does can be a
 	#Should non-sleeping players prevent despawning around them?
 	playerCheck = true
 
-	#Allow listed MobCategories when despawning? Requires enableList.
+	#Check listed categories when despawning? Requires enableList.
 	[checks.category_checks]
 		#Enable BOSS check?
 		BOSS = false
