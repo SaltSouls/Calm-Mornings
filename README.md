@@ -24,7 +24,7 @@ This mod is highly configurable, and most aspects of what this mod does can be a
     mobs = ["minecraft:zombie", "minecraft:skeleton", "minecraft:spider", "minecraft:creeper"]
     #Adds mobs to despawn group. Mobs in blacklisted are prevented from despawning.
     #Allowed Groups: boss, monster, villager, creature, ambient, construct, misc, blacklisted
-    #Formatting: ["minecraft:villager:villager", "minecraft:*:creature", "<modId>:<entityId>:<mobCategory>"]
+    #Formatting: ["minecraft:villager:villager", "minecraft:*:creature", "<modId>:<entityId>:<group>"]
     groups = ["minecraft:ender_dragon:boss", "minecraft:wither:boss", "minecraft:warden:boss", "minecraft:villager:villager", "minecraft:wandering_trader:villager", "minecraft:iron_golem:construct", "minecraft:snow_golem:construct"]
 
 #Range Settings
