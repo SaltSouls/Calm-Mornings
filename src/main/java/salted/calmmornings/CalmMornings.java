@@ -11,6 +11,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import salted.calmmornings.common.Config;
 
+import static net.neoforged.fml.config.ModConfig.Type.COMMON;
 import static salted.calmmornings.common.registry.CMData.ATTACHMENTS;
 
 // The value here should match an entry in the META-INF/neoforge.mods.toml file
@@ -21,8 +22,7 @@ public class CalmMornings {
 
     public CalmMornings(ModContainer container) {
         IEventBus modEventBus = container.getEventBus();
-        container.registerConfig(ModConfig.Type.COMMON, Config.COMMON_CONFIG);
-        container.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
+        container.registerConfig(COMMON, Config.COMMON_CONFIG);
 
         ATTACHMENTS.register(modEventBus);
     }
