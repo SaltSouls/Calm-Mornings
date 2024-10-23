@@ -89,8 +89,4 @@ A: Only the latest major version will be supported. I may update older versions 
 **Q: Is this compatible with X mod?**
 
 A: I have gone out of my way to try and make this mod as compatible with as many mods as possible. If you experience any incompatibilities, please report the issue here.
-
-**Q: Fabric port?**
-
-A: I have **No** plans on porting to Fabric, but you are more than welcome to do so. I only ask for credit if you do.
 </details>
