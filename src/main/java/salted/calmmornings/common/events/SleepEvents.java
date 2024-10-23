@@ -31,7 +31,6 @@ public class SleepEvents {
         TimeManager timeManager = new TimeManager();
 
         Time dayTime = timeManager.getTimeSlice(level);
-        CalmMornings.LOGGER.info("Current DayTime: {}", dayTime);
         if (dayTime == null) return; // this should never happen
 
         switch (dayTime) {
