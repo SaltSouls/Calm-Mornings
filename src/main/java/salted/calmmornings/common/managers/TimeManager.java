@@ -50,9 +50,9 @@ public class TimeManager extends TimeUtils {
         else return null;
     }
 
-    private boolean isBetweenTimeSlice(TimeManager.Time time, TimeManager.Time slice) {
-        TimeManager.Time lastSlice = getLastTimeSlice(slice);
-        TimeManager.Time nextSlice = getNextTimeSlice(slice);
+    private boolean isBetweenTimeSlice(Time time, Time slice) {
+        Time lastSlice = getLastTimeSlice(slice);
+        Time nextSlice = getNextTimeSlice(slice);
 
         return time.equals(lastSlice) || time.equals(slice) || time.equals(nextSlice);
     }
