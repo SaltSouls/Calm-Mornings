@@ -22,8 +22,11 @@ public class TickEvents {
 
         if (player.isDeadOrDying()) return;
 
-        if (level.isClientSide() && !(event.player instanceof ServerPlayer)) return;
+        if (level.isClientSide() || !(event.player instanceof ServerPlayer)) return;
         ISleepTime sleepPlayer = SleepTime.get(player);
+
+        if (sleepPlayer == null) return;
+
         String sleepTime = sleepPlayer.getSleepTime();
         if (sleepTime.equals("awake") || player.isSleeping()) return;
 
