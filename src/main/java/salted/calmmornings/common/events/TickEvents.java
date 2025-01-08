@@ -18,15 +18,14 @@ public class TickEvents {
     public static void onPlayerTick(PlayerTickEvent event) {
         if (!(event.phase == Phase.END)) return;
         Player player = event.player;
-        Level level = player.level();
 
-        if (player.isDeadOrDying()) return;
+        if (player == null || player.isDeadOrDying()) return;
+        Level level = player.level();
 
         if (level.isClientSide() || !(event.player instanceof ServerPlayer)) return;
         ISleepTime sleepPlayer = SleepTime.get(player);
 
         if (sleepPlayer == null) return;
-
         String sleepTime = sleepPlayer.getSleepTime();
         if (sleepTime.equals("awake") || player.isSleeping()) return;
 
