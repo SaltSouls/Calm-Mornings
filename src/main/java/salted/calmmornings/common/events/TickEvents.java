@@ -17,7 +17,7 @@ public class TickEvents {
         Player player = event.getEntity();
         Level level = player.level();
 
-        if (level.isClientSide() && !(player instanceof ServerPlayer)) return;
+        if (level.isClientSide() || !(player instanceof ServerPlayer)) return;
         String sleepTime = player.getData(CMData.SLEEPTIME);
         if (sleepTime.equals("awake") || player.isSleeping()) return;
 
