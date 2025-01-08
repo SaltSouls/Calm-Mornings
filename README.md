@@ -1,8 +1,8 @@
 <div align="center"><img src="https://cdn.modrinth.com/data/cached_images/03a512a1608c6cb5e62d9d3b402024b0c932eceb.png" /></div>
 
 <div align="center">
-	<img src="https://img.shields.io/badge/mod%20loader-forge%20%2F%20neoforge-blue?style=flat-square"/>
-	<img src="https://cf.way2muchnoise.eu/versions/available%20for_calm-mornings_all(555555-007ec6-fff-fff).svg?badge_style=flat">
+	<img src="https://img.shields.io/badge/mod%20loader-forge%20|%20neoforge-blue?style=flat-square"/>
+	<img src="https://cf.way2muchnoise.eu/versions/available%20for_683324_all(555555-007ec6-fff-fff).svg?badge_style=flat">
 	<a href="https://modrinth.com/mod/calm-mornings"> <img src="https://img.shields.io/modrinth/dt/gfvSVUz9?style=flat-square&logo=modrinth&logoSize=auto&color=4caf50"/></a>
 	<a href="https://www.curseforge.com/minecraft/mc-mods/calm-mornings"> <img src="https://img.shields.io/curseforge/dt/683324?style=flat-square&logo=curseforge&logoSize=auto&color=4caf50"/></a>
 </div>
