@@ -10,7 +10,7 @@ import salted.calmmornings.CalmMornings;
 public class CMTags {
 
     private static <T> ResourceKey<Registry<T>> createRegistryKey() {
-        return ResourceKey.createRegistryKey(new ResourceLocation("entity_type"));
+        return ResourceKey.createRegistryKey(ResourceLocation.withDefaultNamespace("entity_type"));
     }
 
     public static final ResourceKey<Registry<EntityType<?>>> ENTITY_TYPE = createRegistryKey();
