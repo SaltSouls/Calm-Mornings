@@ -1,14 +1,22 @@
 package salted.calmmornings.common.tags;
 
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
-import net.minecraftforge.registries.ForgeRegistries;
 import salted.calmmornings.CalmMornings;
 
 public class CMTags {
 
+    private static <T> ResourceKey<Registry<T>> createRegistryKey() {
+        return ResourceKey.createRegistryKey(new ResourceLocation("entity_type"));
+    }
+
+    public static final ResourceKey<Registry<EntityType<?>>> ENTITY_TYPE = createRegistryKey();
+
     public static final TagKey<EntityType<?>> DEFAULT_BLACKLIST = TagKey.create(
-            ForgeRegistries.ENTITIES.getRegistryKey(),
+            ENTITY_TYPE,
             CalmMornings.resLoc("default_blacklist")
     );
 
