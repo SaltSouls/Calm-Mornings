@@ -22,7 +22,7 @@ public class CMEntityTags extends EntityTypeTagsProvider {
 
     protected void defaultBlacklist() {
         tag(CMTags.DEFAULT_BLACKLIST)
-                .add(EntityType.PLAYER, EntityType.ENDER_DRAGON, EntityType.WITHER, EntityType.GUARDIAN, EntityType.ELDER_GUARDIAN, EntityType.RAVAGER)
+                .add(EntityType.PLAYER, EntityType.ENDER_DRAGON, EntityType.WITHER, EntityType.WARDEN, EntityType.GUARDIAN, EntityType.ELDER_GUARDIAN, EntityType.RAVAGER)
                 .addTag(EntityTypeTags.RAIDERS)
                 .addOptional(new ResourceLocation("sleep_tight", "bedbug"));
     }
