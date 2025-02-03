@@ -17,7 +17,7 @@ public class DataGen {
 
         CMEntityTags entityTags = new CMEntityTags(generator, existingFileHelper);
         if (event.includeServer()) {
-            generator.addProvider(true, entityTags);
+            generator.addProvider(event.includeServer(), entityTags);
         }
     }
 
