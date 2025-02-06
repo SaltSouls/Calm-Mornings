@@ -19,14 +19,18 @@ public class TickEvents {
         if (!(event.phase == Phase.END)) return;
         Player player = event.player;
 
+        // ensure player exists and isn't dying
         if (player == null || player.isDeadOrDying()) return;
         Level level = player.getLevel();
 
+        // ensure player is on the server
         if (level.isClientSide() || !(event.player instanceof ServerPlayer)) return;
-        ISleepTime sleepPlayer = SleepTime.get(player);
 
+        // ensure sleep player isn't null(not sure why this would happen)
+        ISleepTime sleepPlayer = SleepTime.get(player);
         if (sleepPlayer == null) return;
 
+        // make sure player isn't already awake or currently sleeping
         String sleepTime = sleepPlayer.getSleepTime();
         if (sleepTime.equals("awake") || player.isSleeping()) return;
 

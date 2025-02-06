@@ -114,6 +114,7 @@ public class DespawnManager extends DespawnUtils {
     }
 
     private boolean isOtherPlayerValid(Player player, Player player2, AABB area, TimeManager timeManager) {
+        if (!(player instanceof ServerPlayer && player2 instanceof ServerPlayer)) return false;
         if (!player2.equals(player) && timeManager.isPlayerValid(player) && notCheater(player2)) return true;
         despawnSelected(player, area);
         return false;

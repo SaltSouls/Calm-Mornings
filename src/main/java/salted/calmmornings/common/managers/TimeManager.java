@@ -24,7 +24,10 @@ public class TimeManager extends TimeUtils {
     }
 
     public Time getPlayerTimeSlice(Player player) {
+        // ensure sleep player isn't null(not sure why this would happen)
         ISleepTime sleepPlayer = SleepTime.get(player);
+        if (sleepPlayer == null) return timeError("player");
+
         String sleepTime = sleepPlayer.getSleepTime();
 
         return switch (sleepTime) {
@@ -67,9 +70,12 @@ public class TimeManager extends TimeUtils {
     }
 
     public boolean isPlayerValid(Player player) {
-        if (!(player instanceof ServerPlayer)) return false;
+        if (!(player instanceof ServerPlayer) || player.isDeadOrDying()) return false;
 
+        // ensure sleep player isn't null(not sure why this would happen)
         ISleepTime sleepPlayer = SleepTime.get(player);
+        if (sleepPlayer == null) return false;
+
         String sleepTime = sleepPlayer.getSleepTime();
         Time playerTime = getPlayerTimeSlice(player);
 
