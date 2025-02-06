@@ -65,10 +65,10 @@ public class TimeManager extends TimeUtils {
     }
 
     public boolean isPlayerValid(Player player) {
-        if (!(player instanceof ServerPlayer serverPlayer)) return false;
+        if (!(player instanceof ServerPlayer) || player.isDeadOrDying()) return false;
 
         String sleepTime = player.getData(CMData.SLEEPTIME);
-        Time playerTime = getPlayerTimeSlice(serverPlayer);
+        Time playerTime = getPlayerTimeSlice(player);
 
         return !(sleepTime.equals("awake") || sleptLate(playerTime));
     }

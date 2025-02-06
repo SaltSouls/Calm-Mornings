@@ -8,8 +8,8 @@ public class TimeUtils {
 
     private boolean getTime(Level level, Time time) {
         if (level == null || time == null) return false; // this should never happen
-        long start = time.start;
-        long end = time.end;
+        long start = time.getStart();
+        long end = time.getEnd();
         /* apparently, this is how the game gets the time of day. don't know
          * why it doesn't reset to 0 on waking or hitting 24000, but whatever. */
         long dayTime = level.getDayTime() % dayLength;
@@ -32,12 +32,12 @@ public class TimeUtils {
     }
 
     private boolean isBetweenTime(Time time, long start, long end) {
-        return time.start >= start && time.end <= end;
+        return time.getStart() >= start && time.getEnd() <= end;
     }
 
     protected boolean isWithinPreviousSlices(Time time, Time slice) {
         Time startSlice = time.equals(Time.MORNING_E) ? time : Time.MORNING_E;
-        return isBetweenTime(time, startSlice.start, slice.end);
+        return isBetweenTime(time, startSlice.getStart(), slice.getEnd());
     }
 
     protected Time getLastTimeSlice(Time time) {
@@ -60,7 +60,7 @@ public class TimeUtils {
 
     protected boolean isWithinFollowingSlices(Time time, Time slice) {
         Time endSlice = time.equals(Time.NIGHT_L) ? time : Time.NIGHT_L;
-        return isBetweenTime(time, slice.start, endSlice.end);
+        return isBetweenTime(time, slice.getStart(), endSlice.getEnd());
     }
 
     protected Time getNextTimeSlice(Time time) {
