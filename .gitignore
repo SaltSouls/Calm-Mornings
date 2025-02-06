@@ -124,3 +124,4 @@ run/
 /run-data/logs/debug-3.log.gz
 /run-data/config/fml.toml
 /run-data/
+/src/generated/resources/.cache/
