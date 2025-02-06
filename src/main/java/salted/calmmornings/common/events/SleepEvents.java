@@ -53,11 +53,16 @@ public class SleepEvents {
         Level level = player.level();
         MinecraftServer server = level.getServer();
 
+        // ensure server isn't null
+        if (server == null) return;
+
         if (level.isClientSide && !(player instanceof ServerPlayer)) return;
         for (ServerPlayer players : server.getPlayerList().getPlayers()) {
             // early return if player isn't sleeping/slept late
             TimeManager timeManager = new TimeManager();
-            if (!timeManager.isPlayerValid(players)) return;
+
+            // make sure the player isn't null and that they are valid
+            if (players == null || !timeManager.isPlayerValid(players)) return;
 
             Time levelTime = timeManager.getTimeSlice(level);
             Time playerTime = timeManager.getPlayerTimeSlice(players);
