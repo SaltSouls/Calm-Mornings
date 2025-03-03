@@ -94,6 +94,7 @@ dependencies {
     minecraft "net.minecraftforge:forge:${minecraft_version}-${forge_version}"
 
     // do not compile against
+    runtimeOnly fg.deobf("maven.modrinth:let-me-sleep:${letmesleep_version}")
     runtimeOnly fg.deobf("maven.modrinth:hourglass:${hourglass_version}")
     runtimeOnly fg.deobf("curse.maven:configured-457570:${configured_version}")
     runtimeOnly fg.deobf("curse.maven:catalogue-459701:${catalogue_version}")
