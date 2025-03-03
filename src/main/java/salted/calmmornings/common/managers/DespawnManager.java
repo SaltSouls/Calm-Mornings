@@ -74,7 +74,7 @@ public class DespawnManager extends DespawnUtils {
 
             // drop items with 100% drop chance(picked up/inventory items)
             if (entity instanceof Mob mob && mob.isPersistenceRequired()) {
-                DamageSource source = new DamageSource("despawned");
+                DamageSource source = new DamageSource("despawn");
                 mob.dropCustomDeathLoot(source, 0, false);
                 mob.discard();
             } else if (entity instanceof LivingEntity livingEntity) {
