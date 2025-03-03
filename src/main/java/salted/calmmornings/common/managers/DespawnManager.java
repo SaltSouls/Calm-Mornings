@@ -65,7 +65,7 @@ public class DespawnManager extends DespawnUtils {
     }
 
     private void despawnEntity(@NotNull Entity entity) {
-        Level level = entity.getLevel();
+        Level level = entity.level();
 
         // ignore entities with custom names
         if (shouldDespawn(entity) && !entity.hasCustomName()) {
