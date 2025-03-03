@@ -65,7 +65,7 @@ public class DespawnManager extends DespawnUtils {
     }
 
     private void despawnEntity(@NotNull Entity entity) {
-        Level level = entity.level();
+        Level level = entity.getLevel();
 
         // ignore entities with custom names
         if (shouldDespawn(entity) && !entity.hasCustomName()) {
@@ -74,7 +74,7 @@ public class DespawnManager extends DespawnUtils {
 
             // drop items with 100% drop chance(picked up/inventory items)
             if (entity instanceof Mob mob && mob.isPersistenceRequired()) {
-                DamageSource source = level.damageSources().generic();
+                DamageSource source = level.damageSources().genericKill();
                 mob.dropCustomDeathLoot(source, 0, false);
                 mob.discard();
             } else if (entity instanceof LivingEntity livingEntity) {
