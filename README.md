@@ -50,7 +50,7 @@ This mod is highly configurable, and most aspects of what this mod does can be a
     #Should non-sleeping players prevent despawning around them?
     playerCheck = true
 
-    #Group Checks [Requires enableList]
+    #Group Checks [Disabled by enableList]
     [checks.group_checks]
         #Check boss group?
         bossCheck = false
@@ -59,9 +59,9 @@ This mod is highly configurable, and most aspects of what this mod does can be a
         #Check villager group?
         villagerCheck = false
         #Check creature group?
-        creatureCheck = true
+        creatureCheck = false
         #Check ambient group?
-        ambientCheck = true
+        ambientCheck = false
         #Check construct group?
         constructCheck = false
         #Check misc group?

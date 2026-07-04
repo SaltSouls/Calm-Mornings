@@ -23,7 +23,7 @@ public class TimeManager extends TimeUtils {
     }
 
     public Time getPlayerTimeSlice(Player player) {
-        String sleepTime = player.getData(CMData.SLEEPTIME);
+        String sleepTime = player.getData(CMData.SLEEPTIME.get());
 
         return switch (sleepTime) {
             case "early_morning" -> Time.MORNING_E;
@@ -66,8 +66,7 @@ public class TimeManager extends TimeUtils {
 
     public boolean isPlayerValid(Player player) {
         if (!(player instanceof ServerPlayer) || player.isDeadOrDying()) return false;
-
-        String sleepTime = player.getData(CMData.SLEEPTIME);
+        String sleepTime = player.getData(CMData.SLEEPTIME.get());
         Time playerTime = getPlayerTimeSlice(player);
 
         return !(sleepTime.equals("awake") || sleptLate(playerTime));
