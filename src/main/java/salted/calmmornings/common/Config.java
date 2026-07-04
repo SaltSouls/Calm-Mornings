@@ -131,7 +131,7 @@ public class Config {
                 .define("playerCheck", true);
 
         String CATEGORY_MOB_GROUP_CHECKS = "group_checks";
-        builder.comment("Group Checks [Requires enableList]")
+        builder.comment("Group Checks [Disabled by enableList]")
                 .translation(modid + ".config." + "CATEGORY_MOB_GROUP_CHECKS")
                 .push(CATEGORY_MOB_GROUP_CHECKS);
 
@@ -153,12 +153,12 @@ public class Config {
         CREATURE_CHECK = builder
                 .comment("Check creature group?")
                 .translation(modid + ".config." + "CREATURE_CHECK")
-                .define("creatureCheck", true);
+                .define("creatureCheck", false);
 
         AMBIENT_CHECK = builder
                 .comment("Check ambient group?")
                 .translation(modid + ".config." + "AMBIENT_CHECK")
-                .define("ambientCheck", true);
+                .define("ambientCheck", false);
 
         CONSTRUCT_CHECK = builder
                 .comment("Check construct group?")

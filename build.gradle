@@ -1,3 +1,7 @@
+import org.slf4j.event.Level
+import org.gradle.api.provider.ValueSource
+import org.gradle.api.provider.ValueSourceParameters
+
 plugins {
     id 'java-library'
     id 'eclipse'
@@ -24,6 +28,12 @@ base {
 
 java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
+abstract class RandomDevName implements ValueSource<String, ValueSourceParameters.None> {
+    @Override String obtain() { 'Dev' + (System.currentTimeMillis() % 100000) }
+}
+
+def randomName = providers.of(RandomDevName) {}
+
 neoForge {
     version = project.neo_version
 
@@ -35,16 +45,13 @@ neoForge {
 //    accessTransformers.add('src/main/resources/META-INF/accesstransformer.cfg')
 
     runs {
-        client1 {
-            client()
-            programArgument '--username=Dev1'
-            systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
-        }
 
-        client2 {
+        client {
             client()
-            programArgument '--username=Dev2'
+            jvmArgument '-Djava.net.preferIPv4Stack=true'
             systemProperty 'neoforge.enabledGameTestNamespaces', project.mod_id
+            programArguments.add('--username')
+            programArguments.add(randomName)
         }
 
         server {
@@ -66,7 +73,7 @@ neoForge {
         // applies to all the run configs above
         configureEach {
             systemProperty 'forge.logging.markers', 'REGISTRIES'
-            logLevel = org.slf4j.event.Level.DEBUG
+            logLevel = Level.DEBUG
         }
     }
 

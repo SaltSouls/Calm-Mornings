@@ -20,6 +20,7 @@ public class CalmMornings {
         IEventBus modEventBus = container.getEventBus();
         container.registerConfig(COMMON, Config.COMMON_CONFIG);
 
+        assert modEventBus != null;
         ATTACHMENTS.register(modEventBus);
     }
 

@@ -48,26 +48,41 @@ public class DespawnUtils {
     }
 
     protected String getMobGroup(String abstractPath, String explicitPath, String mobCategory) {
-        Map<String, String> group = Config.MOB_GROUP_MAP;
-        if (group.containsKey(abstractPath)) return group.get(abstractPath);
-        else return group.getOrDefault(explicitPath, mobCategory);
+        Map<String, String> customCategories = Config.MOB_GROUP_MAP;
+        if (customCategories.containsKey(explicitPath)) return customCategories.get(explicitPath);
+        return customCategories.getOrDefault(abstractPath, mobCategory);
+    }
+
+    private static final List<String> CREATURE_CATEGORIES = List.of(
+            MobCategory.CREATURE.getName(),
+            MobCategory.AXOLOTLS.getName(),
+            MobCategory.WATER_CREATURE.getName(),
+            MobCategory.UNDERGROUND_WATER_CREATURE.getName()
+    );
+
+    private static final List<String> AMBIENT_CATEGORIES = List.of(
+            MobCategory.AMBIENT.getName(),
+            MobCategory.WATER_AMBIENT.getName()
+    );
+
+    private String normalizeCategory(String category) {
+        if (CREATURE_CATEGORIES.contains(category)) return "creature";
+        if (AMBIENT_CATEGORIES.contains(category))  return "ambient";
+        return category;
     }
 
     protected boolean isValidGroup(EntityType<?> entity, String group) {
-        List<String> creatures = List.of(MobCategory.CREATURE.getName(), MobCategory.AXOLOTLS.getName(), MobCategory.WATER_CREATURE.getName(), MobCategory.UNDERGROUND_WATER_CREATURE.getName());
-        List<String> ambient = List.of(MobCategory.AMBIENT.getName(), MobCategory.WATER_AMBIENT.getName());
-
-        if (!isValidCustomGroup(group)) group = entity.getCategory().getName();
+        if (!isValidCustomGroup(group)) group = normalizeCategory(entity.getCategory().getName());
 
         return switch (group) {
-            case "boss" -> Config.BOSS_CHECK.get();
-            case "monster" -> group.equals(MobCategory.MONSTER.getName()) && Config.MONSTER_CHECK.get();
-            case "villager" -> Config.VILLAGER_CHECK.get();
-            case "creature" -> creatures.contains(group) && Config.CREATURE_CHECK.get();
-            case "ambient" -> ambient.contains(group) && Config.AMBIENT_CHECK.get();
+            case "boss"      -> Config.BOSS_CHECK.get();
+            case "monster"   -> Config.MONSTER_CHECK.get();
+            case "villager"  -> Config.VILLAGER_CHECK.get();
+            case "creature"  -> Config.CREATURE_CHECK.get();
+            case "ambient"   -> Config.AMBIENT_CHECK.get();
             case "construct" -> Config.CONSTRUCT_CHECK.get();
-            case "misc" -> group.equals(MobCategory.MISC.getName()) && Config.MISC_CHECK.get();
-            default -> false;
+            case "misc"      -> Config.MISC_CHECK.get();
+            default          -> false;
         };
     }
 

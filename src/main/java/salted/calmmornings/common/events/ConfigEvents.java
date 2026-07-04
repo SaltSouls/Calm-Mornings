@@ -11,6 +11,12 @@ import salted.calmmornings.common.Config;
 public class ConfigEvents {
 
     @SubscribeEvent
+    public static void onLoad(ModConfigEvent.Loading event) {
+        if (!event.getConfig().getModId().equals(CalmMornings.MODID)) return;
+        Config.setupDespawnLists();
+    }
+
+    @SubscribeEvent
     public static void onConfigUpdate(ModConfigEvent.Reloading event) {
         if (!event.getConfig().getModId().equals(CalmMornings.MODID)) return;
         Config.setupDespawnLists();
