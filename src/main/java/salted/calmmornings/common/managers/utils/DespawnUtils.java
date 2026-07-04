@@ -86,8 +86,6 @@ public class DespawnUtils {
         };
     }
 
-
-
     private boolean isValidCustomGroup(String group) {
         return switch (group) {
             case "boss", "monster", "villager", "creature", "ambient", "construct", "misc", "blacklisted" -> true;
