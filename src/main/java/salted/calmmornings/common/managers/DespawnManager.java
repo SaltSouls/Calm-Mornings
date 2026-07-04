@@ -7,9 +7,11 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -20,6 +22,7 @@ import salted.calmmornings.common.tags.CMTags;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class DespawnManager extends DespawnUtils {
 
@@ -80,21 +83,28 @@ public class DespawnManager extends DespawnUtils {
     private void despawnEntity(@NotNull Entity entity) {
         Level level = entity.level();
 
-        // never despawn named mobs
+        // never despawn blacklisted/named mobs
         if (!shouldDespawn(entity) || entity.hasCustomName()) return;
-
         // get entities position for particles
         Vec3 vec = Vec3.atBottomCenterOf(entity.blockPosition());
-
-        // drop custom loot before despawning
-        if (entity instanceof Mob mob) {
-            mob.dropCustomDeathLoot(level.damageSources().genericKill(), 0, false);
-        }
+        if (entity instanceof Mob mob) { dropCustomEquipment(mob); }
         entity.discard();
 
         // spawn poof particles at previous entity location
-        if (!(level instanceof ServerLevel serverLevel)) return;
+        if (level.isClientSide) return;
+        ServerLevel serverLevel = Objects.requireNonNull(level.getServer()).getLevel(level.dimension());
+        assert serverLevel != null;
         serverLevel.sendParticles(ParticleTypes.POOF, vec.x(), vec.y() + 1.0D, vec.z(), 15, 0.05D, 0.50D, 0.05D, 0.001D);
+    }
+
+    private void dropCustomEquipment(Mob mob) {
+        for (EquipmentSlot slot : EquipmentSlot.values()) {
+            ItemStack stack = mob.getItemBySlot(slot);
+            if (stack.isEmpty() || mob.getEquipmentDropChance(slot) < 1.0F) continue;
+
+            mob.spawnAtLocation(stack);
+            mob.setItemSlot(slot, ItemStack.EMPTY);
+        }
     }
 
     private boolean isOtherPlayerValid(Player player, Player other) {
