@@ -49,27 +49,44 @@ public class DespawnUtils {
 
     protected String getMobGroup(String abstractPath, String explicitPath, String mobCategory) {
         Map<String, String> customCategories = IConfig.getMobGroupMap();
-        if (customCategories.containsKey(abstractPath)) return customCategories.get(abstractPath);
-        else return customCategories.getOrDefault(explicitPath, mobCategory);
+        if (customCategories.containsKey(explicitPath)) return customCategories.get(explicitPath);
+        return customCategories.getOrDefault(abstractPath, mobCategory);
+    }
+
+    private static final List<String> CREATURE_CATEGORIES = List.of(
+            MobCategory.CREATURE.getName(),
+            MobCategory.AXOLOTLS.getName(),
+            MobCategory.WATER_CREATURE.getName(),
+            MobCategory.UNDERGROUND_WATER_CREATURE.getName()
+    );
+
+    private static final List<String> AMBIENT_CATEGORIES = List.of(
+            MobCategory.AMBIENT.getName(),
+            MobCategory.WATER_AMBIENT.getName()
+    );
+
+    private String normalizeCategory(String category) {
+        if (CREATURE_CATEGORIES.contains(category)) return "creature";
+        if (AMBIENT_CATEGORIES.contains(category))  return "ambient";
+        return category;
     }
 
     protected boolean isValidGroup(EntityType<?> entity, String group) {
-        List<String> creatures = List.of(MobCategory.CREATURE.getName(), MobCategory.AXOLOTLS.getName(), MobCategory.WATER_CREATURE.getName(), MobCategory.UNDERGROUND_WATER_CREATURE.getName());
-        List<String> ambient = List.of(MobCategory.AMBIENT.getName(), MobCategory.WATER_AMBIENT.getName());
-
-        if (!isValidCustomGroup(group)) group = entity.getCategory().getName();
+        if (!isValidCustomGroup(group)) group = normalizeCategory(entity.getCategory().getName());
 
         return switch (group) {
-            case "boss" -> IConfig.getBossCheck();
-            case "monster" -> group.equals(MobCategory.MONSTER.getName()) && IConfig.getMonsterCheck();
-            case "villager" -> IConfig.getVillagerCheck();
-            case "creature" -> creatures.contains(group) && IConfig.getCreatureCheck();
-            case "ambient" -> ambient.contains(group) && IConfig.getAmbientCheck();
+            case "boss"      -> IConfig.getBossCheck();
+            case "monster"   -> IConfig.getMonsterCheck();
+            case "villager"  -> IConfig.getVillagerCheck();
+            case "creature"  -> IConfig.getCreatureCheck();
+            case "ambient"   -> IConfig.getAmbientCheck();
             case "construct" -> IConfig.getConstructCheck();
-            case "misc" -> group.equals(MobCategory.MISC.getName()) && IConfig.getMiscCheck();
-            default -> false;
+            case "misc"      -> IConfig.getMiscCheck();
+            default          -> false;
         };
     }
+
+
 
     private boolean isValidCustomGroup(String group) {
         return switch (group) {

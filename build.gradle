@@ -53,13 +53,10 @@ minecraft {
         }
 
         client {
+            def id = System.currentTimeMillis() % 100000
+            jvmArgs '-Djava.net.preferIPv4Stack=true'
             property 'forge.enabledGameTestNamespaces', mod_id
-            args '--username', 'Dev1'
-        }
-
-        client2 {
-            property 'forge.enabledGameTestNamespaces', mod_id
-            args '--username', 'Dev2'
+            args '--username', "Dev${id}"
         }
 
         server {

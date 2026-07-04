@@ -16,8 +16,8 @@ public class CapEvents {
 
     @SubscribeEvent
     public static void attachCapability(AttachCapabilitiesEvent<Entity> event) {
-        if (event.getObject() instanceof Player player) {
-            event.addCapability(CapProvider.NAME, new CapProvider(new SleepTime(player)));
+        if (event.getObject() instanceof Player) {
+            event.addCapability(CapProvider.NAME, new CapProvider(new SleepTime()));
         }
     }
 

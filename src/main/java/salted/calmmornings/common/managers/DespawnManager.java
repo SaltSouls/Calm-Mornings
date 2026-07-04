@@ -5,8 +5,9 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Difficulty;
-import net.minecraft.world.damagesource.DamageSource;
-import net.minecraft.world.entity.*;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -17,6 +18,9 @@ import salted.calmmornings.common.config.IConfig;
 import salted.calmmornings.common.managers.utils.DespawnUtils;
 import salted.calmmornings.common.tags.CMTags;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DespawnManager extends DespawnUtils {
 
     @NotNull
@@ -25,79 +29,77 @@ public class DespawnManager extends DespawnUtils {
         return new AABB(vec3.x() - horizontal, vec3.y() - vertical, vec3.z() - horizontal, vec3.x() + horizontal, vec3.y() + vertical, vec3.z() + horizontal);
     }
 
-    public void despawn(Level level, ServerPlayer player, TimeManager timeManager) {
+    public void despawn(Level level, ServerPlayer player) {
         Difficulty difficulty = level.getDifficulty();
+        if (difficulty == Difficulty.PEACEFUL) return;
 
-        if (difficulty == Difficulty.PEACEFUL) return;  // do nothing if peaceful
         double scaling = scaling(difficulty);
         double h = Math.round(IConfig.getHorizontalRange() / scaling);
         double v = Math.round(IConfig.getVerticalRange() / scaling);
         AABB area = newAABB(player, h, v);
 
-        // see if we should check for players and if they're nearby
-        if (!playerCheck(player, h, area)) return;
-
-        for (Player others : level.getNearbyPlayers(TargetingConditions.forNonCombat(), player, area)) {
-            // makes sure the other player isn't the main player, sleeping, or cheating
-            if (!isOtherPlayerValid(player, others, area, timeManager)) return;
-            despawnSelected(player, others, area);
+        // player-check off, or no valid player near the sleeper → clear everything
+        if (!hasNearbyPlayer(player, h, area)) {
+            despawnSelected(player, area);
+            return;
         }
+
+        // collect one protected zone per valid nearby player
+        List<AABB> exclusions = new ArrayList<>();
+        for (Player other : level.getNearbyPlayers(TargetingConditions.forNonCombat(), player, area)) {
+            if (!isOtherPlayerValid(player, other)) continue;
+            exclusions.add(exclusionFor(other, area, difficulty));
+        }
+
+        // despawn anything not shielded by any awake player zones
+        if (!exclusions.isEmpty()) despawnExcluding(player, area, exclusions);
     }
 
     private boolean shouldDespawn(@NotNull Entity entity) {
-        ResourceLocation entityKey = EntityType.getKey(entity.getType());
-        String mobCategory = entity.getType().getCategory().getName();
-        String modId = entityKey.getNamespace();
-        String abstractPath = modId + ":*";
+        EntityType<?> type = entity.getType();
+        ResourceLocation entityKey = EntityType.getKey(type);
+        String abstractPath = entityKey.getNamespace() + ":*";
         String explicitPath = entityKey.toString();
+        String group = getMobGroup(abstractPath, explicitPath, type.getCategory().getName());
 
-        // for check/get custom entity categories
-        String group = getMobGroup(abstractPath, explicitPath, mobCategory);
-        if (!IConfig.getEnableList()) return shouldDespawnBuiltin(entity.getType(), group);
+        if (isBlacklisted(type, group)) return false;
 
-        // check if the mob is a valid entity and attempt to despawn
-        boolean validMob = IConfig.getMobSet().contains(abstractPath) || IConfig.getMobSet().contains(explicitPath);
-        return validMob && isValidGroup(entity.getType(), group);
+        // gather entities by either group/list depending on selected mode
+        if (IConfig.getEnableList()) {
+            return IConfig.getMobSet().contains(abstractPath) || IConfig.getMobSet().contains(explicitPath);
+        }
+        return isValidGroup(type, group);
     }
 
-    private boolean shouldDespawnBuiltin(EntityType<?> entity, String group) {
-        return group.equals(MobCategory.MONSTER.getName()) && !entity.is(CMTags.DEFAULT_BLACKLIST);
+    private boolean isBlacklisted(EntityType<?> type, String group) {
+        // checks for blacklisted mobs using either config or entity tag
+        if (group.equals("blacklisted")) return true;
+        return !IConfig.getEnableList() && type.is(CMTags.DEFAULT_BLACKLIST);
     }
 
     private void despawnEntity(@NotNull Entity entity) {
         Level level = entity.level();
 
-        // ignore entities with custom names
-        if (shouldDespawn(entity) && !entity.hasCustomName()) {
-            // get entity's position for particles
-            Vec3 vec = Vec3.atBottomCenterOf(entity.blockPosition());
+        // never despawn named mobs
+        if (!shouldDespawn(entity) || entity.hasCustomName()) return;
 
-            // drop items with 100% drop chance(picked up/inventory items)
-            if (entity instanceof Mob mob && mob.isPersistenceRequired()) {
-                DamageSource source = level.damageSources().genericKill();
-                mob.dropCustomDeathLoot(source, 0, false);
-                mob.discard();
-            } else if (entity instanceof LivingEntity livingEntity) {
-                if (livingEntity instanceof Player) return; // this should never happen
-                livingEntity.dropEquipment();
-                livingEntity.discard();
-            } else entity.discard();
+        // get entities position for particles
+        Vec3 vec = Vec3.atBottomCenterOf(entity.blockPosition());
 
-            // spawn poof particles
-            if (!(level instanceof ServerLevel serverLevel)) return;
-            serverLevel.sendParticles(ParticleTypes.POOF, vec.x(), vec.y() + 1.0D, vec.z(), 15, 0.05D, 0.50D, 0.05D, 0.001D);
+        // drop custom loot before despawning
+        if (entity instanceof Mob mob) {
+            mob.dropCustomDeathLoot(level.damageSources().genericKill(), 0, false);
         }
+        entity.discard();
+
+        // spawn poof particles at previous entity location
+        if (!(level instanceof ServerLevel serverLevel)) return;
+        serverLevel.sendParticles(ParticleTypes.POOF, vec.x(), vec.y() + 1.0D, vec.z(), 15, 0.05D, 0.50D, 0.05D, 0.001D);
     }
 
-    private void despawnSelected(@NotNull Player player, Player player2, AABB area) {
-        Level level = player.level();
-        Difficulty difficulty = level.getDifficulty();
-
-        AABB area1 = newAABB(player2, 8.0D * (scaling(difficulty) / 2.0D), 6.0D);
-        AABB exclusion = area1.intersect(area);
-        for (Entity entity : level.getEntities(null, area)) {
-            if (!isWithinArea(entity, exclusion)) despawnEntity(entity);
-        }
+    private boolean isOtherPlayerValid(Player player, Player other) {
+        if (!(player instanceof ServerPlayer && other instanceof ServerPlayer)) return false;
+        return !other.equals(player) && notCheater(other);
     }
 
     private void despawnSelected(@NotNull Player player, AABB area) {
@@ -105,20 +107,24 @@ public class DespawnManager extends DespawnUtils {
         for (Entity entity : level.getEntities(null, area)) despawnEntity(entity);
     }
 
-    private boolean playerCheck(Player player, double h, AABB area) {
-        if (IConfig.getPlayerCheck()) {
-            Player nearby = getNearbyPlayer(player, h * 1.25D);
-            if (!player.equals(nearby) && notCheater(nearby) && isWithinArea(player, area)) return true;
-        }
-        despawnSelected(player, area);
-        return false;
+    private boolean hasNearbyPlayer(Player player, double h, AABB area) {
+        if (!IConfig.getPlayerCheck()) return false;
+        Player nearby = getNearbyPlayer(player, h * 1.25D);
+        return !player.equals(nearby) && notCheater(nearby) && isWithinArea(player, area);
     }
 
-    private boolean isOtherPlayerValid(Player player, Player player2, AABB area, TimeManager timeManager) {
-        if (!(player instanceof ServerPlayer && player2 instanceof ServerPlayer)) return false;
-        if (!player2.equals(player) && timeManager.isPlayerValid(player) && notCheater(player2)) return true;
-        despawnSelected(player, area);
-        return false;
+    private AABB exclusionFor(Player other, AABB area, Difficulty difficulty) {
+        AABB box = newAABB(other, 8.0D * (scaling(difficulty) / 2.0D), 6.0D);
+        return box.intersect(area);
+    }
+
+    private void despawnExcluding(Player player, AABB area, List<AABB> exclusions) {
+        Level level = player.level();
+        for (Entity entity : level.getEntities(null, area)) {
+            if (exclusions.stream().noneMatch(zone -> isWithinArea(entity, zone))) {
+                despawnEntity(entity);
+            }
+        }
     }
 
 }

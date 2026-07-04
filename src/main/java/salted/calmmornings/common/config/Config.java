@@ -48,7 +48,7 @@ public class Config implements IConfig {
                 "minecraft:spider",
                 "minecraft:creeper"
         ));
-        private static final List<? extends String> defaultMobGroupList = new ArrayList<>(List.of(
+        private static final List<String> defaultMobGroupList = new ArrayList<>(List.of(
                 "minecraft:ender_dragon:boss",
                 "minecraft:wither:boss",
                 "minecraft:warden:boss",
@@ -138,7 +138,7 @@ public class Config implements IConfig {
                     .define("playerCheck", true);
 
             String CATEGORY_MOB_GROUP_CHECKS = "group_checks";
-            builder.comment("Group Checks [Requires enableList]")
+            builder.comment("Group Checks [Disabled by enableList]")
                     .translation(modid + ".config." + "CATEGORY_MOB_GROUP_CHECKS")
                     .push(CATEGORY_MOB_GROUP_CHECKS);
 
@@ -160,12 +160,12 @@ public class Config implements IConfig {
             CREATURE_CHECK = builder
                     .comment("Check creature group?")
                     .translation(modid + ".config." + "CREATURE_CHECK")
-                    .define("creatureCheck", true);
+                    .define("creatureCheck", false);
 
             AMBIENT_CHECK = builder
                     .comment("Check ambient group?")
                     .translation(modid + ".config." + "AMBIENT_CHECK")
-                    .define("ambientCheck", true);
+                    .define("ambientCheck", false);
 
             CONSTRUCT_CHECK = builder
                     .comment("Check construct group?")

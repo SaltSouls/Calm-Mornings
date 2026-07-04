@@ -1,6 +1,5 @@
 package salted.calmmornings.common.capability;
 
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.util.FakePlayer;
 
@@ -10,12 +9,10 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 public class SleepTime implements ISleepTime {
-    private final Player player;
     private String sleepTime = "awake";
 
-    public SleepTime(Player player) {
+    public SleepTime() {
         super();
-        this.player = player;
     }
 
     public static ISleepTime get(Player player) {
@@ -34,17 +31,6 @@ public class SleepTime implements ISleepTime {
 
         Optional<ISleepTime> optional = player.getCapability(ISleepTime.SLEEPTIME).resolve();
         return optional.map(action).orElse(elseSupplier.get());
-    }
-
-    @Override
-    public CompoundTag write(CompoundTag tag) {
-        tag.putString("sleeptime", this.getSleepTime());
-        return tag;
-    }
-
-    @Override
-    public void read(CompoundTag tag) {
-        this.setSleepTime(tag.getString("sleeptime"));
     }
 
     @Override
